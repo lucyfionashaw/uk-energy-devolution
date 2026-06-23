@@ -1,0 +1,8 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+.~lock.*#
+
+# Keep the data/ JSON + workbook (they are the source of truth for data.js)

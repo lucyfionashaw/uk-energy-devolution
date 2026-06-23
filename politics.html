@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Party Politics — The Politics of Power</title>
+<meta name="description" content="Does the controlling party of a council change whether energy gets approved? The answer depends entirely on the technology.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Section 02 · Party</div>
+    <h1>Does the town hall's party matter?</h1>
+    <p class="lede">Each local application is decided by a council, and councils have a political colour. By joining every project to the party in control of its planning authority, we can ask a sharp question: does who runs the council change what gets built? The honest answer — <em>only for the technology people can see from their window.</em></p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="section-num">All technologies</div>
+    <h2>Approval by who controls the council</h2>
+    <p class="dek">Across all locally-decided projects, approval is high under every party — between 85% and 93%. At this altitude, partisanship barely registers. The interesting variation is hiding inside one technology.</p>
+    <div class="card">
+      <h3>Approval rate by controlling party — all technologies</h3>
+      <p class="sub">Locally-decided projects, coloured by party. Bar width is not capacity; this is decision rate only.</p>
+      <div class="chart-box" id="byParty"></div>
+      <div class="source">REPD Q1 2026 joined to council control. 12,805 of 13,397 locally-routed projects matched to a controlling party.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">The contested technology</div>
+    <h2>Onshore wind is where party bites</h2>
+    <p class="dek">Strip out the easy approvals and look only at onshore wind — the visible, contested, neighbour-bothering technology. Now the parties separate cleanly, in exactly the order you might expect.</p>
+    <div class="card">
+      <h3>Onshore wind: approval rate by controlling party</h3>
+      <div class="chart-box short" id="onshoreParty"></div>
+      <div class="source">REPD Q1 2026, onshore wind only, decided applications.</div>
+    </div>
+    <div class="callout">
+      <span class="tag">Local control matters here</span>
+      <p><strong>Conservative-controlled councils approve onshore wind at 61%, against Labour's 69%, the Lib Dems' 71% and the SNP's 75%.</strong> A 14-point spread on the one technology where a turbine on the ridgeline is a live local fight.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">Contested vs uncontested</div>
+    <h2>For everything else, party disappears</h2>
+    <p class="dek">Put the three big technologies side by side. Solar and batteries are approved at 88%+ under every party — the spread collapses to a few points. Partisanship only surfaces where the build is visible and contested.</p>
+    <div class="card">
+      <h3>Approval rate by party, across three technologies</h3>
+      <p class="sub">Onshore wind spreads ~14 points across parties; solar ~5; battery ~6.</p>
+      <div class="chart-box tall" id="techParty"></div>
+      <div class="source">REPD Q1 2026. Parties shown where 50+ decided projects exist for the technology.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">Aligned with Westminster?</div>
+    <h2>Does it matter if the council matches the government?</h2>
+    <p class="dek">A natural hypothesis: councils run by the same party as the UK government wave projects through. The data says — barely, overall. And where it does show up, the cause is tangled.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>All technologies</h3>
+        <p class="sub">Council party = Westminster party, vs differs.</p>
+        <div class="chart-box short" id="align"></div>
+      </div>
+      <div class="card">
+        <h3>Onshore wind only</h3>
+        <p class="sub">The aligned bar is <em>lower</em> — see the caveat.</p>
+        <div class="chart-box short" id="alignOnshore"></div>
+      </div>
+    </div>
+    <div class="callout gold">
+      <span class="tag">Read this descriptively, not causally</span>
+      <p>Across all technologies, alignment makes almost no difference (90.0% vs 88.8%). For onshore wind, "aligned" councils approve <em>less</em> (60.9% vs 67.1%) — but that is mostly an artefact: the aligned years are dominated by Conservative councils under a Conservative government during the 2015–2023 onshore-wind moratorium. This cut describes a correlation, not a cause.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="callout">
+      <span class="tag">A note on Northern Ireland</span>
+      <p>Northern Ireland's councils could not be matched to this Great Britain party-control dataset, so its ~590 projects sit outside the party analysis. The four-nations comparisons on the <a href="devolution.html">devolution page</a> still include NI in full.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p style="font-size:.84rem;color:var(--ink-faint)">REPD Q1 2026 joined to UK council control (1973–2026). National-government timeline: Lab 1997–2010, Con-led Coalition 2010–15, Con 2015–Jul 2024, Lab from Jul 2024. The Politics of Power.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="charts.js"></script>
+<script src="nav.js"></script>
+<script>
+const P = window.PHASE2;  // phase2_data.json holds the council-party / alignment analysis
+const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
+const pc = p => C.party[p] || C.party["Other/Ind"];
+const PRETTY = { LibDem: "Lib Dem", "Other/Ind": "Other / Ind", "Nationalist (pre-2007)": "Nat. (pre-2007)" };
+const lab = p => PRETTY[p] || p;
+
+// 1. all-tech by party (sorted desc), drop tiny groups
+const all = Object.entries(P.byParty)
+  .filter(([k, v]) => v.n >= 80)
+  .sort((a, b) => b[1].approvalRate - a[1].approvalRate);
+new Chart(mk("byParty"), {
+  type: "bar",
+  data: { labels: all.map(([k]) => lab(k)), datasets: [{ data: all.map(([, v]) => v.approvalRate), backgroundColor: all.map(([k]) => pc(k)), borderRadius: 5, maxBarThickness: 46 }] },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.pct(c.parsed.y)}  ·  ${fmt.n(all[c.dataIndex][1].n)} projects` } } },
+    scales: { y: axis({ min: 60, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+// 2. onshore by party
+const ons = Object.entries(P.byPartyOnshore)
+  .filter(([k, v]) => v.n >= 50)
+  .sort((a, b) => b[1].approvalRate - a[1].approvalRate);
+new Chart(mk("onshoreParty"), {
+  type: "bar",
+  data: { labels: ons.map(([k]) => lab(k)), datasets: [{ data: ons.map(([, v]) => v.approvalRate), backgroundColor: ons.map(([k]) => pc(k)), borderRadius: 5, maxBarThickness: 56 }] },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.pct(c.parsed.y)}  ·  ${fmt.n(ons[c.dataIndex][1].n)} projects` } } },
+    scales: { y: axis({ min: 40, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+// 3. grouped: onshore / solar / battery by party
+const parties = ["Con", "Lab", "LibDem", "SNP"];
+const techSets = [
+  { key: "byPartyOnshore", name: "Onshore wind" },
+  { key: "byPartySolar", name: "Solar PV" },
+  { key: "byPartyBattery", name: "Battery" },
+];
+new Chart(mk("techParty"), {
+  type: "bar",
+  data: {
+    labels: techSets.map(t => t.name),
+    datasets: parties.map(p => ({
+      label: lab(p),
+      data: techSets.map(t => P[t.key][p] ? P[t.key][p].approvalRate : null),
+      backgroundColor: pc(p), borderRadius: 4, maxBarThickness: 40,
+    })),
+  },
+  options: {
+    plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt.pct(c.parsed.y)}` } } },
+    scales: { y: axis({ min: 50, max: 100, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+// 4 & 5. alignment
+function alignChart(id, data) {
+  new Chart(mk(id), {
+    type: "bar",
+    data: {
+      labels: ["Aligned\nwith Westminster", "Differs from\nWestminster"],
+      datasets: [{ data: [data.aligned.approvalRate, data.misaligned.approvalRate], backgroundColor: [C.green, C.gold], borderRadius: 5, maxBarThickness: 70 }],
+    },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt.pct(c.parsed.y) } } },
+      scales: {
+        y: axis({ min: id === "alignOnshore" ? 50 : 80, ticks: { callback: v => v + "%" } }),
+        x: axis({ grid: { display: false }, ticks: { callback: function (v) { return this.getLabelForValue(v).split("\n"); } } }),
+      },
+    },
+  });
+}
+alignChart("align", P.align);
+alignChart("alignOnshore", P.alignOnshore);
+</script>
+</body>
+</html>

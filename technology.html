@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Britain Is Trying To Build — The Politics of Power</title>
+<meta name="description" content="The solar boom, the battery surge and the collapse of English onshore wind, told through planning applications by technology.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Section 04 · Technology</div>
+    <h1>What Britain is trying to build</h1>
+    <p class="lede">The mix of what developers propose has been rewritten twice in fifteen years: first the great solar surge, then the arrival of grid-scale batteries. And running underneath it all, the long shadow of the policies that nearly killed onshore wind in England.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="section-num">The shifting pipeline</div>
+    <h2>Applications, year by year</h2>
+    <p class="dek">Solar applications exploded from 2011, crashed when subsidies were cut mid-decade, then roared back. Batteries went from non-existent to a major share after 2017. Onshore wind, once the dominant technology, faded to a trickle.</p>
+    <div class="card">
+      <h3>New planning applications by technology</h3>
+      <div class="legend" id="techLegend"></div>
+      <div class="chart-box tall" id="appsTech"></div>
+      <div class="source">REPD Q1 2026, by year of application. Four largest technologies shown.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">The divergence</div>
+    <h2>The two approval stories</h2>
+    <p class="dek">Overall approval rates have drifted upward to ~90%. But that headline hides onshore wind, whose English approval rate collapsed through the early 2010s as policy turned against it — and only recovered once applications had already migrated to Scotland.</p>
+    <div class="card">
+      <h3>Approval rate over time: all technologies vs onshore wind</h3>
+      <div class="chart-box" id="approvalTrend"></div>
+      <div class="source">REPD Q1 2026, decided applications by year of decision.</div>
+    </div>
+    <div class="callout">
+      <span class="tag">The scar</span>
+      <p>Onshore wind approval fell from ~64% in 2008 to <strong>40% by 2014</strong> — the years of mounting local-objection powers and the run-up to the 2015 English moratorium. It has since climbed back above 80%, but a decade of building was lost.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">Outcomes by technology</div>
+    <h2>Approval rates across the board</h2>
+    <p class="dek">Most technologies clear 90%. Onshore wind is the conspicuous outlier — the only major technology where roughly a third of decided projects are turned down.</p>
+    <div class="card">
+      <h3>Approval rate by technology</h3>
+      <p class="sub">Technologies with 100+ projects, decided applications.</p>
+      <div class="chart-box tall" id="funnelTech"></div>
+      <div class="source">REPD Q1 2026.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">The end of the line</div>
+    <h2>Decommissioned: the first generation retires</h2>
+    <p class="dek">A small but growing list of early renewable sites — Britain's first commercial wind farm at Delabole, pioneer tidal devices, landfill-gas plants — have now been decommissioned, the leading edge of an asset base that will need replacing.</p>
+    <div class="card">
+      <h3 id="decomCount"></h3>
+      <p class="sub">A selection of retired sites in the database.</p>
+      <div style="overflow-x:auto"><table id="decomTable"></table></div>
+      <div class="source">REPD Q1 2026, status = Decommissioned.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p style="font-size:.84rem;color:var(--ink-faint)">Renewable Energy Planning Database (REPD), Q1 2026 · DESNZ. The Politics of Power.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="charts.js"></script>
+<script src="nav.js"></script>
+<script>
+const P1 = window.PHASE1;
+const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
+
+// 1. apps by tech (stacked area)
+const at = P1.appsByTech;
+const techCols = [
+  { k: "Solar", name: "Solar", c: C.tech.Solar },
+  { k: "OnshoreWind", name: "Onshore wind", c: C.tech.OnshoreWind },
+  { k: "Battery", name: "Battery", c: C.tech.Battery },
+  { k: "OffshoreWind", name: "Offshore wind", c: C.tech.OffshoreWind },
+];
+document.getElementById("techLegend").innerHTML = techCols.map(t => `<span><i style="background:${t.c}"></i>${t.name}</span>`).join("");
+new Chart(mk("appsTech"), {
+  type: "line",
+  data: {
+    labels: at.map(d => d.year),
+    datasets: techCols.map(t => ({
+      label: t.name, data: at.map(d => d[t.k]),
+      borderColor: t.c, backgroundColor: t.c + "cc",
+      fill: true, stack: "s", tension: .3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 1,
+    })),
+  },
+  options: {
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { display: false } },
+    scales: { y: axis({ stacked: true, title: { display: true, text: "applications submitted" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+// 2. approval trend dual line
+const ov = P1.approvalOverallByYear, on = P1.approvalOnshoreByYear;
+new Chart(mk("approvalTrend"), {
+  type: "line",
+  data: {
+    labels: ov.map(d => d.year),
+    datasets: [
+      { label: "All technologies", data: ov.map(d => d.approvalPct), borderColor: C.green, backgroundColor: C.green, borderWidth: 3, tension: .3, pointRadius: 0, pointHoverRadius: 4 },
+      { label: "Onshore wind", data: on.map(d => d.approvalPct), borderColor: C.tech.OnshoreWind, backgroundColor: C.tech.OnshoreWind, borderWidth: 3, borderDash: [5, 4], tension: .3, pointRadius: 0, pointHoverRadius: 4 },
+    ],
+  },
+  options: {
+    interaction: { mode: "index", intersect: false },
+    plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt.pct(c.parsed.y)}` } } },
+    scales: { y: axis({ min: 30, max: 100, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+// 3. funnel by tech approval rate
+const ft = P1.funnelTech.filter(d => d.n >= 100).sort((a, b) => a.approvalRatePct - b.approvalRatePct);
+const techColour = name => C.tech[name] || (name.includes("Wind Onshore") ? C.tech.OnshoreWind : C.greenL);
+new Chart(mk("funnelTech"), {
+  type: "bar",
+  data: { labels: ft.map(d => d.tech), datasets: [{ data: ft.map(d => d.approvalRatePct), backgroundColor: ft.map(d => d.tech === "Wind Onshore" ? C.refuse : C.greenL), borderRadius: 4, maxBarThickness: 26 }] },
+  options: {
+    indexAxis: "y",
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.pct(c.parsed.x)}  ·  ${fmt.n(ft[c.dataIndex].n)} projects` } } },
+    scales: { x: axis({ min: 60, max: 100, ticks: { callback: v => v + "%" } }), y: axis({ grid: { display: false }, ticks: { font: { size: 11 } } }) },
+  },
+});
+
+// 4. decommissioned table
+const dc = P1.decommissioned;
+document.getElementById("decomCount").textContent = `${dc.length} decommissioned sites`;
+const rows = dc.slice().sort((a, b) => (+b.capMW) - (+a.capMW)).slice(0, 12);
+document.getElementById("decomTable").innerHTML =
+  `<thead><tr><th>Site</th><th>Technology</th><th>Nation</th><th class="num">MW</th></tr></thead><tbody>` +
+  rows.map(r => `<tr><td>${r.site}</td><td>${r.tech}</td><td>${r.country}</td><td class="num">${r.capMW}</td></tr>`).join("") +
+  `</tbody>`;
+</script>
+</body>
+</html>

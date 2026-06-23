@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Politics of Power — UK energy devolution dashboard</title>
+<meta name="description" content="Who gets to build energy in Britain? A data dashboard on the planning politics of the energy transition across England, Scotland, Wales and Northern Ireland.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">UK Energy &amp; Devolution</div>
+    <h1>Who gets to build energy in Britain?</h1>
+    <p class="lede">Every wind farm, solar park and battery starts as a planning application. Whether it gets built depends on which nation it sits in, who controls the council, and which of Britain's four planning systems decides its fate. This is the politics of the energy transition, read through 14,000 planning decisions.</p>
+    <p class="byline">Source: Renewable Energy Planning Database (REPD), Q1 2026 · joined to UK council political control, 1973–2026.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="stats" id="topstats"></div>
+  </section>
+
+  <section>
+    <div class="section-num">The big picture</div>
+    <h2>From application to switched-on</h2>
+    <p class="dek">Of the projects that have reached a decision, the great majority are approved — Britain's planning system says "yes" far more than it says "no". The attrition that matters happens <em>after</em> consent: in the long road from a granted permission to an operating power station.</p>
+    <div class="card">
+      <h3>The planning funnel</h3>
+      <p class="sub">All technologies, projects (left axis) — submitted through to operational. National-route projects (offshore wind, large schemes) included.</p>
+      <div class="chart-box" id="funnel"></div>
+      <div class="source">REPD Q1 2026. "Granted" includes all live consents; "Built" = under construction or operational; "Operational" = generating today.</div>
+    </div>
+    <div class="callout">
+      <span class="tag">The headline</span>
+      <p><strong>89% of decided projects are approved</strong> — but only about a quarter of all capacity that has ever been proposed is actually generating today. The bottleneck is not the planning committee's "no". It is everything that happens between "yes" and the grid.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">Read the story</div>
+    <h2>Four ways into the data</h2>
+    <p class="dek">The dashboard is built around the political geography of consent. Each section takes one thread.</p>
+    <div class="story-grid">
+      <a class="story-card" href="devolution.html">
+        <div class="sc-num">01</div>
+        <h3>Four nations, four systems</h3>
+        <p>Scotland routes a quarter of its projects through Edinburgh; England sends barely one in sixty to Westminster. How devolution reshaped who decides.</p>
+        <div class="go">Explore the four nations →</div>
+      </a>
+      <a class="story-card" href="politics.html">
+        <div class="sc-num">02</div>
+        <h3>Does the town hall's party matter?</h3>
+        <p>Approval rates by the political control of the deciding council — and where party actually moves the needle (it's onshore wind).</p>
+        <div class="go">Explore party politics →</div>
+      </a>
+      <a class="story-card" href="speed.html">
+        <div class="sc-num">03</div>
+        <h3>The planning machine</h3>
+        <p>How long decisions take, why big projects crawl, and how developers size schemes at 49.9 MW to dodge the national route.</p>
+        <div class="go">Explore the machine →</div>
+      </a>
+      <a class="story-card" href="technology.html">
+        <div class="sc-num">04</div>
+        <h3>What Britain is trying to build</h3>
+        <p>The solar boom, the battery surge, and the collapse of English onshore wind after the 2015 de-facto ban.</p>
+        <div class="go">Explore the technologies →</div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div>
+        <h4>About this dashboard</h4>
+        <p>A non-commercial data project on the politics of Britain's energy transition. The underlying analysis joins the Renewable Energy Planning Database to the political composition of every deciding local authority, and separates locally-decided projects from those consented through the devolved/national routes (Scotland's Section 36, Westminster's NSIP/DCO regime, the Planning Inspectorate and Secretary of State).</p>
+        <p>Figures cover 14,316 projects representing 375 GW of proposed capacity. Approval rates are calculated on decided applications only.</p>
+      </div>
+      <div>
+        <h4>Data sources</h4>
+        <ul>
+          <li>Renewable Energy Planning Database (REPD), Q1 2026 — DESNZ</li>
+          <li>UK local election results &amp; council control, 1973–2026</li>
+          <li>Planning Inspectorate / NSIP decisions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+<script src="charts.js"></script>
+<script src="nav.js"></script>
+<script>
+const P1 = window.PHASE1, o = P1.overall;
+
+// stat tiles
+document.getElementById("topstats").innerHTML = [
+  { num: fmt.n(o.n), lab: "planning records analysed" },
+  { num: fmt.gw(o.cap), suf: " GW", lab: "of capacity ever proposed" },
+  { num: fmt.pct(o.approvalRatePct), lab: "of decided projects approved" },
+  { num: fmt.pct(o.nationalPct), lab: "decided by the national / devolved route" },
+].map(s => `<div class="stat"><div class="num">${s.num}${s.suf ? `<small>${s.suf}</small>` : ""}</div><div class="lab">${s.lab}</div></div>`).join("");
+
+// funnel
+const stages = [
+  { k: "Submitted", v: o.n,        c: C.inkFaint },
+  { k: "Granted",   v: o.granted,  c: C.greenL },
+  { k: "Built / under construction", v: o.built, c: C.green },
+  { k: "Operational today", v: o.op, c: C.greenD || "#0c4a2f" },
+];
+const fbox = document.getElementById("funnel");
+const fc = document.createElement("canvas"); fbox.appendChild(fc);
+new Chart(fc, {
+  type: "bar",
+  data: {
+    labels: stages.map(s => s.k),
+    datasets: [{ data: stages.map(s => s.v), backgroundColor: stages.map(s => s.c), borderRadius: 5, maxBarThickness: 56 }],
+  },
+  options: {
+    indexAxis: "y",
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => `${fmt.n(ctx.parsed.x)} projects` } },
+    },
+    scales: {
+      x: axis({ ticks: { callback: v => fmt.n(v) } }),
+      y: axis({ grid: { display: false } }),
+    },
+  },
+});
+</script>
+</body>
+</html>
