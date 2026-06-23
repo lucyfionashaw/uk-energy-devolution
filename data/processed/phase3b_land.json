@@ -1,0 +1,11 @@
+{"window":"2015-2026","totApprovedMW":98516,"rows":[
+{"party":"Con","approvedMW":41735,"nApproved":2768,"approvedSharePct":42.4,"avgLandKm2":99269,"landSharePct":42.0,"mwPerKm2PerYr":0.035},
+{"party":"Lab","approvedMW":26287,"nApproved":2140,"approvedSharePct":26.7,"avgLandKm2":26445,"landSharePct":11.2,"mwPerKm2PerYr":0.083},
+{"party":"LibDem","approvedMW":9115,"nApproved":715,"approvedSharePct":9.3,"avgLandKm2":17159,"landSharePct":7.3,"mwPerKm2PerYr":0.044},
+{"party":"SNP","approvedMW":4455,"nApproved":366,"approvedSharePct":4.5,"avgLandKm2":19288,"landSharePct":8.2,"mwPerKm2PerYr":0.019},
+{"party":"Plaid","approvedMW":916,"nApproved":46,"approvedSharePct":0.9,"avgLandKm2":6727,"landSharePct":2.8,"mwPerKm2PerYr":0.011},
+{"party":"Green","approvedMW":2089,"nApproved":113,"approvedSharePct":2.1,"avgLandKm2":1827,"landSharePct":0.8,"mwPerKm2PerYr":0.095},
+{"party":"Reform","approvedMW":3216,"nApproved":71,"approvedSharePct":3.3,"avgLandKm2":1499,"landSharePct":0.6,"mwPerKm2PerYr":0.179},
+{"party":"Sinn Fein","approvedMW":783,"nApproved":115,"approvedSharePct":0.8,"avgLandKm2":9105,"landSharePct":3.9,"mwPerKm2PerYr":0.007},
+{"party":"DUP","approvedMW":848,"nApproved":86,"approvedSharePct":0.9,"avgLandKm2":4688,"landSharePct":2.0,"mwPerKm2PerYr":0.015},
+{"party":"Other/Ind","approvedMW":8798,"nApproved":475,"approvedSharePct":8.9,"avgLandKm2":48098,"landSharePct":20.3,"mwPerKm2PerYr":0.015}]}

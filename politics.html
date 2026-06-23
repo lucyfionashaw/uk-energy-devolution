@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Party Politics — The Politics of Power</title>
 <meta name="description" content="Does the controlling party of a council change whether energy gets approved? The answer depends entirely on the technology.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -68,6 +65,33 @@
   <hr class="divider">
 
   <section>
+    <div class="section-num">Land and power</div>
+    <h2>Capacity approved per square kilometre controlled</h2>
+    <p class="dek">Parties don't just control councils — they control <em>land</em>. Setting the renewable capacity each party has approved against the area of the councils it runs asks a sharper question: not "what share do you approve?" but "how much do you get built per acre you hold?"</p>
+    <div class="card">
+      <h3>Approved MW per km² of land controlled, by party</h3>
+      <p class="sub">Current (2026) council control × capacity approved to date. Higher means more renewable capacity squeezed from each km² held.</p>
+      <div class="chart-box" id="landDensity"></div>
+      <div class="source">REPD Q1 2026 × ONS Standard Area Measurement (Dec 2024), lower-tier councils — 358 councils, 242,645 km².</div>
+    </div>
+    <div class="callout">
+      <span class="tag">The land-rich build the least</span>
+      <p><strong>Conservative councils control ~60,000 km² — three times Labour's 21,000 — yet approve just 0.68 MW/km² against Labour's 1.13.</strong> Labour squeezes roughly 1.65× more renewable capacity from each km² it runs. The land-rich rural Lib&nbsp;Dem (0.44), SNP (0.32) and independent-led (0.27) councils hold much of Britain's countryside but are the least dense of all.</p>
+    </div>
+    <div class="card">
+      <h3>Share of land controlled vs share of capacity approved</h3>
+      <p class="sub">Where the green bar tops the grey, a party has approved more capacity than its share of land would imply.</p>
+      <div class="chart-box" id="landShare"></div>
+    </div>
+    <div class="callout gold">
+      <span class="tag">Important caveats</span>
+      <p>This is a <strong>snapshot</strong> — it pairs <em>today's</em> council control with <em>cumulative</em> approvals, so it conflates where capacity sits with who actually approved it. Reform's high figure especially reflects councils it won in 2025 that already had pipelines, not Reform decisions. Density also tracks land <em>type</em>: urban Labour areas host dense solar and batteries, while rural shires host contested onshore wind. Read it as geography-meets-politics, not a league table of party virtue.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
     <div class="section-num">Aligned with Westminster?</div>
     <h2>Does it matter if the council matches the government?</h2>
     <p class="dek">A natural hypothesis: councils run by the same party as the UK government wave projects through. The data says — barely, overall. And where it does show up, the cause is tangled.</p>
@@ -92,7 +116,7 @@
   <section>
     <div class="callout">
       <span class="tag">A note on Northern Ireland</span>
-      <p>Northern Ireland's councils could not be matched to this Great Britain party-control dataset, so its ~590 projects sit outside the party analysis. The four-nations comparisons on the <a href="devolution.html">devolution page</a> still include NI in full.</p>
+      <p>Northern Ireland's councils sit outside the GB approval-rate and Westminster-alignment charts above, but they <em>are</em> included in the land analysis (Sinn Féin and DUP). The four-nations comparisons on the <a href="devolution.html">devolution page</a> include NI in full.</p>
     </div>
   </section>
 
@@ -164,7 +188,36 @@ new Chart(mk("techParty"), {
   },
 });
 
-// 4 & 5. alignment
+// 4. land density — approved MW per km² controlled, by party
+const LAND = window.PHASE3_LAND;
+const landDesc = LAND.landRows.slice().sort((a, b) => b.mwPerKm2 - a.mwPerKm2);
+new Chart(mk("landDensity"), {
+  type: "bar",
+  data: { labels: landDesc.map(r => lab(r.party)), datasets: [{ data: landDesc.map(r => r.mwPerKm2), backgroundColor: landDesc.map(r => pc(r.party)), borderRadius: 5, maxBarThickness: 46 }] },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = landDesc[c.dataIndex]; return [`${r.mwPerKm2.toFixed(2)} MW per km²`, `${fmt.n(r.approvedMW)} MW approved · ${fmt.n(r.landKm2)} km² · ${r.councils} councils`]; } } } },
+    scales: { y: axis({ title: { display: true, text: "approved MW per km²" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+// 5. land share vs approval share, by party
+const landShare = LAND.landRows.slice().sort((a, b) => b.approvedSharePct - a.approvedSharePct);
+new Chart(mk("landShare"), {
+  type: "bar",
+  data: {
+    labels: landShare.map(r => lab(r.party)),
+    datasets: [
+      { label: "Share of land controlled", data: landShare.map(r => r.landSharePct), backgroundColor: C.inkFaint, borderRadius: 4, maxBarThickness: 28 },
+      { label: "Share of approved capacity", data: landShare.map(r => r.approvedSharePct), backgroundColor: C.green, borderRadius: 4, maxBarThickness: 28 },
+    ],
+  },
+  options: {
+    plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt.pct(c.parsed.y)}` } } },
+    scales: { y: axis({ ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+// 6 & 7. alignment
 function alignChart(id, data) {
   new Chart(mk(id), {
     type: "bar",

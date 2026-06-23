@@ -13,6 +13,7 @@
     party: {
       Con: "#0087dc", Lab: "#e4003b", LibDem: "#faa61a", "Lib Dem": "#faa61a",
       SNP: "#d9bf00", Plaid: "#005b54", Green: "#02a95b", Reform: "#12b6cf",
+      "Sinn Fein": "#326760", DUP: "#b81e26",
       "Other/Ind": "#9b9b9b", "Nationalist (pre-2007)": "#7a6f9b",
     },
     // grey ramp for technologies (renewables get colour where it matters)
@@ -32,7 +33,7 @@
   };
 
   if (window.Chart) {
-    Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+    Chart.defaults.font.family = "Tahoma, Verdana, 'Segoe UI', sans-serif";
     Chart.defaults.font.size = 12.5;
     Chart.defaults.color = C.inkSoft;
     Chart.defaults.plugins.legend.labels.usePointStyle = true;
