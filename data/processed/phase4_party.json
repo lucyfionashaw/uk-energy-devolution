@@ -1,0 +1,88 @@
+{
+  "note": "By council party in control in the YEAR THE DECISION WAS MADE. GB local route only.",
+  "matchedDecided": 9855,
+  "unmatchedDecided": 534,
+  "byParty": {
+    "Con": {
+      "n": 4086,
+      "granted": 3610,
+      "refused": 476,
+      "approvalRate": 88.4,
+      "approvedMW": 50738,
+      "medMonthsToDecision": 3.7,
+      "nTimed": 4078
+    },
+    "Lab": {
+      "n": 2813,
+      "granted": 2550,
+      "refused": 263,
+      "approvalRate": 90.7,
+      "approvedMW": 30385,
+      "medMonthsToDecision": 2.7,
+      "nTimed": 2809
+    },
+    "LibDem": {
+      "n": 976,
+      "granted": 868,
+      "refused": 108,
+      "approvalRate": 88.9,
+      "approvedMW": 10528,
+      "medMonthsToDecision": 3.7,
+      "nTimed": 974
+    },
+    "SNP": {
+      "n": 383,
+      "granted": 353,
+      "refused": 30,
+      "approvalRate": 92.2,
+      "approvedMW": 4198,
+      "medMonthsToDecision": 3.9,
+      "nTimed": 383
+    },
+    "Plaid": {
+      "n": 50,
+      "granted": 42,
+      "refused": 8,
+      "approvalRate": 84.0,
+      "approvedMW": 901,
+      "medMonthsToDecision": 5.2,
+      "nTimed": 50
+    },
+    "Green": {
+      "n": 124,
+      "granted": 113,
+      "refused": 11,
+      "approvalRate": 91.1,
+      "approvedMW": 2119,
+      "medMonthsToDecision": 4.3,
+      "nTimed": 124
+    },
+    "Reform": {
+      "n": 84,
+      "granted": 77,
+      "refused": 7,
+      "approvalRate": 91.7,
+      "approvedMW": 3247,
+      "medMonthsToDecision": 2.6,
+      "nTimed": 84
+    },
+    "Other/Ind": {
+      "n": 1166,
+      "granted": 991,
+      "refused": 175,
+      "approvalRate": 85.0,
+      "approvedMW": 14102,
+      "medMonthsToDecision": 9.0,
+      "nTimed": 1165
+    },
+    "Nationalist (pre-2007)": {
+      "n": 173,
+      "granted": 105,
+      "refused": 68,
+      "approvalRate": 60.7,
+      "approvedMW": 751,
+      "medMonthsToDecision": 8.9,
+      "nTimed": 173
+    }
+  }
+}
