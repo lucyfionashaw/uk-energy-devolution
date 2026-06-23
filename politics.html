@@ -84,7 +84,16 @@
       <span class="tag">The attribution trap</span>
       <p><strong>At the time of the decision, Reform-run councils approved about 3.2 GW — not the 12.3 GW a present-day snapshot assigns them.</strong> Most of that capacity was consented years earlier, under whoever ran the council then. Conservative councils — which have lost ground since — approved the most by far (~57 GW). Decision <em>speed</em> tracks what is being built more than who decides: Labour's solar-and-battery-heavy urban pipeline clears in under three months, while independent-led rural councils, hosting slower and contested onshore wind, take roughly three times as long.</p>
     </div>
-    <div class="source" style="color:var(--ink-faint);font-size:.74rem;margin-top:6px">Approved capacity: REPD Q1 2026 joined to council control at the decision year. Decision times: application→decision dates on the same join (analysis/build_phase4_party.py). A land-density (MW/km²) version read at the time of each decision would need per-council ONS area figures, which aren't in this dataset — the earlier present-day land charts were removed because they credited historic approvals to today's controlling party.</div>
+    <div class="card">
+      <h3>Capacity approved per km² of land controlled — credited at the permit date</h3>
+      <p class="sub">2015–2026. Each approval is credited to the party controlling the council <em>when consent was granted</em>, then normalised by the land that party actually controlled in those years (MW per km², per year).</p>
+      <div class="chart-box short" id="landYr"></div>
+    </div>
+    <div class="callout gold">
+      <span class="tag">The land-rich shires build the least</span>
+      <p>The broad shape survives the correction: dense urban and small-but-active councils (Green, Labour, and Reform during its brief 2025 tenure) approve the most capacity per km² they govern, while the land-rich Conservative, SNP and independent-led areas that hold most of Britain's countryside approve the least per acre. What changes is the <em>honesty</em> of the numbers — Reform tops the list on the ~3.2 GW it actually approved in office, not the 12.3 GW a present-day snapshot wrongly credited it for. This is the time-consistent version: no party is credited with consents granted before it won the council.</p>
+    </div>
+    <div class="source" style="color:var(--ink-faint);font-size:.74rem;margin-top:6px">Approved capacity &amp; approval rate: REPD Q1 2026 joined to council control at the decision year. Decision times: application→decision dates on the same join (analysis/build_phase4_party.py). Land density: control at the permit date × ONS Standard Area Measurement land area (LAD, data/raw/SAM_LAD_DEC_2018_UK.csv), normalised by land-years controlled over 2015–2026.</div>
   </section>
 
   <hr class="divider">
@@ -219,7 +228,20 @@ new Chart(mk("timeByParty"), {
   },
 });
 
-// 6 & 7. alignment
+// 6. land density done right — approved MW per km² per year, credited at the permit date
+const landYr = (window.PHASE3B_LAND.rows || [])
+  .filter(r => GB.includes(r.party))
+  .slice().sort((a, b) => b.mwPerKm2PerYr - a.mwPerKm2PerYr);
+new Chart(mk("landYr"), {
+  type: "bar",
+  data: { labels: landYr.map(r => lab(r.party)), datasets: [{ data: landYr.map(r => r.mwPerKm2PerYr), backgroundColor: landYr.map(r => pc(r.party)), borderRadius: 5, maxBarThickness: 46 }] },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = landYr[c.dataIndex]; return [`${r.mwPerKm2PerYr.toFixed(3)} MW per km² per year`, `${fmt.n(r.approvedMW)} MW approved · ${fmt.n(r.avgLandKm2)} km² avg controlled`]; } } } },
+    scales: { y: axis({ title: { display: true, text: "MW per km² per year" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+// 7 & 8. alignment
 function alignChart(id, data) {
   new Chart(mk(id), {
     type: "bar",
