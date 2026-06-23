@@ -18,18 +18,25 @@ Built around ~14,300 planning records (375 GW of proposed capacity) from the **R
 
 ## Tech
 
-Static site — no build step. Plain HTML + CSS, [Chart.js](https://www.chartjs.org/) from CDN, and the compiled analysis inlined into `data.js` (so it works on `file://` and GitHub Pages alike).
+Static site — no build step for the pages themselves. Plain HTML + CSS, a single **Tahoma** font family (no web fonts), [Chart.js](https://www.chartjs.org/) from CDN, and the compiled analysis inlined into `data.js` (so it works on `file://` and GitHub Pages alike).
 
 ```
 index.html devolution.html politics.html speed.html technology.html
-styles.css          design system (parliamentary green + party/nation theming)
+styles.css          design system (Tahoma throughout; party/nation theming)
 nav.js              shared top navigation
 charts.js           colours, formatters, Chart.js defaults
-data.js             compiled analysis (generated from /data/*.json — do not hand-edit)
-data/               source JSON + the REPD analysis workbook
+data.js             GENERATED — all phases inlined as window.PHASE* globals
+analysis/
+  build_data_js.py  regenerates data.js from data/processed/*.json
+  build_phase*.py    Cowork scripts that render the analysis workbook from the JSON
+  REPD_devolution_analysis.xlsx
+data/raw/           REPD CSV + the two council-history CSVs (public open data)
+data/processed/     the eight phase JSONs — source of truth for data.js
 ```
 
-To regenerate `data.js` after refreshing the analysis JSON, re-concatenate the four `data/phase*.json` files as `window.PHASE1 / PHASE1B / PHASE2 / PHASE2C`.
+To regenerate `data.js` after the analysis JSON changes: `py analysis/build_data_js.py`.
+
+Phase → global map (note the names): `PHASE2` = council-party + Westminster-alignment, `PHASE2C` = decision-time weighting / 50 MW bunching, `PHASE2_REFRESH` = refreshed party + capacity ladder, `PHASE2B` = MP/constituency level, `PHASE3_LAND` / `PHASE3B_LAND` = capacity approved per km² of land controlled.
 
 ## Data sources
 
