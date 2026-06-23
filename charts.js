@@ -7,6 +7,7 @@
     ink: "#1a1a1a", inkSoft: "#4a4a4a", inkFaint: "#7c7c78",
     line: "#e0ded6", grid: "rgba(0,0,0,.06)",
     green: v("--green") || "#11623e", greenL: v("--green-l") || "#2e8b62",
+    greenD: v("--green-d") || "#0c4a2f",
     gold: v("--gold") || "#c79a3a", goldL: v("--gold-l") || "#e3c878",
     grant: "#2e8b62", refuse: "#c0392b", pending: "#c79a3a",
     nation: { England: "#1d3557", Scotland: "#0f8b8d", Wales: "#c1121f", "Northern Ireland": "#6a4c93", NI: "#6a4c93" },

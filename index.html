@@ -26,17 +26,40 @@
 
   <section>
     <div class="section-num">The big picture</div>
-    <h2>From application to switched-on</h2>
-    <p class="dek">Of the projects that have reached a decision, the great majority are approved — Britain's planning system says "yes" far more than it says "no". The attrition that matters happens <em>after</em> consent: in the long road from a granted permission to an operating power station.</p>
+    <h2>Proposed, consented — and stuck</h2>
+    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity. Only about <strong>58 GW</strong> is generating today. The bottleneck is not the planning committee's "no" — once a project reaches a decision it is approved nearly nine times in ten. The capacity is trapped in the queue: tens of gigawatts waiting for a decision, and far more holding consent but never built.</p>
     <div class="card">
       <h3>The planning funnel</h3>
-      <p class="sub">All technologies, projects (left axis) — submitted through to operational. National-route projects (offshore wind, large schemes) included.</p>
-      <div class="chart-box" id="funnel"></div>
-      <div class="source">REPD Q1 2026. "Granted" includes all live consents; "Built" = under construction or operational; "Operational" = generating today.</div>
+      <p class="sub">Every project narrows stage by stage — submitted, decided, approved, under construction, operational. The same journey counted two ways: by number of projects, and by the capacity behind them.</p>
+      <div class="grid-2">
+        <div>
+          <p class="funnel-col-title">By projects</p>
+          <div class="chart-box tall" id="funnelProjects"></div>
+        </div>
+        <div>
+          <p class="funnel-col-title">By capacity (GW)</p>
+          <div class="chart-box tall" id="funnelGW"></div>
+        </div>
+      </div>
+      <div class="source">REPD Q1 2026. "Decided" = approved + refused. "Approved" includes all live consents; "Under construction" = building or operational; "Operational" = generating today. National-route projects (offshore wind, large schemes) included.</div>
     </div>
     <div class="callout">
       <span class="tag">The headline</span>
-      <p><strong>89% of decided projects are approved</strong> — but only about a quarter of all capacity that has ever been proposed is actually generating today. The bottleneck is not the planning committee's "no". It is everything that happens between "yes" and the grid.</p>
+      <p><strong>The system says "yes" — then nothing happens.</strong> Of projects that reach a decision, 89% are approved. But ~89 GW is still waiting for a decision, and roughly 154 GW holds a live consent yet has never started construction. The attrition that matters is not refusal; it is everything between "yes" and the grid.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">The whole flow</div>
+    <h2>Every application, and where it goes</h2>
+    <p class="dek">Read left to right: each application either falls away — withdrawn, refused, or still awaiting a decision — or wins consent. Approved projects then face their own attrition, peeling off as consent lapses, stalls before construction, or finally reaches the grid.</p>
+    <div class="card">
+      <h3>From application to the grid</h3>
+      <p class="sub">Flow of projects through the planning system. Band width is the number of projects.</p>
+      <div class="chart-box" id="sankey" style="height:520px"></div>
+      <div class="source">REPD Q1 2026, project counts. "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance.</div>
     </div>
   </section>
 
@@ -50,7 +73,7 @@
       <a class="story-card" href="devolution.html">
         <div class="sc-num">01</div>
         <h3>Four nations, four systems</h3>
-        <p>Scotland routes a quarter of its projects through Edinburgh; England sends barely one in sixty to Westminster. How devolution reshaped who decides.</p>
+        <p>Councils decide the vast majority everywhere — what really diverged is policy. The collapse of English onshore wind after 2015 is devolution made visible.</p>
         <div class="go">Explore the four nations →</div>
       </a>
       <a class="story-card" href="politics.html">
@@ -97,6 +120,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.12.1/dist/chartjs-chart-sankey.min.js"></script>
 <script src="data.js"></script>
 <script src="charts.js"></script>
 <script src="nav.js"></script>
@@ -111,33 +135,158 @@ document.getElementById("topstats").innerHTML = [
   { num: fmt.pct(o.nationalPct), lab: "decided by the national / devolved route" },
 ].map(s => `<div class="stat"><div class="num">${s.num}${s.suf ? `<small>${s.suf}</small>` : ""}</div><div class="lab">${s.lab}</div></div>`).join("");
 
-// funnel
-const stages = [
-  { k: "Submitted", v: o.n,        c: C.inkFaint },
-  { k: "Granted",   v: o.granted,  c: C.greenL },
-  { k: "Built / under construction", v: o.built, c: C.green },
-  { k: "Operational today", v: o.op, c: C.greenD || "#0c4a2f" },
-];
-const fbox = document.getElementById("funnel");
-const fc = document.createElement("canvas"); fbox.appendChild(fc);
-new Chart(fc, {
-  type: "bar",
-  data: {
-    labels: stages.map(s => s.k),
-    datasets: [{ data: stages.map(s => s.v), backgroundColor: stages.map(s => s.c), borderRadius: 5, maxBarThickness: 56 }],
-  },
-  options: {
-    indexAxis: "y",
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => `${fmt.n(ctx.parsed.x)} projects` } },
-    },
-    scales: {
-      x: axis({ ticks: { callback: v => fmt.n(v) } }),
-      y: axis({ grid: { display: false } }),
-    },
+const mk = id => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
+
+// ---------- symmetrical funnel ----------
+// Centred floating bars give a true funnel silhouette; a small plugin writes
+// the value inside each band.
+const funnelLabels = (stages, fmtVal) => ({
+  id: "funnelLabels",
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const cx = chart.scales.x.getPixelForValue(0);
+    const meta = chart.getDatasetMeta(0);
+    ctx.save();
+    ctx.font = "600 12px Tahoma, Verdana, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    meta.data.forEach((bar, i) => {
+      const w = Math.abs(bar.x - bar.base); // full band width in px
+      const txt = fmtVal(stages[i].v);
+      // light text inside wide bands, dark text beside narrow ones
+      if (w > ctx.measureText(txt).width + 18) {
+        ctx.fillStyle = "#fff";
+        ctx.fillText(txt, cx, bar.y);
+      } else {
+        ctx.fillStyle = C.inkSoft;
+        ctx.fillText(txt, cx, bar.y);
+      }
+    });
+    ctx.restore();
   },
 });
+
+function funnel(id, stages, fmtVal, unit) {
+  const max = stages[0].v;
+  new Chart(mk(id), {
+    type: "bar",
+    data: {
+      labels: stages.map(s => s.k),
+      datasets: [{
+        data: stages.map(s => [-s.v / 2, s.v / 2]),
+        backgroundColor: stages.map(s => s.c),
+        borderRadius: 4, borderSkipped: false,
+        barPercentage: 0.98, categoryPercentage: 0.84,
+      }],
+    },
+    options: {
+      indexAxis: "y",
+      layout: { padding: { left: 6, right: 6 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: items => items[0].label,
+            label: ctx => `${fmtVal(stages[ctx.dataIndex].v)}${unit} · ${(stages[ctx.dataIndex].v / max * 100).toFixed(0)}% of submitted`,
+          },
+        },
+      },
+      scales: {
+        x: { min: -max / 2, max: max / 2, display: false, grid: { display: false } },
+        y: axis({ grid: { display: false }, ticks: { font: { size: 11.5 } } }),
+      },
+    },
+    plugins: [funnelLabels(stages, fmtVal)],
+  });
+}
+
+const stageDefs = [
+  { k: "Submitted",          c: C.inkFaint, n: o.n,                       cap: o.cap },
+  { k: "Decided",            c: C.gold,     n: o.granted + o.refused,     cap: o.grantedCap + o.refusedCap },
+  { k: "Approved",           c: C.greenL,   n: o.granted,                 cap: o.grantedCap },
+  { k: "Under construction", c: C.green,    n: o.built,                   cap: o.builtCap },
+  { k: "Operational",        c: C.greenD,   n: o.op,                      cap: o.opCap },
+];
+
+funnel("funnelProjects", stageDefs.map(s => ({ k: s.k, v: s.n, c: s.c })), fmt.n, " projects");
+funnel("funnelGW",       stageDefs.map(s => ({ k: s.k, v: s.cap, c: s.c })), v => fmt.gw(v), " GW");
+
+// ---------- Sankey: the full project journey ----------
+const otherOut   = o.n - o.granted - o.refused - o.pending; // withdrawn/abandoned + residual
+const permitted  = o.granted - o.built - o.expired;         // consent held, not started
+const building   = o.built - o.op;                          // started, not yet generating
+
+const flows = [
+  { from: "Applied",  to: "Refused",          flow: o.refused },
+  { from: "Applied",  to: "Withdrawn",        flow: otherOut },
+  { from: "Applied",  to: "Pending",          flow: o.pending },
+  { from: "Applied",  to: "Approved",         flow: o.granted },
+  { from: "Approved", to: "Expired",          flow: o.expired },
+  { from: "Approved", to: "Permitted",        flow: permitted },
+  { from: "Approved", to: "Building",         flow: o.built },
+  { from: "Building", to: "UnderConstruction", flow: building },
+  { from: "Building", to: "Operational",      flow: o.op },
+];
+
+const sankeyLabel = {
+  Applied: "Applied", Approved: "Approved", Building: "Construction started",
+  Refused: "Refused", Withdrawn: "Withdrawn / abandoned", Pending: "Awaiting a decision",
+  Expired: "Consent lapsed", Permitted: "Permitted, not built",
+  UnderConstruction: "Under construction", Operational: "Operational",
+};
+const sankeyColor = {
+  Applied: C.inkFaint, Approved: C.greenL, Building: C.green, Operational: C.greenD,
+  Refused: C.refuse, Withdrawn: "#9b9b9b", Pending: C.gold,
+  Expired: "#b08968", Permitted: C.goldL, UnderConstruction: "#6fae8a",
+};
+const sankeyCol = {
+  Applied: 0,
+  Refused: 1, Withdrawn: 1, Pending: 1, Approved: 1,
+  Expired: 2, Permitted: 2, Building: 2,
+  UnderConstruction: 3, Operational: 3,
+};
+const sankeyPriority = {
+  Applied: 0, Approved: 0, Refused: 4, Withdrawn: 5, Pending: 6,
+  Building: 0, Permitted: 2, Expired: 3, Operational: 0, UnderConstruction: 2,
+};
+
+try {
+  new Chart(mk("sankey"), {
+    type: "sankey",
+    data: {
+      datasets: [{
+        data: flows,
+        colorFrom: c => sankeyColor[c.dataset.data[c.dataIndex].from],
+        colorTo:   c => sankeyColor[c.dataset.data[c.dataIndex].to],
+        colorMode: "gradient",
+        labels: sankeyLabel,
+        column: sankeyCol,
+        priority: sankeyPriority,
+        borderWidth: 0,
+        nodeWidth: 13,
+        font: { size: 12, family: "Tahoma, Verdana, sans-serif", weight: "600" },
+      }],
+    },
+    options: {
+      layout: { padding: { left: 4, right: 90, top: 6, bottom: 6 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: () => "",
+            label: c => {
+              const d = c.dataset.data[c.dataIndex];
+              return `${sankeyLabel[d.from]} → ${sankeyLabel[d.to]}: ${fmt.n(d.flow)} projects`;
+            },
+          },
+        },
+      },
+    },
+  });
+} catch (e) {
+  document.getElementById("sankey").innerHTML =
+    '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Flow diagram could not be loaded.</p>';
+}
 </script>
 </body>
 </html>

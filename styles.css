@@ -246,6 +246,17 @@ a { color: var(--green); }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .grid-2 .card { margin: 0; }
 
+/* funnel pair column headings */
+.funnel-col-title {
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-align: center;
+  margin: 0 0 6px;
+}
+
 /* ---------- Callout / takeaway ---------- */
 .callout {
   border-left: 4px solid var(--green);
