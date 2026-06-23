@@ -6,3 +6,7 @@ desktop.ini
 .~lock.*#
 
 # Keep the data/ JSON + workbook (they are the source of truth for data.js)
+
+# Private framing essays — keep local, never publish to the public repo
+docs/source-essays/
+*.pdf
