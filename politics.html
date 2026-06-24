@@ -27,7 +27,7 @@
       <h3>Approval rate by controlling party — all technologies</h3>
       <p class="sub">Locally-decided projects, by the party in control at the time of the decision. Bar width is not capacity; this is decision rate only.</p>
       <div class="chart-box" id="byParty"></div>
-      <div class="source">REPD Q1 2026 joined to council control. 12,805 of 13,397 locally-routed projects matched to a controlling party.</div>
+      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the decision date. GB local route, decided applications (analysis/build_phase4_party.py).</div>
     </div>
   </section>
 
@@ -44,7 +44,7 @@
     </div>
     <div class="callout">
       <span class="tag">Local control matters here</span>
-      <p><strong>Conservative-controlled councils approve onshore wind at 61%, against Labour's 69%, the Lib Dems' 71% and the SNP's 75%.</strong> A 14-point spread on the one technology where a turbine on the ridgeline is a live local fight.</p>
+      <p><strong>Conservative-controlled councils approve onshore wind at 60%, against Labour's 65%, the Lib Dems' 69% and the SNP's 72%.</strong> A 12-point spread on the one technology where a turbine on the ridgeline is a live local fight (independent-led rural councils approve the most of all, at 76%).</p>
     </div>
   </section>
 
@@ -56,7 +56,7 @@
     <p class="dek">Put the three big technologies side by side. Solar and batteries are approved at 88%+ under every party — the spread collapses to a few points. Partisanship only surfaces where the build is visible and contested.</p>
     <div class="card">
       <h3>Approval rate by party, across three technologies</h3>
-      <p class="sub">Onshore wind spreads ~14 points across parties; solar ~5; battery ~6.</p>
+      <p class="sub">Onshore wind spreads ~12 points across parties; solar ~5; battery ~5.</p>
       <div class="chart-box tall" id="techParty"></div>
       <div class="source">REPD Q1 2026. Parties shown where 50+ decided projects exist for the technology.</div>
     </div>
@@ -116,7 +116,7 @@
     </div>
     <div class="callout gold">
       <span class="tag">Read this descriptively, not causally</span>
-      <p>Across all technologies, alignment makes almost no difference (90.0% vs 88.8%). For onshore wind, "aligned" councils approve <em>less</em> (60.9% vs 67.1%) — but that is mostly an artefact: the aligned years are dominated by Conservative councils under a Conservative government during the 2015–2023 onshore-wind moratorium. This cut describes a correlation, not a cause.</p>
+      <p>Across all technologies, alignment makes almost no difference (89.1% vs 89.9%). For onshore wind, "aligned" councils approve <em>less</em> (58.2% vs 66.8%) — but that is mostly an artefact: the aligned years are dominated by Conservative councils under a Conservative government during the 2015–2023 onshore-wind moratorium. This cut describes a correlation, not a cause.</p>
     </div>
   </section>
 
@@ -140,15 +140,19 @@
 <script src="charts.js"></script>
 <script src="nav.js"></script>
 <script>
-const P = window.PHASE2;            // phase2_data.json — approval rates & Westminster alignment
+// One consistent base for the whole page: every chart reads the phase-4 join, which
+// matches council control at the decision DATE (see analysis/build_phase4_party.py).
+const P = window.PHASE4_PARTY;
+const T = P.byParty;
+const GB = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind"];
 const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
 const pc = p => C.party[p] || C.party["Other/Ind"];
 const PRETTY = { LibDem: "Lib Dem", "Other/Ind": "Other / Ind", "Nationalist (pre-2007)": "Nat. (pre-2007)" };
 const lab = p => PRETTY[p] || p;
 
-// 1. all-tech by party (sorted desc), drop tiny groups
+// 1. all-tech by party (sorted desc), GB mainstream parties with a meaningful sample
 const all = Object.entries(P.byParty)
-  .filter(([k, v]) => v.n >= 80)
+  .filter(([k, v]) => GB.includes(k) && v.n >= 80)
   .sort((a, b) => b[1].approvalRate - a[1].approvalRate);
 new Chart(mk("byParty"), {
   type: "bar",
@@ -161,7 +165,7 @@ new Chart(mk("byParty"), {
 
 // 2. onshore by party
 const ons = Object.entries(P.byPartyOnshore)
-  .filter(([k, v]) => v.n >= 50)
+  .filter(([k, v]) => GB.includes(k) && v.n >= 45)
   .sort((a, b) => b[1].approvalRate - a[1].approvalRate);
 new Chart(mk("onshoreParty"), {
   type: "bar",
@@ -195,11 +199,7 @@ new Chart(mk("techParty"), {
   },
 });
 
-// GB parties, in a stable order, for the decision-time attribution charts
-const GB = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind"];
-
 // 4. capacity approved by the party in control AT THE DECISION DATE (month-aware join)
-const T = window.PHASE4_PARTY.byParty;
 const mwRows = GB
   .map(p => ({ p, cap: (T[p] || {}).approvedMW, n: (T[p] || {}).granted }))
   .filter(r => r.cap != null)
