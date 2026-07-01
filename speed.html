@@ -22,19 +22,43 @@
   <section>
     <div class="section-num">The whole timeline</div>
     <h2>Where the years actually go</h2>
-    <p class="dek">Read left to right as a typical journey from application to switch-on. A median project reaches a <em>decision</em> in under four months — but then waits far longer to break ground, and longer still to energise. The hold-up isn't the planning verdict; it's everything after it. Note the sample shrinks at each stage: only projects that actually got that far have a date, so the right-hand bars describe the survivors, not the average applicant.</p>
+    <p class="dek">Every technology on one time axis, application to switch-on, split into small and large where scale matters. Small solar clears in months; large onshore and offshore wind take years — and most of the wait comes <em>after</em> the planning verdict, not before it. Each stage's bar covers only the projects that reached it (later stages are survivor-selected, so read them as the experience of the ones that got that far).</p>
     <div class="card">
-      <h3>Median duration of each stage — application to commissioning</h3>
+      <h3>Duration of each stage, by technology and scale</h3>
+      <div class="toolbar">
+        <div class="legend" id="ganttLegend"></div>
+        <div class="seg" id="ganttStat" role="group" aria-label="Median or average">
+          <button data-stat="median" class="on">Median</button>
+          <button data-stat="mean">Average</button>
+        </div>
+      </div>
+      <div class="chart-box" id="gantt" style="height:460px"></div>
+      <div class="source">REPD Q1 2026. Each segment is over projects with both endpoint dates (sample size in the tooltip). Planning permission is the consent in REPD, so decision and consent are a single event — there is no separate consent stage. Stacking stage medians approximates a typical timeline, not one project's actual path.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">Size drives the timeline</div>
+    <h2>Where the break by project size is</h2>
+    <p class="dek">Split one technology by capacity band and the timeline stretches with size. For solar the jump is sharp around the 50 MW mark — the threshold that bumps a scheme out of the local planning system into the slow national route. Pick a technology to see where its break sits.</p>
+    <div class="card">
+      <h3>Duration by project size band</h3>
       <div class="toolbar">
         <div class="filters">
           <label class="fld">Technology
-            <select id="ganttTech"></select>
+            <select id="ganttSizeTech"></select>
           </label>
         </div>
+        <div class="seg" id="ganttSizeStat" role="group" aria-label="Median or average">
+          <button data-stat="median" class="on">Median</button>
+          <button data-stat="mean">Average</button>
+        </div>
       </div>
-      <p class="sub" id="ganttNote" style="margin:.3rem 0 0"></p>
-      <div class="chart-box" id="gantt"></div>
-      <div class="source">REPD Q1 2026. Each stage's median is taken over the projects that have both endpoint dates (sample size in the tooltip and note). Planning permission is the consent in REPD, so approval and consent are a single event. Stacking stage medians is an approximation of a typical timeline, not one project's actual path.</div>
+      <div class="legend" id="ganttSizeLegend"></div>
+      <div class="chart-box" id="ganttSize" style="height:400px"></div>
+      <div class="source">REPD Q1 2026, capacity bands (Installed Capacity, MWelec). Each segment is over projects in that band with both endpoint dates; small bands and later stages can be thin — see the tooltip.</div>
     </div>
   </section>
 
@@ -123,64 +147,103 @@
 const P1B = window.PHASE1B, P2 = window.PHASE2C;  // phase2c_data.json holds the weighting / size-band / bunching analysis
 const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
 
-// 0. Gantt-style stage timeline, filtered by technology
+// 0. Gantt timelines — one row per technology/scale bucket, on a shared time axis
 const G = window.GANTT;
-const GT_OPTS = [
-  { v: "All", t: "All technologies" }, { v: "Solar", t: "Solar" }, { v: "OnshoreWind", t: "Onshore wind" },
-  { v: "OffshoreWind", t: "Offshore wind" }, { v: "Battery", t: "Battery" }, { v: "Other", t: "Other" },
-].filter(o => G.byTech[o.v]);
-document.getElementById("ganttTech").innerHTML = GT_OPTS.map(o => `<option value="${o.v}">${o.t}</option>`).join("");
 const stageColours = [C.gold, C.greenL, C.greenD];
 
-const ganttLabels = bars => ({
-  id: "ganttLabels",
+// draw the median/mean inside each stage segment when it's wide enough
+const ganttSegLabels = {
+  id: "ganttSegLabels",
   afterDatasetsDraw(chart) {
-    const { ctx } = chart, meta = chart.getDatasetMeta(0);
+    const { ctx } = chart;
     ctx.save();
-    ctx.font = "600 12px Tahoma, Verdana, sans-serif";
+    ctx.font = "600 10.5px Tahoma, Verdana, sans-serif";
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    meta.data.forEach((bar, i) => {
-      const b = bars[i];
-      if (b.med == null) return;
-      const w = Math.abs(bar.x - bar.base), txt = `${b.med} mo`;
-      if (w > ctx.measureText(txt).width + 14) {
-        ctx.fillStyle = "#fff";
-        ctx.fillText(txt, (bar.x + bar.base) / 2, bar.y);
-      }
+    ctx.fillStyle = "#fff";
+    chart.data.datasets.forEach((ds, di) => {
+      chart.getDatasetMeta(di).data.forEach((bar, i) => {
+        const v = ds.data[i];
+        if (!v) return;
+        const w = Math.abs(bar.x - bar.base);
+        const txt = `${v}`;
+        if (w > ctx.measureText(txt).width + 10) ctx.fillText(txt, (bar.x + bar.base) / 2, bar.y);
+      });
     });
     ctx.restore();
   },
-});
+};
 
-let ganttChart = null;
-function renderGantt(tech) {
-  const rows = G.byTech[tech];
-  let cum = 0;
-  const bars = rows.map(r => { const start = cum, len = r.med ?? 0; cum += len; return { stage: r.stage, start, end: start + len, med: r.med, n: r.n }; });
-  if (ganttChart) ganttChart.destroy();
-  document.getElementById("gantt").innerHTML = "";
-  ganttChart = new Chart(mk("gantt"), {
+// shared builder for a stacked horizontal Gantt (rows of {name, median|mean:[...], n:[...]})
+function stackedGantt(canvasId, rows, metric) {
+  return new Chart(mk(canvasId), {
     type: "bar",
-    data: { labels: rows.map(r => r.stage), datasets: [{ data: bars.map(b => [b.start, b.end]), backgroundColor: stageColours, borderRadius: 4, borderSkipped: false, barPercentage: 0.72 }] },
+    data: {
+      labels: rows.map(r => r.name || r.band),
+      datasets: G.stages.map((s, i) => ({
+        label: s,
+        data: rows.map(r => r[metric][i] ?? 0),
+        backgroundColor: stageColours[i],
+        borderColor: "#fff", borderWidth: 1,
+        _n: rows.map(r => r.n[i]),
+        stack: "t", maxBarThickness: 30,
+      })),
+    },
     options: {
       indexAxis: "y",
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { title: items => items[0].label, label: c => { const b = bars[c.dataIndex]; return b.med == null ? "no dated projects" : [`${b.med} months (median)`, `≈ ${b.start.toFixed(1)} months after application`, `${fmt.n(b.n)} projects with both dates`]; } } },
+        tooltip: {
+          callbacks: {
+            title: items => items[0].label,
+            label: c => { const n = c.dataset._n[c.dataIndex], v = c.parsed.x; return v ? `${c.dataset.label}: ${v} months (${metric}) · ${fmt.n(n)} projects` : `${c.dataset.label}: no dated projects`; },
+          },
+        },
       },
       scales: {
-        x: axis({ min: 0, title: { display: true, text: "months after application (cumulative)" } }),
-        y: axis({ grid: { display: false }, ticks: { font: { size: 11 } } }),
+        x: axis({ stacked: true, min: 0, title: { display: true, text: "months after application (cumulative)" } }),
+        y: axis({ stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } }),
       },
     },
-    plugins: [ganttLabels(bars)],
+    plugins: [ganttSegLabels],
   });
-  const n = rows.map(r => fmt.n(r.n));
-  document.getElementById("ganttNote").textContent =
-    `The sample shrinks along the way — ${n[0]} projects reach a decision, ${n[1]} record a construction start, ${n[2]} a commissioning date — so later bars describe only the projects that got that far.`;
 }
-renderGantt("All");
-document.getElementById("ganttTech").addEventListener("change", e => renderGantt(e.target.value));
+
+// stage legend doubles as the labels shown once, above the rows
+const stageLegendHTML = G.stages.map((s, i) => `<span><i style="background:${stageColours[i]}"></i>${s}</span>`).join("");
+document.getElementById("ganttLegend").innerHTML = stageLegendHTML;
+document.getElementById("ganttSizeLegend").innerHTML = stageLegendHTML;
+
+// --- main: all buckets ---
+let ganttChart = null;
+function renderGantt(metric) {
+  if (ganttChart) ganttChart.destroy();
+  document.getElementById("gantt").innerHTML = "";
+  ganttChart = stackedGantt("gantt", G.buckets, metric);
+}
+renderGantt("median");
+document.getElementById("ganttStat").addEventListener("click", e => {
+  const b = e.target.closest("button[data-stat]"); if (!b) return;
+  document.querySelectorAll("#ganttStat button").forEach(x => x.classList.toggle("on", x === b));
+  renderGantt(b.dataset.stat);
+});
+
+// --- size bands, per technology ---
+const SIZE_OPTS = Object.entries(G.sizeTechNames).map(([v, t]) => ({ v, t }));
+document.getElementById("ganttSizeTech").innerHTML = SIZE_OPTS.map(o => `<option value="${o.v}">${o.t}</option>`).join("");
+const sizeState = { tech: "Solar", metric: "median" };
+let ganttSizeChart = null;
+function renderGanttSize() {
+  if (ganttSizeChart) ganttSizeChart.destroy();
+  document.getElementById("ganttSize").innerHTML = "";
+  ganttSizeChart = stackedGantt("ganttSize", G.bySize[sizeState.tech], sizeState.metric);
+}
+renderGanttSize();
+document.getElementById("ganttSizeTech").addEventListener("change", e => { sizeState.tech = e.target.value; renderGanttSize(); });
+document.getElementById("ganttSizeStat").addEventListener("click", e => {
+  const b = e.target.closest("button[data-stat]"); if (!b) return;
+  document.querySelectorAll("#ganttSizeStat button").forEach(x => x.classList.toggle("on", x === b));
+  sizeState.metric = b.dataset.stat; renderGanttSize();
+});
 
 // 1. count vs capacity weighted
 const w = Object.entries(P2.weighted);

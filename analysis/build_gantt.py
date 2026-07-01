@@ -1,85 +1,149 @@
 #!/usr/bin/env python3
-"""Median duration of each planning/build stage, by technology, for the Gantt-style
-timeline on the speed page.
+"""Stage durations for the Gantt timelines on the speed page.
 
-Stages (using the dates REPD actually records):
-  1. Submission -> decision   : Planning Application Submitted -> Planning Permission Granted
-  2. Decision  -> construction: Planning Permission Granted    -> Under Construction
-  3. Construction -> commissioning : Under Construction         -> Operational
+Stages (the dates REPD records; planning permission IS the consent, so there is no
+separate consent date to split "decision -> construction"):
+  1. Submission  -> decision        (Planning Application Submitted -> Permission Granted)
+  2. Decision    -> construction    (Permission Granted -> Under Construction)
+  3. Construction-> commissioning   (Under Construction -> Operational)
 
-Each stage's median is computed over the projects that have BOTH endpoint dates, so the
-later stages are based on a shrinking, survivor-selected subset (only projects that got
-that far). We record the sample size `n` per stage so the page can flag that bias.
+Two products:
+  * buckets : one row per technology×scale bucket (Solar small/large, Onshore small/large,
+              Offshore, Battery, Bioenergy, Hydro), each with median AND mean AND sample
+              size for all three stages. Rows are ordered fastest→slowest by total median.
+  * bySize  : the same three stages by capacity band, for the technologies where size drives
+              the timeline (Solar, Onshore wind, Battery) — to show where the break is.
 
-In REPD, planning permission IS the consent, so "approval" and "consent" are the same
-event — there is no separate consenting date to split stage 2.
+Every stage's stat is over the projects that have BOTH endpoint dates, so later stages are
+survivor-selected (smaller n). Sample sizes are carried through for the tooltip/notes.
 
 Output: data/processed/gantt_data.json  ->  window.GANTT
 Run:    python3 analysis/build_gantt.py   (then re-run build_data_js.py)
 """
 import csv, json, pathlib, datetime
 from collections import defaultdict
-from statistics import median
+from statistics import median, mean
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw" / "REPD_publication_Q1_2026.csv"
 OUT = ROOT / "data" / "processed" / "gantt_data.json"
 
-def parse_date(d):
-    d = (d or "").strip()
+def pdate(s):
+    s = (s or "").strip()
     try:
-        dd, mm, yy = d.split("/")
-        return datetime.date(int(yy), int(mm), int(dd))
+        d, m, y = s.split("/")
+        return datetime.date(int(y), int(m), int(d))
     except (ValueError, IndexError):
         return None
 
-def months_between(a, b):
+def months(a, b):
     if a is None or b is None:
         return None
-    return (b.year - a.year) * 12 + (b.month - a.month) + (b.day - a.day) / 30.0
+    v = (b.year - a.year) * 12 + (b.month - a.month) + (b.day - a.day) / 30.0
+    return v if 0 <= v < 360 else None
 
-def tech_bucket(t):
-    t = (t or "").strip()
-    return {"Solar Photovoltaics": "Solar", "Wind Onshore": "OnshoreWind",
-            "Wind Offshore": "OffshoreWind", "Battery": "Battery"}.get(t, "Other")
+def num(x):
+    x = (x or "").strip().replace(",", "")
+    try:
+        return float(x)
+    except ValueError:
+        return None
 
-SUB = "Planning Application Submitted"
-GRANT = "Planning Permission  Granted"
-CONSTR = "Under Construction"
-OP = "Operational"
-STAGES = [("submit", "decision", SUB, GRANT),
-          ("decision", "construction", GRANT, CONSTR),
-          ("construction", "commissioning", CONSTR, OP)]
-
-# durs[bucket][stage_index] = list of month gaps
-durs = defaultdict(lambda: [[], [], []])
-for r in csv.DictReader(open(RAW, encoding="cp1252")):
-    bucket = tech_bucket(r["Technology Type"])
-    for i, (_, _, c0, c1) in enumerate(STAGES):
-        m = months_between(parse_date(r[c0]), parse_date(r[c1]))
-        if m is not None and 0 <= m < 360:
-            durs[bucket][i].append(m)
-            durs["All"][i].append(m)
-
+SUB, GR, UC, OP = ("Planning Application Submitted", "Planning Permission  Granted",
+                   "Under Construction", "Operational")
+STAGE_COLS = [(SUB, GR), (GR, UC), (UC, OP)]
 STAGE_LABELS = ["Submission → decision", "Decision → construction start",
                 "Construction → commissioning"]
-TECH_ORDER = ["All", "Solar", "OnshoreWind", "OffshoreWind", "Battery", "Other"]
 
-byTech = {}
-for bucket in TECH_ORDER:
-    lists = durs.get(bucket)
-    if not lists:
+BIO = {"Anaerobic Digestion", "Landfill Gas", "Biomass (dedicated)", "Biomass (co-firing)",
+       "EfW Incineration", "Advanced Conversion Technologies", "Sewage Sludge Digestion"}
+HYDRO = {"Small Hydro", "Large Hydro", "Pumped Storage Hydroelectricity"}
+
+rows = list(csv.DictReader(open(RAW, encoding="latin-1")))
+for x in rows:
+    x["_mw"] = num(x["Installed Capacity (MWelec)"])
+    x["_t"] = x["Technology Type"].strip()
+
+def bucket_of(x):
+    t, mw = x["_t"], x["_mw"]
+    if t == "Solar Photovoltaics":
+        return "SolarSmall" if (mw is not None and mw < 10) else "SolarLarge"
+    if t == "Wind Onshore":
+        return "OnshoreSmall" if (mw is not None and mw < 10) else "OnshoreLarge"
+    if t == "Wind Offshore":
+        return "Offshore"
+    if t == "Battery":
+        return "Battery"
+    if t in BIO:
+        return "Bioenergy"
+    if t in HYDRO:
+        return "Hydro"
+    return None
+
+BUCKET_NAME = {
+    "SolarSmall": "Solar · small (<10 MW)", "SolarLarge": "Solar · large (≥10 MW)",
+    "OnshoreSmall": "Onshore wind · small (<10 MW)", "OnshoreLarge": "Onshore wind · large (≥10 MW)",
+    "Offshore": "Offshore wind", "Battery": "Battery",
+    "Bioenergy": "Bioenergy", "Hydro": "Hydro",
+}
+
+def stats(rowset):
+    """median, mean, n for each of the three stages over a set of rows."""
+    lists = [[], [], []]
+    for x in rowset:
+        for i, (c0, c1) in enumerate(STAGE_COLS):
+            m = months(pdate(x[c0]), pdate(x[c1]))
+            if m is not None:
+                lists[i].append(m)
+    med = [round(median(l), 1) if l else None for l in lists]
+    avg = [round(mean(l), 1) if l else None for l in lists]
+    n = [len(l) for l in lists]
+    return {"median": med, "mean": avg, "n": n}
+
+# ---- buckets -----------------------------------------------------------------
+grouped = defaultdict(list)
+for x in rows:
+    b = bucket_of(x)
+    if b:
+        grouped[b].append(x)
+
+buckets = []
+for key, name in BUCKET_NAME.items():
+    if key not in grouped:
         continue
-    byTech[bucket] = [
-        {"stage": STAGE_LABELS[i],
-         "med": round(median(lists[i]), 1) if lists[i] else None,
-         "n": len(lists[i])}
-        for i in range(3)
-    ]
+    s = stats(grouped[key])
+    total = sum(v for v in s["median"] if v)   # order fastest→slowest by total median
+    buckets.append({"key": key, "name": name, "total": total, **s})
+buckets.sort(key=lambda d: d["total"])
 
-out = {"stages": STAGE_LABELS, "byTech": byTech}
+# ---- by size band (Solar / Onshore wind / Battery) ---------------------------
+BANDS = [(1, "<1 MW"), (5, "1–5 MW"), (10, "5–10 MW"), (25, "10–25 MW"),
+         (50, "25–50 MW"), (100, "50–100 MW"), (float("inf"), "100+ MW")]
+
+def band_of(mw):
+    if mw is None:
+        return None
+    for hi, lab in BANDS:
+        if mw < hi:
+            return lab
+    return "100+ MW"
+
+SIZE_TECHS = {"Solar": "Solar Photovoltaics", "OnshoreWind": "Wind Onshore", "Battery": "Battery"}
+bySize = {}
+for key, tname in SIZE_TECHS.items():
+    per = defaultdict(list)
+    for x in rows:
+        if x["_t"] == tname:
+            b = band_of(x["_mw"])
+            if b:
+                per[b].append(x)
+    bySize[key] = [{"band": lab, **stats(per[lab])} for _, lab in BANDS if lab in per]
+
+out = {"stages": STAGE_LABELS, "buckets": buckets, "bySize": bySize,
+       "sizeTechNames": {"Solar": "Solar", "OnshoreWind": "Onshore wind", "Battery": "Battery"}}
 OUT.write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
-print("gantt_data.json written. Sample (All):")
-for s in byTech["All"]:
-    print(f"  {s['stage']:32s} median {s['med']} mo   n={s['n']:,}")
-print("techs:", list(byTech.keys()))
+
+print("gantt_data.json written.")
+print("buckets (fastest→slowest by total median):")
+for b in buckets:
+    print(f"  {b['name']:34s} median {b['median']}  n {b['n']}")

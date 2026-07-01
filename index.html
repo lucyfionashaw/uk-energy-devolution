@@ -170,7 +170,7 @@ document.querySelector("#decisionCallout p").innerHTML =
 
 // ---------- Sankey: toggleable MW / applications, drawn to scale ----------
 const sankeyLabel = {
-  Applied: "Applied", DecisionMade: "Decision made", Approved: "Approved", Building: "Construction started",
+  Applied: "Applied", DecisionMade: "Decision made", Approved: "Approved", Building: "Broke ground",
   Refused: "Refused", Withdrawn: "Withdrawn / abandoned", Pending: "Awaiting a decision",
   Expired: "Consent lapsed", Permitted: "Permitted, not built",
   UnderConstruction: "Under construction", Operational: "Operational",
@@ -190,7 +190,7 @@ const sankeyCol = {
 };
 const sankeyPriority = {
   Applied: 0,
-  DecisionMade: 0, Withdrawn: 5, Pending: 6,
+  DecisionMade: 0, Pending: 5, Withdrawn: 6,
   Approved: 0, Refused: 4,
   Building: 0, Permitted: 2, Expired: 3,
   Operational: 0, UnderConstruction: 2,
