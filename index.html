@@ -58,30 +58,6 @@
   <hr class="divider">
 
   <section>
-    <div class="section-num">The bottleneck</div>
-    <h2>What's stuck in the queue — and for how long</h2>
-    <p class="dek">A live queue of applications sits awaiting a verdict — some filed months ago, others waiting years, well past the ~4-month statutory target. This is where much of the proposed capacity is held up.</p>
-    <div class="grid-2">
-      <div class="card">
-        <h3>Capacity awaiting a decision, by how long it has waited</h3>
-        <p class="sub">Bars to the right are years past the statutory determination window.</p>
-        <div class="chart-box" id="queueGW"></div>
-      </div>
-      <div class="card">
-        <h3>Number of applications waiting</h3>
-        <p class="sub">The same queue, counted as projects.</p>
-        <div class="chart-box" id="queueN"></div>
-      </div>
-    </div>
-    <div class="callout gold" id="queueCallout">
-      <span class="tag">The real attrition</span>
-      <p></p>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section>
     <div class="section-num">The geography</div>
     <h2>Where Britain wants to build</h2>
     <p class="dek">Every project in the database with a grid reference, mapped. Colour is the technology; the size of each dot is its capacity. Filter by technology or by stage, and zoom in to separate the clusters.</p>
@@ -375,28 +351,6 @@ document.getElementById("flowUnit").addEventListener("click", e => {
 });
 document.getElementById("flowTech").addEventListener("change", e => { flowState.tech = e.target.value; buildSankey(); });
 document.getElementById("flowParty").addEventListener("change", e => { flowState.party = e.target.value; buildSankey(); });
-
-// ---------- the queue: what's stuck, and for how long ----------
-const pb = Object.entries(window.PHASE1B.pendingBands);
-const queueColour = k => /^(<4|4-12)/.test(k) ? C.greenL : (/(2-3|3-5|5\+)/.test(k) ? C.refuse : C.pending);
-function queueChart(id, pick, title, fmtTip) {
-  new Chart(mk(id), {
-    type: "bar",
-    data: { labels: pb.map(([k]) => k), datasets: [{ data: pb.map(([, v]) => pick(v)), backgroundColor: pb.map(([k]) => queueColour(k)), borderRadius: 5, maxBarThickness: 60 }] },
-    options: {
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtTip(pb[c.dataIndex][1]) } } },
-      scales: { y: axis({ title: { display: true, text: title } }), x: axis({ grid: { display: false }, ticks: { font: { size: 10.5 } } }) },
-    },
-  });
-}
-queueChart("queueGW", v => +gw(v.cap).toFixed(1), "GW awaiting a decision", v => `${gw(v.cap).toFixed(1)} GW · ${fmt.n(v.n)} projects`);
-queueChart("queueN", v => v.n, "applications awaiting a decision", v => `${fmt.n(v.n)} projects · ${gw(v.cap).toFixed(1)} GW`);
-
-// "over a year" roll-up for the callout
-const overYear = pb.filter(([k]) => /(1-2|2-3|3-5|5\+)/.test(k)).reduce((a, [, v]) => ({ n: a.n + v.n, cap: a.cap + v.cap }), { n: 0, cap: 0 });
-const over5 = window.PHASE1B.pendingBands["5+ yrs"];
-document.querySelector("#queueCallout p").innerHTML =
-  `<strong>${gw(overYear.cap).toFixed(0)} GW — ${fmt.n(overYear.n)} projects — has been waiting more than a year for a decision</strong>, well beyond the ~4-month statutory target. ${fmt.n(over5.n)} have waited over five years.`;
 
 // ---------- map of every project ----------
 const TECHS = [

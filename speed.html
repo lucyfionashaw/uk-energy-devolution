@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Planning Machine — The Politics of Power</title>
-<meta name="description" content="How long planning decisions take, why big projects crawl, the solar backlog, and the 50 MW threshold developers design around.">
+<title>How Long It Takes — The Politics of Power</title>
+<meta name="description" content="How long planning takes for renewable energy — by technology, by project size, and by the party controlling the council — plus what is stuck in the queue.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -13,7 +13,7 @@
   <div class="wrap">
     <div class="kicker">Section 03 · The Machine</div>
     <h1>How long does Britain take to say yes?</h1>
-    <p class="lede">Approval is the easy part. The harder questions are <em>how fast</em>, <em>for whom</em>, and <em>at what size</em> the system starts to grind. The averages flatter it — because the typical project is a small, quick solar scheme, while the megawatts pile up in slow, large ones.</p>
+    <p class="lede">Approval is the easy part. The harder question is how long everything takes — to reach a decision, to break ground, to reach the grid — and how that changes by technology, by project size, and by who runs the council.</p>
   </div>
 </header>
 
@@ -33,7 +33,7 @@
         </div>
       </div>
       <div class="chart-box" id="gantt" style="height:460px"></div>
-      <div class="source">REPD Q1 2026. Each segment is over projects with both endpoint dates (sample size in the tooltip). Planning permission is the consent in REPD, so decision and consent are a single event — there is no separate consent stage. Stacking stage medians approximates a typical timeline, not one project's actual path.</div>
+      <div class="source">REPD Q1 2026. Each segment is over projects whose two endpoint dates both exist and fall in order (sample size in the tooltip); a stage is omitted where fewer than 15 qualify. REPD records each date independently, so the stages draw on different, non-nested subsets. Planning permission is the consent in REPD — decision and consent are one event, with no separate consent stage. Stacking stage medians approximates a typical timeline, not one project's actual path.</div>
     </div>
   </section>
 
@@ -65,55 +65,25 @@
   <hr class="divider">
 
   <section>
-    <div class="section-num">The averages lie</div>
-    <h2>Counting projects vs counting megawatts</h2>
-    <p class="dek">A median solar project is consented in 2.3 months. But weight each project by the capacity it carries, and that figure jumps to nearly 10 months — because the big schemes that hold most of the gigawatts move far more slowly. Across all technologies, the gap is 3.8 months by count versus 14.4 by capacity.</p>
+    <div class="section-num">Does the party matter?</div>
+    <h2>Is it quicker under one party than another?</h2>
+    <p class="dek">Credit each decision to the party controlling the council when it was made, and compare how long each stage takes. Labour-run councils decide fastest; but their pipeline skews urban and solar-heavy, so use the technology filter to compare like-for-like. Some parties only have a decision-stage bar — too few, or too newly in control, to have projects that reached construction yet.</p>
     <div class="card">
-      <h3>Median months to consent — by project count vs by capacity</h3>
-      <p class="sub">Application to consent. The taller the gold bar over the green, the more the big projects drag.</p>
-      <div class="chart-box" id="weighted"></div>
-      <div class="source">REPD Q1 2026. Capacity-weighted median weights each project by its MW.</div>
-    </div>
-    <div class="callout">
-      <span class="tag">Count vs capacity</span>
-      <p><strong>Most projects are small and fast; most capacity sits in large, slower schemes.</strong> A median measured by project count reflects the small schemes, not the gigawatt-scale ones.</p>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section>
-    <div class="section-num">Yes vs no</div>
-    <h2>Refusals take longer than approvals</h2>
-    <p class="dek">For most technologies a refusal is slower to arrive than a grant — the contested cases that end in "no" are the ones that drag through committees, objections and deliberation.</p>
-    <div class="card">
-      <h3>Median months to decision — granted vs refused</h3>
-      <div class="chart-box tall" id="decTbl"></div>
-      <div class="source">REPD Q1 2026, technologies with 50+ grants. Months from application to decision.</div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section>
-    <div class="section-num">The 50 MW cliff</div>
-    <h2>Designed to dodge the national route</h2>
-    <p class="dek">In England, a solar scheme above 50 MW is bumped out of the local planning system into the slow, national NSIP / DCO regime. So developers don't build 60 MW projects — they build 49.9 MW ones. The data shows both the time penalty of size, and the unmistakable bunching just below the threshold.</p>
-    <div class="grid-2">
-      <div class="card">
-        <h3>Solar: time to consent rises with size</h3>
-        <p class="sub">Median months by capacity band. The 150 MW+ NSIP band takes ~17 months.</p>
-        <div class="chart-box" id="solarBins"></div>
+      <h3>Duration of each stage, by controlling party</h3>
+      <div class="toolbar">
+        <div class="filters">
+          <label class="fld">Technology
+            <select id="ganttPartyTech"></select>
+          </label>
+        </div>
+        <div class="seg" id="ganttPartyStat" role="group" aria-label="Median or average">
+          <button data-stat="median" class="on">Median</button>
+          <button data-stat="mean">Average</button>
+        </div>
       </div>
-      <div class="card">
-        <h3>The bunching at 49.9 MW</h3>
-        <p class="sub">Solar projects by capacity, around the threshold.</p>
-        <div class="chart-box" id="bunch"></div>
-      </div>
-    </div>
-    <div class="callout gold">
-      <span class="tag">Threshold gaming</span>
-      <p><strong>209 solar projects sit at 45–49.99 MW; just 5 sit at 50–55 MW.</strong> Developers deliberately size schemes at 49.9 MW to stay in the faster local route and out of the Nationally Significant Infrastructure Project regime. The planning threshold is shaping the power stations themselves.</p>
+      <div class="legend" id="ganttPartyLegend"></div>
+      <div class="chart-box" id="ganttParty" style="height:380px"></div>
+      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the decision date. GB local route only — national-route projects (offshore wind, NSIP) have no council party. Parties shown where 30+ projects reached a decision; individual stages with fewer than 10 dated projects are omitted.</div>
     </div>
   </section>
 
@@ -121,13 +91,23 @@
 
   <section>
     <div class="section-num">The backlog</div>
-    <h2>What's stuck in the queue</h2>
-    <p class="dek">Beyond the decided projects sits a live queue of applications still awaiting a verdict. Most are recent and within reason — but a long tail has been waiting years.</p>
-    <div class="card">
-      <h3>Undecided applications, by how long they've waited</h3>
-      <p class="sub">Statutory determination is meant to take ~4 months. Bars to the right are well past it.</p>
-      <div class="chart-box" id="pending"></div>
-      <div class="source">REPD Q1 2026, applications without a recorded decision.</div>
+    <h2>What's stuck in the queue — and for how long</h2>
+    <p class="dek">Beyond the decided projects sits a live queue of applications still awaiting a verdict — some filed months ago, others waiting years, well past the ~4-month statutory target. This is where much of the proposed capacity is held up.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Capacity awaiting a decision, by how long it has waited</h3>
+        <p class="sub">Bars to the right are years past the statutory determination window.</p>
+        <div class="chart-box" id="queueGW"></div>
+      </div>
+      <div class="card">
+        <h3>Number of applications waiting</h3>
+        <p class="sub">The same queue, counted as projects.</p>
+        <div class="chart-box" id="queueN"></div>
+      </div>
+    </div>
+    <div class="callout gold" id="queueCallout">
+      <span class="tag">The real attrition</span>
+      <p></p>
     </div>
   </section>
 
@@ -144,12 +124,11 @@
 <script src="charts.js"></script>
 <script src="nav.js"></script>
 <script>
-const P1B = window.PHASE1B, P2 = window.PHASE2C;  // phase2c_data.json holds the weighting / size-band / bunching analysis
+const P1B = window.PHASE1B;
 const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
+const gw = mw => mw / 1000;
 
-// 0. Gantt timelines — one row per technology/scale bucket, on a shared time axis
-// Wrapped so a stale/cached data.js (missing the newer GANTT shape) can't halt the
-// rest of the page's charts.
+// ---- Gantt timelines (wrapped so a stale cached data.js can't blank the page) ----
 try {
 const G = window.GANTT;
 if (!G || !G.buckets) throw new Error("GANTT data not loaded");
@@ -177,7 +156,7 @@ const ganttSegLabels = {
   },
 };
 
-// shared builder for a stacked horizontal Gantt (rows of {name, median|mean:[...], n:[...]})
+// shared builder for a stacked horizontal Gantt (rows of {name|band, median|mean:[...], n:[...]})
 function stackedGantt(canvasId, rows, metric) {
   return new Chart(mk(canvasId), {
     type: "bar",
@@ -214,111 +193,63 @@ function stackedGantt(canvasId, rows, metric) {
 
 // stage legend doubles as the labels shown once, above the rows
 const stageLegendHTML = G.stages.map((s, i) => `<span><i style="background:${stageColours[i]}"></i>${s}</span>`).join("");
-document.getElementById("ganttLegend").innerHTML = stageLegendHTML;
-document.getElementById("ganttSizeLegend").innerHTML = stageLegendHTML;
+["ganttLegend", "ganttSizeLegend", "ganttPartyLegend"].forEach(id => document.getElementById(id).innerHTML = stageLegendHTML);
+
+// a small helper to wire a {tech-select, stat-toggle} pair to a re-render
+function wireControls(selId, statId, state, render) {
+  if (selId) document.getElementById(selId).addEventListener("change", e => { state.tech = e.target.value; render(); });
+  document.getElementById(statId).addEventListener("click", e => {
+    const b = e.target.closest("button[data-stat]"); if (!b) return;
+    document.querySelectorAll(`#${statId} button`).forEach(x => x.classList.toggle("on", x === b));
+    state.metric = b.dataset.stat; render();
+  });
+}
 
 // --- main: all buckets ---
+const mainState = { metric: "median" };
 let ganttChart = null;
-function renderGantt(metric) {
-  if (ganttChart) ganttChart.destroy();
-  document.getElementById("gantt").innerHTML = "";
-  ganttChart = stackedGantt("gantt", G.buckets, metric);
-}
-renderGantt("median");
-document.getElementById("ganttStat").addEventListener("click", e => {
-  const b = e.target.closest("button[data-stat]"); if (!b) return;
-  document.querySelectorAll("#ganttStat button").forEach(x => x.classList.toggle("on", x === b));
-  renderGantt(b.dataset.stat);
-});
+function renderGantt() { if (ganttChart) ganttChart.destroy(); document.getElementById("gantt").innerHTML = ""; ganttChart = stackedGantt("gantt", G.buckets, mainState.metric); }
+renderGantt();
+wireControls(null, "ganttStat", mainState, renderGantt);
 
 // --- size bands, per technology ---
-const SIZE_OPTS = Object.entries(G.sizeTechNames).map(([v, t]) => ({ v, t }));
-document.getElementById("ganttSizeTech").innerHTML = SIZE_OPTS.map(o => `<option value="${o.v}">${o.t}</option>`).join("");
+document.getElementById("ganttSizeTech").innerHTML = Object.entries(G.sizeTechNames).map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
 const sizeState = { tech: "Solar", metric: "median" };
 let ganttSizeChart = null;
-function renderGanttSize() {
-  if (ganttSizeChart) ganttSizeChart.destroy();
-  document.getElementById("ganttSize").innerHTML = "";
-  ganttSizeChart = stackedGantt("ganttSize", G.bySize[sizeState.tech], sizeState.metric);
-}
+function renderGanttSize() { if (ganttSizeChart) ganttSizeChart.destroy(); document.getElementById("ganttSize").innerHTML = ""; ganttSizeChart = stackedGantt("ganttSize", G.bySize[sizeState.tech], sizeState.metric); }
 renderGanttSize();
-document.getElementById("ganttSizeTech").addEventListener("change", e => { sizeState.tech = e.target.value; renderGanttSize(); });
-document.getElementById("ganttSizeStat").addEventListener("click", e => {
-  const b = e.target.closest("button[data-stat]"); if (!b) return;
-  document.querySelectorAll("#ganttSizeStat button").forEach(x => x.classList.toggle("on", x === b));
-  sizeState.metric = b.dataset.stat; renderGanttSize();
-});
+wireControls("ganttSizeTech", "ganttSizeStat", sizeState, renderGanttSize);
+
+// --- by controlling party, per technology ---
+document.getElementById("ganttPartyTech").innerHTML = Object.entries(G.partyTechNames).map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
+const partyState = { tech: "All", metric: "median" };
+let ganttPartyChart = null;
+function renderGanttParty() { if (ganttPartyChart) ganttPartyChart.destroy(); document.getElementById("ganttParty").innerHTML = ""; ganttPartyChart = stackedGantt("ganttParty", G.byParty[partyState.tech], partyState.metric); }
+renderGanttParty();
+wireControls("ganttPartyTech", "ganttPartyStat", partyState, renderGanttParty);
 } catch (e) {
-  ["gantt", "ganttSize"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Couldn\'t draw this chart. If you just saw the site update, hard-refresh the page (Ctrl/Cmd+Shift+R) to load the latest data.</p>'; });
+  ["gantt", "ganttSize", "ganttParty"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Couldn\'t draw this chart. If you just saw the site update, hard-refresh the page (Ctrl/Cmd+Shift+R) to load the latest data.</p>'; });
 }
 
-// 1. count vs capacity weighted
-const w = Object.entries(P2.weighted);
-new Chart(mk("weighted"), {
-  type: "bar",
-  data: {
-    labels: w.map(([k]) => k),
-    datasets: [
-      { label: "By project count", data: w.map(([, v]) => v.countMedian), backgroundColor: C.greenL, borderRadius: 4, maxBarThickness: 34 },
-      { label: "By capacity (MW)", data: w.map(([, v]) => v.capWeightedMedian), backgroundColor: C.gold, borderRadius: 4, maxBarThickness: 34 },
-    ],
-  },
-  options: {
-    plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y} months` } } },
-    scales: { y: axis({ title: { display: true, text: "median months to consent" } }), x: axis({ grid: { display: false } }) },
-  },
-});
-
-// 2. grant vs refuse durations
-const dt = P1B.decTbl.filter(d => d.nGrant >= 50);
-new Chart(mk("decTbl"), {
-  type: "bar",
-  data: {
-    labels: dt.map(d => d.tech),
-    datasets: [
-      { label: "Granted", data: dt.map(d => d.medGrant), backgroundColor: C.grant, borderRadius: 4, maxBarThickness: 16 },
-      { label: "Refused", data: dt.map(d => d.medRefuse), backgroundColor: C.refuse, borderRadius: 4, maxBarThickness: 16 },
-    ],
-  },
-  options: {
-    indexAxis: "y",
-    plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.x ?? "—"} months` } } },
-    scales: { x: axis({ title: { display: true, text: "median months to decision" } }), y: axis({ grid: { display: false }, ticks: { font: { size: 11 } } }) },
-  },
-});
-
-// 3. solar bins
-const sb = P2.solarBins;
-new Chart(mk("solarBins"), {
-  type: "bar",
-  data: { labels: sb.map(d => d.band), datasets: [{ data: sb.map(d => d.medMonths), backgroundColor: sb.map(d => d.band.includes("150") ? C.gold : C.tech["Solar Photovoltaics"]), borderRadius: 4, maxBarThickness: 30 }] },
-  options: {
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.y} months  ·  ${fmt.n(sb[c.dataIndex].n)} projects` } } },
-    scales: { y: axis({ title: { display: true, text: "median months" } }), x: axis({ grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 60, minRotation: 45 } }) },
-  },
-});
-
-// 4. bunching
-const bunch = Object.entries(P2.bunch);
-new Chart(mk("bunch"), {
-  type: "bar",
-  data: { labels: bunch.map(([k]) => k), datasets: [{ data: bunch.map(([, v]) => v), backgroundColor: bunch.map(([k]) => k.startsWith("45") ? C.gold : C.inkFaint), borderRadius: 5, maxBarThickness: 70 }] },
-  options: {
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.n(c.parsed.y)} solar projects` } } },
-    scales: { y: axis({ title: { display: true, text: "number of solar projects" } }), x: axis({ grid: { display: false } }) },
-  },
-});
-
-// 5. pending bands
+// ---- what's stuck in the queue (single colour; the split that matters is the wait) ----
 const pb = Object.entries(P1B.pendingBands);
-new Chart(mk("pending"), {
-  type: "bar",
-  data: { labels: pb.map(([k]) => k), datasets: [{ data: pb.map(([, v]) => v.n), backgroundColor: pb.map(([k]) => /^(<4|4-12)/.test(k) ? C.greenL : (/(2-3|3-5|5\+)/.test(k) ? C.refuse : C.pending)), borderRadius: 5, maxBarThickness: 64 }] },
-  options: {
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.n(c.parsed.y)} projects  ·  ${fmt.gw(pb[c.dataIndex][1].cap)} GW` } } },
-    scales: { y: axis({ title: { display: true, text: "applications awaiting decision" } }), x: axis({ grid: { display: false }, ticks: { font: { size: 11 } } }) },
-  },
-});
+function queueChart(id, pick, title, fmtTip) {
+  new Chart(mk(id), {
+    type: "bar",
+    data: { labels: pb.map(([k]) => k), datasets: [{ data: pb.map(([, v]) => pick(v)), backgroundColor: C.gold, borderRadius: 5, maxBarThickness: 60 }] },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtTip(pb[c.dataIndex][1]) } } },
+      scales: { y: axis({ min: 0, title: { display: true, text: title } }), x: axis({ grid: { display: false }, ticks: { font: { size: 10.5 } } }) },
+    },
+  });
+}
+queueChart("queueGW", v => +gw(v.cap).toFixed(1), "GW awaiting a decision", v => `${gw(v.cap).toFixed(1)} GW · ${fmt.n(v.n)} projects`);
+queueChart("queueN", v => v.n, "applications awaiting a decision", v => `${fmt.n(v.n)} projects · ${gw(v.cap).toFixed(1)} GW`);
+
+const overYear = pb.filter(([k]) => /(1-2|2-3|3-5|5\+)/.test(k)).reduce((a, [, v]) => ({ n: a.n + v.n, cap: a.cap + v.cap }), { n: 0, cap: 0 });
+const over5 = P1B.pendingBands["5+ yrs"];
+document.querySelector("#queueCallout p").innerHTML =
+  `<strong>${gw(overYear.cap).toFixed(0)} GW — ${fmt.n(overYear.n)} projects — has been waiting more than a year for a decision</strong>, well beyond the ~4-month statutory target. ${fmt.n(over5.n)} have waited over five years.`;
 </script>
 </body>
 </html>
