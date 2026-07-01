@@ -27,35 +27,8 @@
 
   <section>
     <div class="section-num">The big picture</div>
-    <h2>Proposed, decided — and stuck</h2>
-    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity. About <strong>58 GW</strong> is generating today. The rest is spread across the pipeline — awaiting a decision, consented but not built, or under construction. The same journey, counted two ways: by number of projects, and by the capacity behind them.</p>
-    <div class="card">
-      <h3>The planning funnel</h3>
-      <p class="sub">Every project narrows stage by stage — submitted, decided, approved, under construction, operational.</p>
-      <div class="grid-2">
-        <div>
-          <p class="funnel-col-title">By projects</p>
-          <div class="chart-box tall" id="funnelProjects"></div>
-        </div>
-        <div>
-          <p class="funnel-col-title">By capacity (GW)</p>
-          <div class="chart-box tall" id="funnelGW"></div>
-        </div>
-      </div>
-      <div class="source">REPD Q1 2026. "Decided" = approved + refused. "Approved" includes all live consents; "Under construction" = building or operational; "Operational" = generating today.</div>
-    </div>
-    <div class="callout" id="decisionCallout">
-      <span class="tag">The headline</span>
-      <p></p>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section>
-    <div class="section-num">The whole flow</div>
     <h2>Every application, and where it goes</h2>
-    <p class="dek">Read left to right: each application either falls away — withdrawn, refused, or still awaiting a decision — or wins consent. Approved projects then face their own attrition, peeling off as consent lapses, stalls before construction, or finally reaches the grid. The diagram is drawn to scale: every band's width is proportional to the quantity flowing through it.</p>
+    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity; about <strong>58 GW</strong> is generating today. Read left to right to see where the rest goes: each application either falls away — withdrawn, refused, or still awaiting a decision — or wins consent, and approved projects then peel off as consent lapses, stalls before construction, or reaches the grid. The diagram is drawn to scale — every band's width is the quantity flowing through it — and you can filter by technology or council party, or switch between capacity and application count.</p>
     <div class="card">
       <h3>From application to the grid</h3>
       <div class="toolbar">
@@ -75,6 +48,10 @@
       <p class="sub" id="flowNote" style="margin:.3rem 0 0"></p>
       <div class="chart-box" id="sankey" style="height:540px"></div>
       <div class="source">REPD Q1 2026. "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance. Capacity is Installed Capacity (MWelec); shown as GW on the diagram. Party is the control of the deciding council at the decision date (application date if undecided); national-route and unmatched projects have no council party.</div>
+    </div>
+    <div class="callout" id="decisionCallout">
+      <span class="tag">The headline</span>
+      <p></p>
     </div>
   </section>
 
@@ -191,71 +168,6 @@ document.getElementById("topstats").innerHTML = [
 document.querySelector("#decisionCallout p").innerHTML =
   `Of the applications that reach a decision, <strong>${fmt.pct(o.approvalRatePct)}</strong> are approved — refusal is rare. But only <strong>${fmt.pct(decidedPct)}</strong> have reached a decision at all: ${fmt.n(o.pending)} projects, <strong>${gw(o.pendingCap).toFixed(0)} GW</strong>, are still in the queue awaiting a verdict.`;
 
-// ---------- symmetrical funnel ----------
-const funnelLabels = (stages, fmtVal) => ({
-  id: "funnelLabels",
-  afterDatasetsDraw(chart) {
-    const { ctx } = chart;
-    const cx = chart.scales.x.getPixelForValue(0);
-    const meta = chart.getDatasetMeta(0);
-    ctx.save();
-    ctx.font = "600 12px Tahoma, Verdana, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    meta.data.forEach((bar, i) => {
-      const w = Math.abs(bar.x - bar.base);
-      const txt = fmtVal(stages[i].v);
-      ctx.fillStyle = (w > ctx.measureText(txt).width + 18) ? "#fff" : C.inkSoft;
-      ctx.fillText(txt, cx, bar.y);
-    });
-    ctx.restore();
-  },
-});
-
-function funnel(id, stages, fmtVal, unit) {
-  const max = stages[0].v;
-  new Chart(mk(id), {
-    type: "bar",
-    data: {
-      labels: stages.map(s => s.k),
-      datasets: [{
-        data: stages.map(s => [-s.v / 2, s.v / 2]),
-        backgroundColor: stages.map(s => s.c),
-        borderRadius: 4, borderSkipped: false,
-        barPercentage: 0.98, categoryPercentage: 0.84,
-      }],
-    },
-    options: {
-      indexAxis: "y",
-      layout: { padding: { left: 6, right: 6 } },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: items => items[0].label,
-            label: ctx => `${fmtVal(stages[ctx.dataIndex].v)}${unit} · ${(stages[ctx.dataIndex].v / max * 100).toFixed(0)}% of submitted`,
-          },
-        },
-      },
-      scales: {
-        x: { min: -max / 2, max: max / 2, display: false, grid: { display: false } },
-        y: axis({ grid: { display: false }, ticks: { font: { size: 11.5 } } }),
-      },
-    },
-    plugins: [funnelLabels(stages, fmtVal)],
-  });
-}
-
-const stageDefs = [
-  { k: "Submitted",          c: C.inkFaint, n: F.n.applied,  mw: F.mw.applied },
-  { k: "Decided",            c: C.gold,     n: F.n.decided,  mw: F.mw.decided },
-  { k: "Approved",           c: C.greenL,   n: F.n.granted,  mw: F.mw.granted },
-  { k: "Under construction", c: C.green,    n: F.n.built,    mw: F.mw.built },
-  { k: "Operational",        c: C.greenD,   n: F.n.op,       mw: F.mw.op },
-];
-funnel("funnelProjects", stageDefs.map(s => ({ k: s.k, v: s.n, c: s.c })), fmt.n, " projects");
-funnel("funnelGW",       stageDefs.map(s => ({ k: s.k, v: s.mw, c: s.c })), v => fmt.gw(v), " GW");
-
 // ---------- Sankey: toggleable MW / applications, drawn to scale ----------
 const sankeyLabel = {
   Applied: "Applied", Approved: "Approved", Building: "Construction started",
@@ -353,7 +265,9 @@ function buildSankey() {
   }
 
   const totals = nodeTotals(u);
-  const labels = {};
+  const grandTotal = u.applied || 1; // every node as a share of all applications
+  const pctOf = v => { const p = v / grandTotal * 100; return `${p >= 10 || p === 0 ? Math.round(p) : p.toFixed(1)}%`; };
+  const labels = {};        // kept for the dataset (hidden); real drawing is in the plugin
   Object.keys(sankeyLabel).forEach(k => { labels[k] = `${sankeyLabel[k]}  ·  ${val(totals[k])}`; });
 
   const flows = [
@@ -380,16 +294,20 @@ function buildSankey() {
       const nodeWidth = chart.data.datasets[0].nodeWidth || 10;
       const ctx = chart.ctx;
       ctx.save();
-      ctx.font = "600 12px Tahoma, Verdana, sans-serif";
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-      ctx.fillStyle = C.inkSoft;
       nodes.forEach(node => {
-        const x = xScale.getPixelForValue(node.x);
+        const x = xScale.getPixelForValue(node.x) + nodeWidth + 6;
         const y = yScale.getPixelForValue(node.y);
         const max = Math.max(node.in || node.out, node.out || node.in);
-        const height = Math.abs(yScale.getPixelForValue(node.y + max) - y);
-        ctx.fillText(labels[node.key] || node.key, x + nodeWidth + 6, y + height / 2);
+        const mid = y + Math.abs(yScale.getPixelForValue(node.y + max) - y) / 2;
+        // line 1: name · value   line 2: share of all applications
+        ctx.font = "600 12px Tahoma, Verdana, sans-serif";
+        ctx.fillStyle = C.inkSoft;
+        ctx.fillText(`${sankeyLabel[node.key]}  ·  ${val(totals[node.key])}`, x, mid - 6);
+        ctx.font = "600 10.5px Tahoma, Verdana, sans-serif";
+        ctx.fillStyle = C.inkFaint;
+        ctx.fillText(`${pctOf(totals[node.key])} of all applications`, x, mid + 7);
       });
       ctx.restore();
     },
@@ -412,7 +330,7 @@ function buildSankey() {
       },
       plugins: [rightLabels],
       options: {
-        layout: { padding: { left: 4, right: 168, top: 6, bottom: 6 } },
+        layout: { padding: { left: 4, right: 210, top: 6, bottom: 6 } },
         plugins: {
           legend: { display: false },
           tooltip: {
