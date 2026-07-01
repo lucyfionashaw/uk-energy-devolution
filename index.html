@@ -170,29 +170,36 @@ document.querySelector("#decisionCallout p").innerHTML =
 
 // ---------- Sankey: toggleable MW / applications, drawn to scale ----------
 const sankeyLabel = {
-  Applied: "Applied", Approved: "Approved", Building: "Construction started",
+  Applied: "Applied", DecisionMade: "Decision made", Approved: "Approved", Building: "Construction started",
   Refused: "Refused", Withdrawn: "Withdrawn / abandoned", Pending: "Awaiting a decision",
   Expired: "Consent lapsed", Permitted: "Permitted, not built",
   UnderConstruction: "Under construction", Operational: "Operational",
 };
 const sankeyColor = {
-  Applied: C.inkFaint, Approved: C.greenL, Building: C.green, Operational: C.greenD,
+  Applied: C.inkFaint, DecisionMade: "#6b8e7f", Approved: C.greenL, Building: C.green, Operational: C.greenD,
   Refused: C.refuse, Withdrawn: "#9b9b9b", Pending: C.gold,
   Expired: "#b08968", Permitted: C.goldL, UnderConstruction: "#6fae8a",
 };
+// columns follow the same gates as the Gantt: submission → decision → approval → construction → commissioning
 const sankeyCol = {
-  Applied: 0, Refused: 1, Withdrawn: 1, Pending: 1, Approved: 1,
-  Expired: 2, Permitted: 2, Building: 2, UnderConstruction: 3, Operational: 3,
+  Applied: 0,
+  DecisionMade: 1, Withdrawn: 1, Pending: 1,
+  Approved: 2, Refused: 2,
+  Expired: 3, Permitted: 3, Building: 3,
+  UnderConstruction: 4, Operational: 4,
 };
 const sankeyPriority = {
-  Applied: 0, Approved: 0, Refused: 4, Withdrawn: 5, Pending: 6,
-  Building: 0, Permitted: 2, Expired: 3, Operational: 0, UnderConstruction: 2,
+  Applied: 0,
+  DecisionMade: 0, Withdrawn: 5, Pending: 6,
+  Approved: 0, Refused: 4,
+  Building: 0, Permitted: 2, Expired: 3,
+  Operational: 0, UnderConstruction: 2,
 };
 
 // node totals per unit, used to write a scale value onto each label
 function nodeTotals(u) {
   return {
-    Applied: u.applied, Refused: u.refused, Withdrawn: u.otherOut, Pending: u.pending,
+    Applied: u.applied, DecisionMade: u.decided, Refused: u.refused, Withdrawn: u.otherOut, Pending: u.pending,
     Approved: u.granted, Expired: u.expired, Permitted: u.permitted, Building: u.built,
     UnderConstruction: u.building, Operational: u.op,
   };
@@ -227,6 +234,7 @@ function sumCells(unit, tech, party) {
   return {
     applied: b.applied, refused: b.refused, pending: b.pending, granted: b.granted,
     expired: b.expired, built: b.built, op: b.op,
+    decided: b.granted + b.refused,
     otherOut: Math.max(0, b.applied - b.granted - b.refused - b.pending),
     permitted: Math.max(0, b.granted - b.built - b.expired),
     building: Math.max(0, b.built - b.op),
@@ -265,21 +273,23 @@ function buildSankey() {
   }
 
   const totals = nodeTotals(u);
-  const grandTotal = u.applied || 1; // every node as a share of all applications
+  const grandTotal = u.applied || 1; // every node as a share of the total
   const pctOf = v => { const p = v / grandTotal * 100; return `${p >= 10 || p === 0 ? Math.round(p) : p.toFixed(1)}%`; };
+  const pctUnit = isMW ? "of all capacity" : "of all applications";
   const labels = {};        // kept for the dataset (hidden); real drawing is in the plugin
   Object.keys(sankeyLabel).forEach(k => { labels[k] = `${sankeyLabel[k]}  ·  ${val(totals[k])}`; });
 
   const flows = [
-    { from: "Applied",  to: "Refused",           flow: u.refused },
-    { from: "Applied",  to: "Withdrawn",         flow: u.otherOut },
-    { from: "Applied",  to: "Pending",           flow: u.pending },
-    { from: "Applied",  to: "Approved",          flow: u.granted },
-    { from: "Approved", to: "Expired",           flow: u.expired },
-    { from: "Approved", to: "Permitted",         flow: u.permitted },
-    { from: "Approved", to: "Building",          flow: u.built },
-    { from: "Building", to: "UnderConstruction", flow: u.building },
-    { from: "Building", to: "Operational",       flow: u.op },
+    { from: "Applied",      to: "Withdrawn",         flow: u.otherOut },
+    { from: "Applied",      to: "Pending",           flow: u.pending },
+    { from: "Applied",      to: "DecisionMade",      flow: u.decided },
+    { from: "DecisionMade", to: "Refused",           flow: u.refused },
+    { from: "DecisionMade", to: "Approved",          flow: u.granted },
+    { from: "Approved",     to: "Expired",           flow: u.expired },
+    { from: "Approved",     to: "Permitted",         flow: u.permitted },
+    { from: "Approved",     to: "Building",          flow: u.built },
+    { from: "Building",     to: "UnderConstruction", flow: u.building },
+    { from: "Building",     to: "Operational",       flow: u.op },
   ].filter(f => f.flow > 0);
 
   // draw every node label on the RIGHT of its node for a consistent read; the library
@@ -301,13 +311,16 @@ function buildSankey() {
         const y = yScale.getPixelForValue(node.y);
         const max = Math.max(node.in || node.out, node.out || node.in);
         const mid = y + Math.abs(yScale.getPixelForValue(node.y + max) - y) / 2;
-        // line 1: name · value   line 2: share of all applications
+        // line 1: name · value   line 2: share of the total (omitted for the 100% source node)
+        const two = node.key !== "Applied";
         ctx.font = "600 12px Tahoma, Verdana, sans-serif";
         ctx.fillStyle = C.inkSoft;
-        ctx.fillText(`${sankeyLabel[node.key]}  ·  ${val(totals[node.key])}`, x, mid - 6);
-        ctx.font = "600 10.5px Tahoma, Verdana, sans-serif";
-        ctx.fillStyle = C.inkFaint;
-        ctx.fillText(`${pctOf(totals[node.key])} of all applications`, x, mid + 7);
+        ctx.fillText(`${sankeyLabel[node.key]}  ·  ${val(totals[node.key])}`, x, two ? mid - 6 : mid);
+        if (two) {
+          ctx.font = "600 10.5px Tahoma, Verdana, sans-serif";
+          ctx.fillStyle = C.inkFaint;
+          ctx.fillText(`${pctOf(totals[node.key])} ${pctUnit}`, x, mid + 7);
+        }
       });
       ctx.restore();
     },
