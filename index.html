@@ -262,7 +262,7 @@ function buildSankey() {
   host.innerHTML = "";
 
   const isMW = flowState.unit === "mw";
-  const val = v => isMW ? `${gw(v).toLocaleString("en-GB", { maximumFractionDigits: 1 })} GW` : `${fmt.n(v)}`;
+  const val = v => isMW ? `${gw(v).toLocaleString("en-GB", { maximumFractionDigits: 0 })} GW` : `${fmt.n(v)}`;
   const u = sumCells(flowState.unit, flowState.tech, flowState.party);
 
   const nApplied = flowState.unit === "n" ? u.applied : sumCells("n", flowState.tech, flowState.party).applied;
@@ -274,7 +274,7 @@ function buildSankey() {
 
   const totals = nodeTotals(u);
   const grandTotal = u.applied || 1; // every node as a share of the total
-  const pctOf = v => { const p = v / grandTotal * 100; return `${p >= 10 || p === 0 ? Math.round(p) : p.toFixed(1)}%`; };
+  const pctOf = v => `${Math.round(v / grandTotal * 100)}%`;
   const pctUnit = isMW ? "of all capacity" : "of all applications";
   const labels = {};        // kept for the dataset (hidden); real drawing is in the plugin
   Object.keys(sankeyLabel).forEach(k => { labels[k] = `${sankeyLabel[k]}  ·  ${val(totals[k])}`; });
