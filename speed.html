@@ -148,7 +148,11 @@ const P1B = window.PHASE1B, P2 = window.PHASE2C;  // phase2c_data.json holds the
 const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
 
 // 0. Gantt timelines — one row per technology/scale bucket, on a shared time axis
+// Wrapped so a stale/cached data.js (missing the newer GANTT shape) can't halt the
+// rest of the page's charts.
+try {
 const G = window.GANTT;
+if (!G || !G.buckets) throw new Error("GANTT data not loaded");
 const stageColours = [C.gold, C.greenL, C.greenD];
 
 // draw the median/mean inside each stage segment when it's wide enough
@@ -244,6 +248,9 @@ document.getElementById("ganttSizeStat").addEventListener("click", e => {
   document.querySelectorAll("#ganttSizeStat button").forEach(x => x.classList.toggle("on", x === b));
   sizeState.metric = b.dataset.stat; renderGanttSize();
 });
+} catch (e) {
+  ["gantt", "ganttSize"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Couldn\'t draw this chart. If you just saw the site update, hard-refresh the page (Ctrl/Cmd+Shift+R) to load the latest data.</p>'; });
+}
 
 // 1. count vs capacity weighted
 const w = Object.entries(P2.weighted);
