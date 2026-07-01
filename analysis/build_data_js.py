@@ -23,6 +23,9 @@ MAP = {
     "phase3b_land.json":    "PHASE3B_LAND",   # land-based, 2015-2026 window, per year
     "phase4_party.json":    "PHASE4_PARTY",   # outcomes by party in control AT THE DECISION YEAR (+ time-to-decide)
     "flow_data.json":       "FLOW",           # funnel / Sankey quantities in both units (projects + MW)
+    "flow_cells.json":      "FLOWX",          # the same quantities split by technology x controlling party
+    "gantt_data.json":      "GANTT",          # median stage durations by technology (Gantt timeline)
+    "apps_tech.json":       "APPSTECH",        # applications & capacity per year, by technology bucket
 }
 # map_points.json is deliberately NOT inlined here — it is ~1.4 MB and only the
 # overview page needs it, so index.html fetches it lazily instead.

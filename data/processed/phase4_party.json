@@ -1,6 +1,6 @@
 {
   "note": "Everything on the politics page from one join: council party in control ON THE DECISION DATE (decisions before the May take-office date fall under the pre-election administration). GB local route only. Land density: 2015-2025, lower-tier (LAD) geography, land-years split fractionally at election dates.",
-  "landWindow": "2015-2025",
+  "landWindow": "2010-2025",
   "matchedDecided": 9855,
   "unmatchedDecided": 534,
   "byParty": {
@@ -12,9 +12,9 @@
       "approvedMW": 51438,
       "medMonthsToDecision": 3.7,
       "nTimed": 4169,
-      "landApprovedMW": 34570,
-      "avgLandKm2": 107649,
-      "mwPerKm2PerYr": 0.0292
+      "landApprovedMW": 40850,
+      "avgLandKm2": 107712,
+      "mwPerKm2PerYr": 0.0237
     },
     "Lab": {
       "n": 2828,
@@ -24,9 +24,9 @@
       "approvedMW": 33180,
       "medMonthsToDecision": 2.7,
       "nTimed": 2824,
-      "landApprovedMW": 26393,
-      "avgLandKm2": 28158,
-      "mwPerKm2PerYr": 0.0852
+      "landApprovedMW": 29078,
+      "avgLandKm2": 30340,
+      "mwPerKm2PerYr": 0.0599
     },
     "LibDem": {
       "n": 944,
@@ -36,9 +36,9 @@
       "approvedMW": 10387,
       "medMonthsToDecision": 3.7,
       "nTimed": 943,
-      "landApprovedMW": 7556,
-      "avgLandKm2": 13288,
-      "mwPerKm2PerYr": 0.0517
+      "landApprovedMW": 8123,
+      "avgLandKm2": 12933,
+      "mwPerKm2PerYr": 0.0393
     },
     "SNP": {
       "n": 375,
@@ -48,8 +48,8 @@
       "approvedMW": 4101,
       "medMonthsToDecision": 3.9,
       "nTimed": 375,
-      "landApprovedMW": 4001,
-      "avgLandKm2": 18149,
+      "landApprovedMW": 4013,
+      "avgLandKm2": 12527,
       "mwPerKm2PerYr": 0.02
     },
     "Plaid": {
@@ -61,7 +61,7 @@
       "medMonthsToDecision": 4.2,
       "nTimed": 45,
       "landApprovedMW": 793,
-      "avgLandKm2": 6427,
+      "avgLandKm2": 4419,
       "mwPerKm2PerYr": 0.0112
     },
     "Green": {
@@ -73,7 +73,7 @@
       "medMonthsToDecision": 4.4,
       "nTimed": 105,
       "landApprovedMW": 1716,
-      "avgLandKm2": 959,
+      "avgLandKm2": 659,
       "mwPerKm2PerYr": 0.1626
     },
     "Reform": {
@@ -85,7 +85,7 @@
       "medMonthsToDecision": 2.6,
       "nTimed": 55,
       "landApprovedMW": 220,
-      "avgLandKm2": 399,
+      "avgLandKm2": 274,
       "mwPerKm2PerYr": 0.0501
     },
     "Other/Ind": {
@@ -96,9 +96,9 @@
       "approvedMW": 13983,
       "medMonthsToDecision": 9.2,
       "nTimed": 1147,
-      "landApprovedMW": 9943,
-      "avgLandKm2": 64660,
-      "mwPerKm2PerYr": 0.014
+      "landApprovedMW": 11882,
+      "avgLandKm2": 65896,
+      "mwPerKm2PerYr": 0.0113
     },
     "Nationalist (pre-2007)": {
       "n": 177,
@@ -108,9 +108,9 @@
       "approvedMW": 748,
       "medMonthsToDecision": 9.3,
       "nTimed": 177,
-      "landApprovedMW": 184,
-      "avgLandKm2": 3059,
-      "mwPerKm2PerYr": 0.0055
+      "landApprovedMW": 618,
+      "avgLandKm2": 7989,
+      "mwPerKm2PerYr": 0.0048
     }
   },
   "byPartyOnshore": {

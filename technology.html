@@ -13,7 +13,7 @@
   <div class="wrap">
     <div class="kicker">Section 04 · Technology</div>
     <h1>What Britain is trying to build</h1>
-    <p class="lede">The mix of what developers propose has been rewritten twice in fifteen years: first the great solar surge, then the arrival of grid-scale batteries. And running underneath it all, the long shadow of the policies that nearly killed onshore wind in England.</p>
+    <p class="lede">What developers propose has shifted repeatedly over fifteen years: the solar surge, the arrival of grid-scale batteries, and the sharp decline of onshore wind in England after 2015.</p>
   </div>
 </header>
 
@@ -21,13 +21,19 @@
 
   <section>
     <div class="section-num">The shifting pipeline</div>
-    <h2>Applications, year by year</h2>
-    <p class="dek">Solar applications exploded from 2011, crashed when subsidies were cut mid-decade, then roared back. Batteries went from non-existent to a major share after 2017. Onshore wind, once the dominant technology, faded to a trickle.</p>
+    <h2>What the system is asked to process, year by year</h2>
+    <p class="dek">Two very different stories, depending on how you count. By <em>applications</em>, solar and batteries swamp everything — thousands of individually small schemes the planning system has to churn through. By <em>capacity</em>, a handful of giant offshore wind farms rival the entire solar fleet. Toggle between them: the gap is the workload problem in one picture.</p>
     <div class="card">
       <h3>New planning applications by technology</h3>
-      <div class="legend" id="techLegend"></div>
+      <div class="toolbar">
+        <div class="legend" id="techLegend"></div>
+        <div class="seg" id="appsUnit" role="group" aria-label="Choose scale">
+          <button data-unit="n" class="on">Applications</button>
+          <button data-unit="mw">Capacity (GW)</button>
+        </div>
+      </div>
       <div class="chart-box tall" id="appsTech"></div>
-      <div class="source">REPD Q1 2026, by year of application. Four largest technologies shown.</div>
+      <div class="source">REPD Q1 2026, by year of application. Every technology included; smaller ones grouped as Hydro, Bioenergy and Other.</div>
     </div>
   </section>
 
@@ -36,15 +42,15 @@
   <section>
     <div class="section-num">The divergence</div>
     <h2>The two approval stories</h2>
-    <p class="dek">Overall approval rates have drifted upward to ~90%. But that headline hides onshore wind, whose English approval rate collapsed through the early 2010s as policy turned against it — and only recovered once applications had already migrated to Scotland.</p>
+    <p class="dek">Overall approval rates have drifted up to ~90%. That headline sits above onshore wind, whose approval rate fell through the early 2010s and then recovered later in the decade.</p>
     <div class="card">
       <h3>Approval rate over time: all technologies vs onshore wind</h3>
       <div class="chart-box" id="approvalTrend"></div>
       <div class="source">REPD Q1 2026, decided applications by year of decision.</div>
     </div>
     <div class="callout">
-      <span class="tag">The scar</span>
-      <p>Onshore wind approval fell from ~64% in 2008 to <strong>40% by 2014</strong> — the years of mounting local-objection powers and the run-up to the 2015 English moratorium. It has since climbed back above 80%, but a decade of building was lost.</p>
+      <span class="tag">Onshore wind</span>
+      <p>Onshore wind approval fell from ~64% in 2008 to <strong>40% by 2014</strong>, around the run-up to the 2015 English restrictions, and has since climbed back above 80%.</p>
     </div>
   </section>
 
@@ -59,20 +65,6 @@
       <p class="sub">Technologies with 100+ projects, decided applications.</p>
       <div class="chart-box tall" id="funnelTech"></div>
       <div class="source">REPD Q1 2026.</div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section>
-    <div class="section-num">The end of the line</div>
-    <h2>Decommissioned: the first generation retires</h2>
-    <p class="dek">A small but growing list of early renewable sites — Britain's first commercial wind farm at Delabole, pioneer tidal devices, landfill-gas plants — have now been decommissioned, the leading edge of an asset base that will need replacing.</p>
-    <div class="card">
-      <h3 id="decomCount"></h3>
-      <p class="sub">A selection of retired sites in the database.</p>
-      <div style="overflow-x:auto"><table id="decomTable"></table></div>
-      <div class="source">REPD Q1 2026, status = Decommissioned.</div>
     </div>
   </section>
 
@@ -92,30 +84,51 @@
 const P1 = window.PHASE1;
 const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
 
-// 1. apps by tech (stacked area)
-const at = P1.appsByTech;
+// 1. apps by tech (stacked area) — all technologies, bucketed, toggle apps / capacity
+const AT = window.APPSTECH;
 const techCols = [
   { k: "Solar", name: "Solar", c: C.tech.Solar },
   { k: "OnshoreWind", name: "Onshore wind", c: C.tech.OnshoreWind },
-  { k: "Battery", name: "Battery", c: C.tech.Battery },
   { k: "OffshoreWind", name: "Offshore wind", c: C.tech.OffshoreWind },
+  { k: "Battery", name: "Battery", c: C.tech.Battery },
+  { k: "Hydro", name: "Hydro", c: "#2a9d8f" },
+  { k: "Bioenergy", name: "Bioenergy", c: "#a3743a" },
+  { k: "Other", name: "Other", c: "#b0aca4" },
 ];
 document.getElementById("techLegend").innerHTML = techCols.map(t => `<span><i style="background:${t.c}"></i>${t.name}</span>`).join("");
-new Chart(mk("appsTech"), {
-  type: "line",
-  data: {
-    labels: at.map(d => d.year),
-    datasets: techCols.map(t => ({
-      label: t.name, data: at.map(d => d[t.k]),
-      borderColor: t.c, backgroundColor: t.c + "cc",
-      fill: true, stack: "s", tension: .3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 1,
-    })),
-  },
-  options: {
-    interaction: { mode: "index", intersect: false },
-    plugins: { legend: { display: false } },
-    scales: { y: axis({ stacked: true, title: { display: true, text: "applications submitted" } }), x: axis({ grid: { display: false } }) },
-  },
+
+let appsChart = null;
+function renderApps(unit) {
+  const isMW = unit === "mw";
+  if (appsChart) appsChart.destroy();
+  document.getElementById("appsTech").innerHTML = "";
+  appsChart = new Chart(mk("appsTech"), {
+    type: "line",
+    data: {
+      labels: AT.years,
+      datasets: techCols.map(t => ({
+        label: t.name,
+        data: AT.series[t.k][unit].map(v => isMW ? v / 1000 : v),
+        borderColor: t.c, backgroundColor: t.c + "cc",
+        fill: true, stack: "s", tension: .3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 1,
+      })),
+    },
+    options: {
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " apps"}` } },
+      },
+      scales: { y: axis({ stacked: true, min: 0, title: { display: true, text: isMW ? "capacity applied for (GW)" : "applications submitted" } }), x: axis({ grid: { display: false } }) },
+    },
+  });
+}
+renderApps("n");
+document.getElementById("appsUnit").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-unit]");
+  if (!btn) return;
+  document.querySelectorAll("#appsUnit button").forEach(b => b.classList.toggle("on", b === btn));
+  renderApps(btn.dataset.unit);
 });
 
 // 2. approval trend dual line
@@ -132,7 +145,7 @@ new Chart(mk("approvalTrend"), {
   options: {
     interaction: { mode: "index", intersect: false },
     plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt.pct(c.parsed.y)}` } } },
-    scales: { y: axis({ min: 30, max: 100, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+    scales: { y: axis({ min: 0, max: 100, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
   },
 });
 
@@ -145,18 +158,9 @@ new Chart(mk("funnelTech"), {
   options: {
     indexAxis: "y",
     plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.pct(c.parsed.x)}  ·  ${fmt.n(ft[c.dataIndex].n)} projects` } } },
-    scales: { x: axis({ min: 60, max: 100, ticks: { callback: v => v + "%" } }), y: axis({ grid: { display: false }, ticks: { font: { size: 11 } } }) },
+    scales: { x: axis({ min: 0, max: 100, ticks: { callback: v => v + "%" } }), y: axis({ grid: { display: false }, ticks: { font: { size: 11 } } }) },
   },
 });
-
-// 4. decommissioned table
-const dc = P1.decommissioned;
-document.getElementById("decomCount").textContent = `${dc.length} decommissioned sites`;
-const rows = dc.slice().sort((a, b) => (+b.capMW) - (+a.capMW)).slice(0, 12);
-document.getElementById("decomTable").innerHTML =
-  `<thead><tr><th>Site</th><th>Technology</th><th>Nation</th><th class="num">MW</th></tr></thead><tbody>` +
-  rows.map(r => `<tr><td>${r.site}</td><td>${r.tech}</td><td>${r.country}</td><td class="num">${r.capMW}</td></tr>`).join("") +
-  `</tbody>`;
 </script>
 </body>
 </html>

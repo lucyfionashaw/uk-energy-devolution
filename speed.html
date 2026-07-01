@@ -20,6 +20,27 @@
 <main class="wrap">
 
   <section>
+    <div class="section-num">The whole timeline</div>
+    <h2>Where the years actually go</h2>
+    <p class="dek">Read left to right as a typical journey from application to switch-on. A median project reaches a <em>decision</em> in under four months — but then waits far longer to break ground, and longer still to energise. The hold-up isn't the planning verdict; it's everything after it. Note the sample shrinks at each stage: only projects that actually got that far have a date, so the right-hand bars describe the survivors, not the average applicant.</p>
+    <div class="card">
+      <h3>Median duration of each stage — application to commissioning</h3>
+      <div class="toolbar">
+        <div class="filters">
+          <label class="fld">Technology
+            <select id="ganttTech"></select>
+          </label>
+        </div>
+      </div>
+      <p class="sub" id="ganttNote" style="margin:.3rem 0 0"></p>
+      <div class="chart-box" id="gantt"></div>
+      <div class="source">REPD Q1 2026. Each stage's median is taken over the projects that have both endpoint dates (sample size in the tooltip and note). Planning permission is the consent in REPD, so approval and consent are a single event. Stacking stage medians is an approximation of a typical timeline, not one project's actual path.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
     <div class="section-num">The averages lie</div>
     <h2>Counting projects vs counting megawatts</h2>
     <p class="dek">A median solar project is consented in 2.3 months. But weight each project by the capacity it carries, and that figure jumps to nearly 10 months — because the big schemes that hold most of the gigawatts move far more slowly. Across all technologies, the gap is 3.8 months by count versus 14.4 by capacity.</p>
@@ -30,8 +51,8 @@
       <div class="source">REPD Q1 2026. Capacity-weighted median weights each project by its MW.</div>
     </div>
     <div class="callout">
-      <span class="tag">The distortion</span>
-      <p><strong>Most projects are small and fast; most capacity sits in large, slow schemes.</strong> Headline "speed" stats describe the experience of a rooftop installer, not of the gigawatt-scale projects the grid actually needs.</p>
+      <span class="tag">Count vs capacity</span>
+      <p><strong>Most projects are small and fast; most capacity sits in large, slower schemes.</strong> A median measured by project count reflects the small schemes, not the gigawatt-scale ones.</p>
     </div>
   </section>
 
@@ -101,6 +122,65 @@
 <script>
 const P1B = window.PHASE1B, P2 = window.PHASE2C;  // phase2c_data.json holds the weighting / size-band / bunching analysis
 const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
+
+// 0. Gantt-style stage timeline, filtered by technology
+const G = window.GANTT;
+const GT_OPTS = [
+  { v: "All", t: "All technologies" }, { v: "Solar", t: "Solar" }, { v: "OnshoreWind", t: "Onshore wind" },
+  { v: "OffshoreWind", t: "Offshore wind" }, { v: "Battery", t: "Battery" }, { v: "Other", t: "Other" },
+].filter(o => G.byTech[o.v]);
+document.getElementById("ganttTech").innerHTML = GT_OPTS.map(o => `<option value="${o.v}">${o.t}</option>`).join("");
+const stageColours = [C.gold, C.greenL, C.greenD];
+
+const ganttLabels = bars => ({
+  id: "ganttLabels",
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart, meta = chart.getDatasetMeta(0);
+    ctx.save();
+    ctx.font = "600 12px Tahoma, Verdana, sans-serif";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    meta.data.forEach((bar, i) => {
+      const b = bars[i];
+      if (b.med == null) return;
+      const w = Math.abs(bar.x - bar.base), txt = `${b.med} mo`;
+      if (w > ctx.measureText(txt).width + 14) {
+        ctx.fillStyle = "#fff";
+        ctx.fillText(txt, (bar.x + bar.base) / 2, bar.y);
+      }
+    });
+    ctx.restore();
+  },
+});
+
+let ganttChart = null;
+function renderGantt(tech) {
+  const rows = G.byTech[tech];
+  let cum = 0;
+  const bars = rows.map(r => { const start = cum, len = r.med ?? 0; cum += len; return { stage: r.stage, start, end: start + len, med: r.med, n: r.n }; });
+  if (ganttChart) ganttChart.destroy();
+  document.getElementById("gantt").innerHTML = "";
+  ganttChart = new Chart(mk("gantt"), {
+    type: "bar",
+    data: { labels: rows.map(r => r.stage), datasets: [{ data: bars.map(b => [b.start, b.end]), backgroundColor: stageColours, borderRadius: 4, borderSkipped: false, barPercentage: 0.72 }] },
+    options: {
+      indexAxis: "y",
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { title: items => items[0].label, label: c => { const b = bars[c.dataIndex]; return b.med == null ? "no dated projects" : [`${b.med} months (median)`, `≈ ${b.start.toFixed(1)} months after application`, `${fmt.n(b.n)} projects with both dates`]; } } },
+      },
+      scales: {
+        x: axis({ min: 0, title: { display: true, text: "months after application (cumulative)" } }),
+        y: axis({ grid: { display: false }, ticks: { font: { size: 11 } } }),
+      },
+    },
+    plugins: [ganttLabels(bars)],
+  });
+  const n = rows.map(r => fmt.n(r.n));
+  document.getElementById("ganttNote").textContent =
+    `The sample shrinks along the way — ${n[0]} projects reach a decision, ${n[1]} record a construction start, ${n[2]} a commissioning date — so later bars describe only the projects that got that far.`;
+}
+renderGantt("All");
+document.getElementById("ganttTech").addEventListener("change", e => renderGantt(e.target.value));
 
 // 1. count vs capacity weighted
 const w = Object.entries(P2.weighted);

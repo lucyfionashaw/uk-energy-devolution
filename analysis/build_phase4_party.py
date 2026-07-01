@@ -40,7 +40,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 OUT = ROOT / "data" / "processed" / "phase4_party.json"
 
-LAND_WINDOW = range(2015, 2026)  # 2015..2025 inclusive; 2026 omitted (partial/provisional year)
+LAND_WINDOW = range(2010, 2026)  # 2010..2025: the grid-scale renewable era. Earlier years are
+                                # negligible in volume and predate stable (post-2009) council
+                                # boundaries, so the 2018 land file matches them poorly. 2026 omitted (partial).
 
 def take_office(year):
     """When a newly elected council takes office: UK ordinary elections are the first

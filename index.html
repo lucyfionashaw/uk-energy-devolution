@@ -28,7 +28,7 @@
   <section>
     <div class="section-num">The big picture</div>
     <h2>Proposed, decided — and stuck</h2>
-    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity. Only about <strong>58 GW</strong> is generating today. The bottleneck is not the planning committee's "no": most of the capacity is trapped <em>before</em> a decision is even made, or holds consent and never gets built. The same journey, counted two ways — by number of projects, and by the capacity behind them.</p>
+    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity. About <strong>58 GW</strong> is generating today. The rest is spread across the pipeline — awaiting a decision, consented but not built, or under construction. The same journey, counted two ways: by number of projects, and by the capacity behind them.</p>
     <div class="card">
       <h3>The planning funnel</h3>
       <p class="sub">Every project narrows stage by stage — submitted, decided, approved, under construction, operational.</p>
@@ -59,14 +59,22 @@
     <div class="card">
       <h3>From application to the grid</h3>
       <div class="toolbar">
-        <p class="sub" style="margin:0">Node labels show the running total at each stage. Choose the scale:</p>
+        <div class="filters">
+          <label class="fld">Technology
+            <select id="flowTech"></select>
+          </label>
+          <label class="fld">Council party
+            <select id="flowParty"></select>
+          </label>
+        </div>
         <div class="seg" id="flowUnit" role="group" aria-label="Choose scale">
           <button data-unit="mw" class="on">Megawatts</button>
           <button data-unit="n">Applications</button>
         </div>
       </div>
+      <p class="sub" id="flowNote" style="margin:.3rem 0 0"></p>
       <div class="chart-box" id="sankey" style="height:540px"></div>
-      <div class="source">REPD Q1 2026. "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance. Capacity is Installed Capacity (MWelec); shown as GW on the diagram.</div>
+      <div class="source">REPD Q1 2026. "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance. Capacity is Installed Capacity (MWelec); shown as GW on the diagram. Party is the control of the deciding council at the decision date (application date if undecided); national-route and unmatched projects have no council party.</div>
     </div>
   </section>
 
@@ -75,7 +83,7 @@
   <section>
     <div class="section-num">The bottleneck</div>
     <h2>What's stuck in the queue — and for how long</h2>
-    <p class="dek">Before a project is ever approved or refused it has to be <em>decided</em>, and a growing pile never is. A live queue of applications sits awaiting a verdict — some filed months ago, but a long tail has been waiting years, well past the ~4-month statutory target. This is where the gigawatts actually pile up.</p>
+    <p class="dek">A live queue of applications sits awaiting a verdict — some filed months ago, others waiting years, well past the ~4-month statutory target. This is where much of the proposed capacity is held up.</p>
     <div class="grid-2">
       <div class="card">
         <h3>Capacity awaiting a decision, by how long it has waited</h3>
@@ -99,12 +107,13 @@
   <section>
     <div class="section-num">The geography</div>
     <h2>Where Britain wants to build</h2>
-    <p class="dek">Every project in the database with a grid reference, mapped. Colour is the technology; the size of each dot is its capacity. The clusters tell the story — solar strung across the sunnier, flatter south and east; onshore wind concentrated in Scotland and Wales; batteries clumping around the grid's pinch-points.</p>
+    <p class="dek">Every project in the database with a grid reference, mapped. Colour is the technology; the size of each dot is its capacity. Filter by technology or by stage, and zoom in to separate the clusters.</p>
     <div class="card">
       <h3>All proposed &amp; built energy projects</h3>
-      <div class="legend" id="mapLegend"></div>
+      <div class="legend" id="mapLegendTech"><span class="lbl">Technology</span></div>
+      <div class="legend" id="mapLegendStage"><span class="lbl">Stage</span></div>
       <div class="map-box" id="map"></div>
-      <div class="source" id="mapSource">REPD Q1 2026 · 14,289 projects with an Ordnance Survey grid reference, converted to latitude/longitude. Click a dot for detail; click a legend colour to toggle a technology.</div>
+      <div class="source" id="mapSource">REPD Q1 2026 · 14,289 projects with an Ordnance Survey grid reference, converted to latitude/longitude. Dot colour is technology, size is capacity, and dots rescale as you zoom. Click a dot for detail; click the legends to filter by technology or project stage.</div>
     </div>
   </section>
 
@@ -180,7 +189,7 @@ document.getElementById("topstats").innerHTML = [
 
 // decision-framed headline
 document.querySelector("#decisionCallout p").innerHTML =
-  `<strong>Refusal is not the bottleneck — indecision is.</strong> Only ${fmt.pct(decidedPct)} of all applications have actually reached a planning decision; ${fmt.n(o.pending)} projects worth <strong>${gw(o.pendingCap).toFixed(0)} GW</strong> are still sitting in the queue with no verdict at all. Of the applications that <em>do</em> get decided, ${fmt.pct(o.approvalRatePct)} are approved — so the capacity that never reaches the grid is lost between "yes" and construction, and in the waiting line before "yes" is even possible.`;
+  `Of the applications that reach a decision, <strong>${fmt.pct(o.approvalRatePct)}</strong> are approved — refusal is rare. But only <strong>${fmt.pct(decidedPct)}</strong> have reached a decision at all: ${fmt.n(o.pending)} projects, <strong>${gw(o.pendingCap).toFixed(0)} GW</strong>, are still in the queue awaiting a verdict.`;
 
 // ---------- symmetrical funnel ----------
 const funnelLabels = (stages, fmtVal) => ({
@@ -277,11 +286,72 @@ function nodeTotals(u) {
   };
 }
 
+// ---- filter options ----
+const TECH_OPTS = [
+  { v: "All", t: "All technologies" }, { v: "Solar", t: "Solar" },
+  { v: "OnshoreWind", t: "Onshore wind" }, { v: "OffshoreWind", t: "Offshore wind" },
+  { v: "Battery", t: "Battery" }, { v: "Other", t: "Other" },
+];
+const PARTY_OPTS = [
+  { v: "All", t: "All parties" }, { v: "Con", t: "Conservative" }, { v: "Lab", t: "Labour" },
+  { v: "LibDem", t: "Lib Dem" }, { v: "SNP", t: "SNP" }, { v: "Plaid", t: "Plaid Cymru" },
+  { v: "Green", t: "Green" }, { v: "Reform", t: "Reform / UKIP" }, { v: "Other/Ind", t: "Other / Independent" },
+];
+const optText = (opts, v) => (opts.find(o => o.v === v) || {}).t;
+const fillSel = (id, opts) => { document.getElementById(id).innerHTML = opts.map(o => `<option value="${o.v}">${o.t}</option>`).join(""); };
+fillSel("flowTech", TECH_OPTS);
+fillSel("flowParty", PARTY_OPTS);
+
+// ---- sum the technology×party cells for the current filter, in the chosen unit ----
+const METRICS = window.FLOWX.metrics;
+function sumCells(unit, tech, party) {
+  const b = Object.fromEntries(METRICS.map(m => [m, 0]));
+  window.FLOWX.cells.forEach(c => {
+    if (tech !== "All" && c.tech !== tech) return;
+    if (party !== "All" && !(c.party === party || (party === "Other/Ind" && c.party === "Nationalist (pre-2007)"))) return;
+    const src = c[unit];
+    METRICS.forEach(m => b[m] += src[m]);
+  });
+  return {
+    applied: b.applied, refused: b.refused, pending: b.pending, granted: b.granted,
+    expired: b.expired, built: b.built, op: b.op,
+    otherOut: Math.max(0, b.applied - b.granted - b.refused - b.pending),
+    permitted: Math.max(0, b.granted - b.built - b.expired),
+    building: Math.max(0, b.built - b.op),
+  };
+}
+
+const flowState = { unit: "mw", tech: "All", party: "All" };
 let sankeyChart = null;
-function buildSankey(unit) {
-  const u = F[unit];
-  const isMW = unit === "mw";
+
+function updateFlowNote(n) {
+  const bits = [];
+  if (flowState.tech !== "All") bits.push(optText(TECH_OPTS, flowState.tech).toLowerCase());
+  if (flowState.party !== "All") bits.push(`${optText(PARTY_OPTS, flowState.party)}-controlled councils`);
+  let s = bits.length
+    ? `Showing ${bits.join(", ")} — ${fmt.n(n)} applications. Node labels show the running total at each stage.`
+    : "Node labels show the running total at each stage; band width is proportional to the amount flowing through.";
+  if (flowState.party !== "All")
+    s += " National-route and unmatched projects have no council party and are excluded.";
+  document.getElementById("flowNote").textContent = s;
+}
+
+function buildSankey() {
+  const host = document.getElementById("sankey");
+  if (sankeyChart) { sankeyChart.destroy(); sankeyChart = null; }
+  host.innerHTML = "";
+
+  const isMW = flowState.unit === "mw";
   const val = v => isMW ? `${gw(v).toLocaleString("en-GB", { maximumFractionDigits: 1 })} GW` : `${fmt.n(v)}`;
+  const u = sumCells(flowState.unit, flowState.tech, flowState.party);
+
+  const nApplied = flowState.unit === "n" ? u.applied : sumCells("n", flowState.tech, flowState.party).applied;
+  if (!u.applied) {
+    host.innerHTML = '<p style="color:var(--ink-faint);font-size:.9rem;padding:2rem 1rem">No projects match this combination of technology and party.</p>';
+    updateFlowNote(0);
+    return;
+  }
+
   const totals = nodeTotals(u);
   const labels = {};
   Object.keys(sankeyLabel).forEach(k => { labels[k] = `${sankeyLabel[k]}  ·  ${val(totals[k])}`; });
@@ -296,9 +366,35 @@ function buildSankey(unit) {
     { from: "Approved", to: "Building",          flow: u.built },
     { from: "Building", to: "UnderConstruction", flow: u.building },
     { from: "Building", to: "Operational",       flow: u.op },
-  ];
+  ].filter(f => f.flow > 0);
 
-  if (sankeyChart) sankeyChart.destroy();
+  // draw every node label on the RIGHT of its node for a consistent read; the library
+  // otherwise flips sides at the chart midpoint, which is hard to follow.
+  const rightLabels = {
+    id: "sankeyRightLabels",
+    afterDatasetsDraw(chart) {
+      const meta = chart.getDatasetMeta(0);
+      const nodes = meta.controller && meta.controller._nodes;
+      if (!nodes) return;
+      const { xScale, yScale } = meta;
+      const nodeWidth = chart.data.datasets[0].nodeWidth || 10;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.font = "600 12px Tahoma, Verdana, sans-serif";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = C.inkSoft;
+      nodes.forEach(node => {
+        const x = xScale.getPixelForValue(node.x);
+        const y = yScale.getPixelForValue(node.y);
+        const max = Math.max(node.in || node.out, node.out || node.in);
+        const height = Math.abs(yScale.getPixelForValue(node.y + max) - y);
+        ctx.fillText(labels[node.key] || node.key, x + nodeWidth + 6, y + height / 2);
+      });
+      ctx.restore();
+    },
+  };
+
   try {
     sankeyChart = new Chart(mk("sankey"), {
       type: "sankey",
@@ -310,11 +406,13 @@ function buildSankey(unit) {
           colorMode: "gradient",
           labels, column: sankeyCol, priority: sankeyPriority,
           borderWidth: 0, nodeWidth: 13,
+          color: "rgba(0,0,0,0)", // hide the library's built-in (side-flipping) labels
           font: { size: 12, family: "Tahoma, Verdana, sans-serif", weight: "600" },
         }],
       },
+      plugins: [rightLabels],
       options: {
-        layout: { padding: { left: 4, right: 150, top: 6, bottom: 6 } },
+        layout: { padding: { left: 4, right: 168, top: 6, bottom: 6 } },
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -330,20 +428,22 @@ function buildSankey(unit) {
       },
     });
   } catch (e) {
-    document.getElementById("sankey").innerHTML =
+    host.innerHTML =
       '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Flow diagram could not be loaded.</p>';
   }
+  updateFlowNote(nApplied);
 }
-buildSankey("mw");
+buildSankey();
 
 document.getElementById("flowUnit").addEventListener("click", e => {
   const btn = e.target.closest("button[data-unit]");
   if (!btn) return;
+  flowState.unit = btn.dataset.unit;
   document.querySelectorAll("#flowUnit button").forEach(b => b.classList.toggle("on", b === btn));
-  // clear the old canvas so a fresh one is created
-  document.getElementById("sankey").innerHTML = "";
-  buildSankey(btn.dataset.unit);
+  buildSankey();
 });
+document.getElementById("flowTech").addEventListener("change", e => { flowState.tech = e.target.value; buildSankey(); });
+document.getElementById("flowParty").addEventListener("change", e => { flowState.party = e.target.value; buildSankey(); });
 
 // ---------- the queue: what's stuck, and for how long ----------
 const pb = Object.entries(window.PHASE1B.pendingBands);
@@ -365,7 +465,7 @@ queueChart("queueN", v => v.n, "applications awaiting a decision", v => `${fmt.n
 const overYear = pb.filter(([k]) => /(1-2|2-3|3-5|5\+)/.test(k)).reduce((a, [, v]) => ({ n: a.n + v.n, cap: a.cap + v.cap }), { n: 0, cap: 0 });
 const over5 = window.PHASE1B.pendingBands["5+ yrs"];
 document.querySelector("#queueCallout p").innerHTML =
-  `<strong>${gw(overYear.cap).toFixed(0)} GW has been waiting more than a year for a decision.</strong> That is ${fmt.n(overYear.n)} projects past the point where the ~4-month statutory target is a distant memory — and ${fmt.n(over5.n)} of them have been in limbo for over five years. The system's real drag isn't the projects it turns down; it's the ones it never gets around to answering.`;
+  `<strong>${gw(overYear.cap).toFixed(0)} GW — ${fmt.n(overYear.n)} projects — has been waiting more than a year for a decision</strong>, well beyond the ~4-month statutory target. ${fmt.n(over5.n)} have waited over five years.`;
 
 // ---------- map of every project ----------
 const TECHS = [
@@ -375,7 +475,16 @@ const TECHS = [
   { key: "Battery",      name: "Battery",       c: "#6a4c93" },
   { key: "Other",        name: "Other",         c: "#b0aca4" },
 ];
+const STAGES = [
+  { key: "Pending",      name: "Awaiting decision" },
+  { key: "Approved",     name: "Approved / consented" },
+  { key: "Construction", name: "Under construction" },
+  { key: "Operational",  name: "Operational" },
+  { key: "Refused",      name: "Refused" },
+  { key: "Other",        name: "Withdrawn / other" },
+];
 const techColour = Object.fromEntries(TECHS.map(t => [t.key, t.c]));
+const techName = Object.fromEntries(TECHS.map(t => [t.key, t.name]));
 
 (function initMap() {
   const el = document.getElementById("map");
@@ -386,40 +495,69 @@ const techColour = Object.fromEntries(TECHS.map(t => [t.key, t.c]));
   }).addTo(map);
   map.on("focus", () => map.scrollWheelZoom.enable());
 
-  const layers = Object.fromEntries(TECHS.map(t => [t.key, L.layerGroup().addTo(map)]));
   const canvas = L.canvas({ padding: 0.5 });
+  const shown = L.layerGroup().addTo(map);
+  const activeTech = new Set(TECHS.map(t => t.key));
+  const activeStage = new Set(STAGES.map(s => s.key));
+  let markers = [];
+
+  // dots rescale with zoom so they don't overlap when zoomed out
+  const REF_ZOOM = 6;
+  const zoomFactor = () => Math.max(0.4, Math.min(3.6, Math.pow(1.5, map.getZoom() - REF_ZOOM)));
+  const applyRadius = (o, f) => o.m.setRadius(Math.max(1, Math.min(22, o.baseR * f)));
+
+  function refresh() {
+    const f = zoomFactor();
+    shown.clearLayers();
+    markers.forEach(o => {
+      if (activeTech.has(o.tech) && activeStage.has(o.stage)) { applyRadius(o, f); shown.addLayer(o.m); }
+    });
+  }
+  map.on("zoomend", () => { const f = zoomFactor(); markers.forEach(o => { if (activeTech.has(o.tech) && activeStage.has(o.stage)) applyRadius(o, f); }); });
 
   fetch("data/processed/map_points.json")
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(({ points }) => {
-      // draw smaller dots first so big schemes sit on top
-      points.slice().sort((a, b) => a[4] - b[4]).forEach(p => {
+      // build smaller dots first so big schemes draw on top
+      markers = points.slice().sort((a, b) => a[4] - b[4]).map(p => {
         const [lat, lon, tech, status, mw, site, authority] = p;
         const key = techColour[tech] ? tech : "Other";
-        const r = Math.max(2.2, Math.min(13, 2.2 + Math.sqrt(mw) / 2.4));
-        L.circleMarker([lat, lon], {
-          renderer: canvas, radius: r,
+        const stage = STAGES.some(s => s.key === status) ? status : "Other";
+        const baseR = Math.max(1.8, Math.min(11, 1.8 + Math.sqrt(mw) / 3));
+        const m = L.circleMarker([lat, lon], {
+          renderer: canvas, radius: baseR,
           color: "#fff", weight: 0.4, fillColor: techColour[key], fillOpacity: 0.72,
         }).bindPopup(
           `<strong>${site || "Unnamed site"}</strong><br>` +
-          `${TECHS.find(t => t.key === key).name} · ${mw ? mw.toLocaleString("en-GB") + " MW" : "capacity n/a"}<br>` +
+          `${techName[key]} · ${mw ? mw.toLocaleString("en-GB") + " MW" : "capacity n/a"}<br>` +
           `<span style="color:#666">${status}${authority ? " · " + authority : ""}</span>`
-        ).addTo(layers[key]);
+        );
+        return { m, tech: key, stage, baseR };
       });
+      refresh();
     })
     .catch(() => {
       document.getElementById("mapSource").innerHTML =
         "The project map loads from <code>data/processed/map_points.json</code> and needs to be served over http(s) (it is live on the published site).";
     });
 
-  // clickable legend that toggles each technology layer
-  document.getElementById("mapLegend").innerHTML = TECHS.map(t =>
-    `<button data-tech="${t.key}"><i style="background:${t.c}"></i>${t.name}</button>`).join("");
-  document.getElementById("mapLegend").addEventListener("click", e => {
-    const btn = e.target.closest("button[data-tech]");
-    if (!btn) return;
-    const key = btn.dataset.tech, on = btn.classList.toggle("off");
-    if (on) map.removeLayer(layers[key]); else map.addLayer(layers[key]);
+  // clickable legends — technology (colour) and stage (filter)
+  document.getElementById("mapLegendTech").insertAdjacentHTML("beforeend",
+    TECHS.map(t => `<button data-tech="${t.key}"><i style="background:${t.c}"></i>${t.name}</button>`).join(""));
+  document.getElementById("mapLegendStage").insertAdjacentHTML("beforeend",
+    STAGES.map(s => `<button data-stage="${s.key}">${s.name}</button>`).join(""));
+
+  document.getElementById("mapLegendTech").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-tech]"); if (!btn) return;
+    const off = btn.classList.toggle("off");
+    off ? activeTech.delete(btn.dataset.tech) : activeTech.add(btn.dataset.tech);
+    refresh();
+  });
+  document.getElementById("mapLegendStage").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-stage]"); if (!btn) return;
+    const off = btn.classList.toggle("off");
+    off ? activeStage.delete(btn.dataset.stage) : activeStage.add(btn.dataset.stage);
+    refresh();
   });
 })();
 </script>

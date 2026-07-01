@@ -3,127 +3,72 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Party Politics — The Politics of Power</title>
-<meta name="description" content="Does the controlling party of a council change whether energy gets approved? The answer depends entirely on the technology.">
+<title>Does Party Matter? — The Politics of Power</title>
+<meta name="description" content="Crediting every planning decision to the party that controlled the council when it was made: who approves the most capacity, per unit of land, and fastest.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <header class="hero">
   <div class="wrap">
-    <div class="kicker">Section 02 · Party</div>
-    <h1>Does the town hall's party matter?</h1>
-    <p class="lede">Each local application is decided by a council, and councils have a political colour. By joining every project to the party that controlled its planning authority <em>in the year the decision was made</em>, we can ask a sharp question: does who runs the council change what gets built? The honest answer — <em>only for the technology people can see from their window.</em></p>
+    <div class="kicker">Does party matter?</div>
+    <h1>Does the council's party change what gets built?</h1>
+    <p class="lede">Every local project is decided by a council, and councils have a political colour. Crediting each decision to the party that controlled the council <em>on the day it was made</em>, here is who approves what — by capacity, per unit of land, and how fast.</p>
   </div>
 </header>
 
 <main class="wrap">
 
   <section>
-    <div class="section-num">All technologies</div>
-    <h2>Approval by who controls the council</h2>
-    <p class="dek">Across all locally-decided projects, approval is high under every party — between 85% and 93%. At this altitude, partisanship barely registers. The interesting variation is hiding inside one technology.</p>
-    <div class="card">
-      <h3>Approval rate by controlling party — all technologies</h3>
-      <p class="sub">Locally-decided projects, by the party in control at the time of the decision. Bar width is not capacity; this is decision rate only.</p>
-      <div class="chart-box" id="byParty"></div>
-      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the decision date. GB local route, decided applications (analysis/build_phase4_party.py).</div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section>
-    <div class="section-num">The contested technology</div>
-    <h2>Onshore wind is where party bites</h2>
-    <p class="dek">Strip out the easy approvals and look only at onshore wind — the visible, contested, neighbour-bothering technology. Now the parties separate cleanly, in exactly the order you might expect.</p>
-    <div class="card">
-      <h3>Onshore wind: approval rate by controlling party</h3>
-      <div class="chart-box short" id="onshoreParty"></div>
-      <div class="source">REPD Q1 2026, onshore wind only, decided applications.</div>
-    </div>
-    <div class="callout">
-      <span class="tag">Local control matters here</span>
-      <p><strong>Conservative-controlled councils approve onshore wind at 60%, against Labour's 65%, the Lib Dems' 69% and the SNP's 72%.</strong> A 12-point spread on the one technology where a turbine on the ridgeline is a live local fight (independent-led rural councils approve the most of all, at 76%).</p>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section>
-    <div class="section-num">Contested vs uncontested</div>
-    <h2>For everything else, party disappears</h2>
-    <p class="dek">Put the three big technologies side by side. Solar and batteries are approved at 88%+ under every party — the spread collapses to a few points. Partisanship only surfaces where the build is visible and contested.</p>
-    <div class="card">
-      <h3>Approval rate by party, across three technologies</h3>
-      <p class="sub">Onshore wind spreads ~12 points across parties; solar ~5; battery ~5.</p>
-      <div class="chart-box tall" id="techParty"></div>
-      <div class="source">REPD Q1 2026. Parties shown where 50+ decided projects exist for the technology.</div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section>
-    <div class="section-num">Credit where it's due</div>
-    <h2>Who actually approved the capacity?</h2>
-    <p class="dek">Every grant on this page is credited to the party that controlled the council <em>on the date consent was given</em> — the only honest way to score it, since control changes hands and a pipeline approved under one administration should not be handed to whoever inherits the council later. So who has actually approved Britain's renewable capacity, and how fast do they move?</p>
+    <div class="section-num">Capacity &amp; speed</div>
+    <h2>Who approves the most, and how fast</h2>
+    <p class="dek">The Conservatives have approved the most capacity outright — they run the most councils and the most land. Labour-run councils are the fastest of the major parties to reach a decision.</p>
     <div class="grid-2">
       <div class="card">
-        <h3>Capacity approved by the party in control</h3>
-        <p class="sub">Gigawatts granted, credited to whoever controlled the council on the date consent was given.</p>
+        <h3>Capacity approved, by party in control</h3>
+        <p class="sub">Gigawatts granted, credited to whoever controlled the council on the decision date.</p>
         <div class="chart-box short" id="mwByParty"></div>
       </div>
       <div class="card">
-        <h3>Time to a decision, by party in control</h3>
-        <p class="sub">Median months from application to decision, all technologies.</p>
+        <h3>Median time to a decision</h3>
+        <p class="sub">Months from application to decision, all technologies.</p>
         <div class="chart-box short" id="timeByParty"></div>
       </div>
     </div>
-    <div class="callout">
-      <span class="tag">What the parties have approved</span>
-      <p><strong>Conservative councils, governing the most land for the longest, have approved the most capacity overall (~51 GW).</strong> Reform-run councils account for about 0.3 GW — they only took these councils in May 2025, so they own just the handful of permits granted since. Decision <em>speed</em> tracks what is being built more than who is deciding: Labour's solar-and-battery-heavy urban pipeline clears in under three months, while independent-led rural councils, hosting slower and contested onshore wind, take roughly three times as long.</p>
-    </div>
-    <div class="card">
-      <h3>Capacity approved per km² of land controlled</h3>
-      <p class="sub">2015–2025, lower-tier councils. Each approval is normalised by the land that party actually controlled in those years (MW per km², per year).</p>
-      <div class="chart-box short" id="landYr"></div>
-    </div>
-    <div class="callout gold">
-      <span class="tag">The land-rich shires build the least</span>
-      <p>Read this way, the densest approvers are the <strong>urban Green and Labour councils</strong> — small areas hosting a lot of rooftop solar and batteries — while the land-rich Conservative, SNP and independent-led shires that hold most of Britain's countryside approve the least per acre. Reform, holding its councils only since mid-2025, sits mid-pack — too brief a tenure to register much per km².</p>
-    </div>
-    <div class="source" style="color:var(--ink-faint);font-size:.74rem;margin-top:6px">All three charts: REPD Q1 2026 joined to Open Council Data UK control, matched at the decision date — decisions before June fall under the pre-election (May) administration (analysis/build_phase4_party.py). Land density adds ONS Standard Area Measurement land area (LAD, data/raw/SAM_LAD_DEC_2018_UK.csv), normalised by land-years controlled over 2015–2025. GB local route only.</div>
   </section>
 
   <hr class="divider">
 
   <section>
-    <div class="section-num">Aligned with Westminster?</div>
-    <h2>Does it matter if the council matches the government?</h2>
-    <p class="dek">A natural hypothesis: councils run by the same party as the UK government wave projects through. The data says — barely, overall. And where it does show up, the cause is tangled.</p>
-    <div class="grid-2">
-      <div class="card">
-        <h3>All technologies</h3>
-        <p class="sub">Council party = Westminster party, vs differs.</p>
-        <div class="chart-box short" id="align"></div>
-      </div>
-      <div class="card">
-        <h3>Onshore wind only</h3>
-        <p class="sub">The aligned bar is <em>lower</em> — see the caveat.</p>
-        <div class="chart-box short" id="alignOnshore"></div>
-      </div>
+    <div class="section-num">Per unit of land</div>
+    <h2>Approval per km² of land controlled</h2>
+    <p class="dek">Raw capacity favours whoever governs the most countryside. Normalising by the land each party actually controlled — MW approved per km², per year — reorders it: dense urban councils approve the most for the land they have. Labour is the densest of the major parties; the Greens are higher still, but on only a handful of councils.</p>
+    <div class="card">
+      <h3>Capacity approved per km² of land controlled</h3>
+      <p class="sub">2010–2025, lower-tier councils. MW approved per km² of controlled land, per year.</p>
+      <div class="chart-box short" id="landYr"></div>
+      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the decision date, plus ONS Standard Area Measurement land area (LAD, data/raw/SAM_LAD_DEC_2018_UK.csv). GB local route only (analysis/build_phase4_party.py).</div>
     </div>
-    <div class="callout gold">
-      <span class="tag">Read this descriptively, not causally</span>
-      <p>Across all technologies, alignment makes almost no difference (89.1% vs 89.9%). For onshore wind, "aligned" councils approve <em>less</em> (58.2% vs 66.8%) — but that is mostly an artefact: the aligned years are dominated by Conservative councils under a Conservative government during the 2015–2023 onshore-wind moratorium. This cut describes a correlation, not a cause.</p>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">Approval rate</div>
+    <h2>The rate they say yes</h2>
+    <p class="dek">Approval rates are high under every party — roughly 85% to 93% of decided projects. Labour-run councils approve at a slightly higher rate than Conservative ones, but at this altitude the gaps are small.</p>
+    <div class="card">
+      <h3>Approval rate by controlling party — all technologies</h3>
+      <p class="sub">Locally-decided projects, by the party in control at the decision date.</p>
+      <div class="chart-box" id="byParty"></div>
+      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the decision date. GB local route, decided applications (analysis/build_phase4_party.py).</div>
     </div>
   </section>
 
   <section>
     <div class="callout">
       <span class="tag">A note on Northern Ireland</span>
-      <p>Northern Ireland's councils sit outside the GB charts on this page — NI uses STV power-sharing and a separate, shorter control series, so it isn't part of the Con/Lab story.</p>
+      <p>NI councils sit outside these charts — they use STV power-sharing and a separate, shorter control series, so they aren't part of the GB party comparison.</p>
     </div>
   </section>
 
@@ -131,7 +76,7 @@
 
 <footer>
   <div class="wrap">
-    <p style="font-size:.84rem;color:var(--ink-faint)">REPD Q1 2026 joined to UK council control (1973–2026). National-government timeline: Lab 1997–2010, Con-led Coalition 2010–15, Con 2015–Jul 2024, Lab from Jul 2024. The Politics of Power.</p>
+    <p style="font-size:.84rem;color:var(--ink-faint)">REPD Q1 2026 joined to UK council control (1973–2026), matched at the decision date. The Politics of Power.</p>
   </div>
 </footer>
 
@@ -140,126 +85,59 @@
 <script src="charts.js"></script>
 <script src="nav.js"></script>
 <script>
-// One consistent base for the whole page: every chart reads the phase-4 join, which
-// matches council control at the decision DATE (see analysis/build_phase4_party.py).
-const P = window.PHASE4_PARTY;
-const T = P.byParty;
+// Every chart reads the phase-4 join: council control matched at the decision DATE.
+const P = window.PHASE4_PARTY, T = P.byParty;
 const GB = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind"];
 const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
 const pc = p => C.party[p] || C.party["Other/Ind"];
-const PRETTY = { LibDem: "Lib Dem", "Other/Ind": "Other / Ind", "Nationalist (pre-2007)": "Nat. (pre-2007)" };
+const PRETTY = { LibDem: "Lib Dem", "Other/Ind": "Other / Ind" };
 const lab = p => PRETTY[p] || p;
 
-// 1. all-tech by party (sorted desc), GB mainstream parties with a meaningful sample
-const all = Object.entries(P.byParty)
-  .filter(([k, v]) => GB.includes(k) && v.n >= 80)
-  .sort((a, b) => b[1].approvalRate - a[1].approvalRate);
-new Chart(mk("byParty"), {
-  type: "bar",
-  data: { labels: all.map(([k]) => lab(k)), datasets: [{ data: all.map(([, v]) => v.approvalRate), backgroundColor: all.map(([k]) => pc(k)), borderRadius: 5, maxBarThickness: 46 }] },
-  options: {
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.pct(c.parsed.y)}  ·  ${fmt.n(all[c.dataIndex][1].n)} projects` } } },
-    scales: { y: axis({ min: 60, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
-  },
-});
-
-// 2. onshore by party
-const ons = Object.entries(P.byPartyOnshore)
-  .filter(([k, v]) => GB.includes(k) && v.n >= 45)
-  .sort((a, b) => b[1].approvalRate - a[1].approvalRate);
-new Chart(mk("onshoreParty"), {
-  type: "bar",
-  data: { labels: ons.map(([k]) => lab(k)), datasets: [{ data: ons.map(([, v]) => v.approvalRate), backgroundColor: ons.map(([k]) => pc(k)), borderRadius: 5, maxBarThickness: 56 }] },
-  options: {
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.pct(c.parsed.y)}  ·  ${fmt.n(ons[c.dataIndex][1].n)} projects` } } },
-    scales: { y: axis({ min: 40, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
-  },
-});
-
-// 3. grouped: onshore / solar / battery by party
-const parties = ["Con", "Lab", "LibDem", "SNP"];
-const techSets = [
-  { key: "byPartyOnshore", name: "Onshore wind" },
-  { key: "byPartySolar", name: "Solar PV" },
-  { key: "byPartyBattery", name: "Battery" },
-];
-new Chart(mk("techParty"), {
-  type: "bar",
-  data: {
-    labels: techSets.map(t => t.name),
-    datasets: parties.map(p => ({
-      label: lab(p),
-      data: techSets.map(t => P[t.key][p] ? P[t.key][p].approvalRate : null),
-      backgroundColor: pc(p), borderRadius: 4, maxBarThickness: 40,
-    })),
-  },
-  options: {
-    plugins: { legend: { position: "bottom" }, tooltip: { callbacks: { label: c => `${c.dataset.label}: ${fmt.pct(c.parsed.y)}` } } },
-    scales: { y: axis({ min: 50, max: 100, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
-  },
-});
-
-// 4. capacity approved by the party in control AT THE DECISION DATE (month-aware join)
-const mwRows = GB
-  .map(p => ({ p, cap: (T[p] || {}).approvedMW, n: (T[p] || {}).granted }))
-  .filter(r => r.cap != null)
-  .sort((a, b) => b.cap - a.cap);
+// 1. capacity approved, credited at the decision date
+const mwRows = GB.map(p => ({ p, cap: (T[p] || {}).approvedMW, n: (T[p] || {}).granted }))
+  .filter(r => r.cap != null).sort((a, b) => b.cap - a.cap);
 new Chart(mk("mwByParty"), {
   type: "bar",
   data: { labels: mwRows.map(r => lab(r.p)), datasets: [{ data: mwRows.map(r => +(r.cap / 1000).toFixed(1)), backgroundColor: mwRows.map(r => pc(r.p)), borderRadius: 5, maxBarThickness: 46 }] },
   options: {
     plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = mwRows[c.dataIndex]; return `${(r.cap / 1000).toFixed(1)} GW approved · ${fmt.n(r.n)} grants`; } } } },
-    scales: { y: axis({ title: { display: true, text: "GW approved" }, ticks: { callback: v => v + " GW" } }), x: axis({ grid: { display: false } }) },
+    scales: { y: axis({ min: 0, title: { display: true, text: "GW approved" }, ticks: { callback: v => v + " GW" } }), x: axis({ grid: { display: false } }) },
   },
 });
 
-// 5. median time to a decision, by party in control (phase-4 application→decision join)
-const timeRows = GB
-  .map(p => ({ p, m: (T[p] || {}).medMonthsToDecision, n: (T[p] || {}).nTimed }))
-  .filter(r => r.m != null)
-  .sort((a, b) => b.m - a.m);
+// 2. median time to a decision
+const timeRows = GB.map(p => ({ p, m: (T[p] || {}).medMonthsToDecision, n: (T[p] || {}).nTimed }))
+  .filter(r => r.m != null).sort((a, b) => b.m - a.m);
 new Chart(mk("timeByParty"), {
   type: "bar",
   data: { labels: timeRows.map(r => lab(r.p)), datasets: [{ data: timeRows.map(r => r.m), backgroundColor: timeRows.map(r => pc(r.p)), borderRadius: 5, maxBarThickness: 46 }] },
   options: {
     plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = timeRows[c.dataIndex]; return `${r.m} months (median) · ${fmt.n(r.n)} timed`; } } } },
-    scales: { y: axis({ title: { display: true, text: "median months to decide" } }), x: axis({ grid: { display: false } }) },
+    scales: { y: axis({ min: 0, title: { display: true, text: "median months to decide" } }), x: axis({ grid: { display: false } }) },
   },
 });
 
-// 6. land density done right — MW approved per km² per year, credited at the permit DATE
-const landYr = GB
-  .map(p => ({ p, ...(T[p] || {}) }))
-  .filter(r => r.mwPerKm2PerYr != null)
-  .sort((a, b) => b.mwPerKm2PerYr - a.mwPerKm2PerYr);
+// 3. land density — MW approved per km² per year, credited at the decision date
+const landYr = GB.map(p => ({ p, ...(T[p] || {}) })).filter(r => r.mwPerKm2PerYr != null).sort((a, b) => b.mwPerKm2PerYr - a.mwPerKm2PerYr);
 new Chart(mk("landYr"), {
   type: "bar",
   data: { labels: landYr.map(r => lab(r.p)), datasets: [{ data: landYr.map(r => r.mwPerKm2PerYr), backgroundColor: landYr.map(r => pc(r.p)), borderRadius: 5, maxBarThickness: 46 }] },
   options: {
     plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = landYr[c.dataIndex]; return [`${r.mwPerKm2PerYr.toFixed(3)} MW per km² per year`, `${fmt.n(r.landApprovedMW)} MW approved · ${fmt.n(r.avgLandKm2)} km² avg controlled`]; } } } },
-    scales: { y: axis({ title: { display: true, text: "MW per km² per year" } }), x: axis({ grid: { display: false } }) },
+    scales: { y: axis({ min: 0, title: { display: true, text: "MW per km² per year" } }), x: axis({ grid: { display: false } }) },
   },
 });
 
-// 7 & 8. alignment
-function alignChart(id, data) {
-  new Chart(mk(id), {
-    type: "bar",
-    data: {
-      labels: ["Aligned\nwith Westminster", "Differs from\nWestminster"],
-      datasets: [{ data: [data.aligned.approvalRate, data.misaligned.approvalRate], backgroundColor: [C.green, C.gold], borderRadius: 5, maxBarThickness: 70 }],
-    },
-    options: {
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmt.pct(c.parsed.y) } } },
-      scales: {
-        y: axis({ min: id === "alignOnshore" ? 50 : 80, ticks: { callback: v => v + "%" } }),
-        x: axis({ grid: { display: false }, ticks: { callback: function (v) { return this.getLabelForValue(v).split("\n"); } } }),
-      },
-    },
-  });
-}
-alignChart("align", P.align);
-alignChart("alignOnshore", P.alignOnshore);
+// 4. approval rate by party, all technologies
+const all = Object.entries(T).filter(([k, v]) => GB.includes(k) && v.n >= 80).sort((a, b) => b[1].approvalRate - a[1].approvalRate);
+new Chart(mk("byParty"), {
+  type: "bar",
+  data: { labels: all.map(([k]) => lab(k)), datasets: [{ data: all.map(([, v]) => v.approvalRate), backgroundColor: all.map(([k]) => pc(k)), borderRadius: 5, maxBarThickness: 46 }] },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.pct(c.parsed.y)}  ·  ${fmt.n(all[c.dataIndex][1].n)} projects` } } },
+    scales: { y: axis({ min: 0, max: 100, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+  },
+});
 </script>
 </body>
 </html>
