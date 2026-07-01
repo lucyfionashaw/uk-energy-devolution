@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Politics of Power — UK energy devolution dashboard</title>
-<meta name="description" content="Who gets to build energy in Britain? A data dashboard on the planning politics of the energy transition across England, Scotland, Wales and Northern Ireland.">
+<title>The Politics of Power — UK energy planning dashboard</title>
+<meta name="description" content="Who gets to build energy in Britain? A data dashboard on the planning of the energy transition — what we're building, how long it takes, and whether party politics decides the outcome.">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
 </head>
 <body>
 
 <header class="hero">
   <div class="wrap">
-    <div class="kicker">UK Energy &amp; Devolution</div>
+    <div class="kicker">UK Energy Planning</div>
     <h1>Who gets to build energy in Britain?</h1>
-    <p class="lede">Every wind farm, solar park and battery starts as a planning application. Whether it gets built depends on which nation it sits in, who controls the council, and which of Britain's four planning systems decides its fate. This is the politics of the energy transition, read through 14,000 planning decisions.</p>
+    <p class="lede">Every wind farm, solar park and battery starts as a planning application. Whether it ever gets built depends on who controls the council, how long the queue is, and which technology it is. This is the politics of the energy transition, read through 14,000 planning decisions.</p>
     <p class="byline">Source: Renewable Energy Planning Database (REPD), Q1 2026 · joined to UK council political control, 1973–2026.</p>
   </div>
 </header>
@@ -26,11 +27,11 @@
 
   <section>
     <div class="section-num">The big picture</div>
-    <h2>Proposed, consented — and stuck</h2>
-    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity. Only about <strong>58 GW</strong> is generating today. The bottleneck is not the planning committee's "no" — once a project reaches a decision it is approved nearly nine times in ten. The capacity is trapped in the queue: tens of gigawatts waiting for a decision, and far more holding consent but never built.</p>
+    <h2>Proposed, decided — and stuck</h2>
+    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity. Only about <strong>58 GW</strong> is generating today. The bottleneck is not the planning committee's "no": most of the capacity is trapped <em>before</em> a decision is even made, or holds consent and never gets built. The same journey, counted two ways — by number of projects, and by the capacity behind them.</p>
     <div class="card">
       <h3>The planning funnel</h3>
-      <p class="sub">Every project narrows stage by stage — submitted, decided, approved, under construction, operational. The same journey counted two ways: by number of projects, and by the capacity behind them.</p>
+      <p class="sub">Every project narrows stage by stage — submitted, decided, approved, under construction, operational.</p>
       <div class="grid-2">
         <div>
           <p class="funnel-col-title">By projects</p>
@@ -41,11 +42,11 @@
           <div class="chart-box tall" id="funnelGW"></div>
         </div>
       </div>
-      <div class="source">REPD Q1 2026. "Decided" = approved + refused. "Approved" includes all live consents; "Under construction" = building or operational; "Operational" = generating today. National-route projects (offshore wind, large schemes) included.</div>
+      <div class="source">REPD Q1 2026. "Decided" = approved + refused. "Approved" includes all live consents; "Under construction" = building or operational; "Operational" = generating today.</div>
     </div>
-    <div class="callout">
+    <div class="callout" id="decisionCallout">
       <span class="tag">The headline</span>
-      <p><strong>The system says "yes" — then nothing happens.</strong> Of projects that reach a decision, 89% are approved. But ~89 GW is still waiting for a decision, and roughly 154 GW holds a live consent yet has never started construction. The attrition that matters is not refusal; it is everything between "yes" and the grid.</p>
+      <p></p>
     </div>
   </section>
 
@@ -54,12 +55,56 @@
   <section>
     <div class="section-num">The whole flow</div>
     <h2>Every application, and where it goes</h2>
-    <p class="dek">Read left to right: each application either falls away — withdrawn, refused, or still awaiting a decision — or wins consent. Approved projects then face their own attrition, peeling off as consent lapses, stalls before construction, or finally reaches the grid.</p>
+    <p class="dek">Read left to right: each application either falls away — withdrawn, refused, or still awaiting a decision — or wins consent. Approved projects then face their own attrition, peeling off as consent lapses, stalls before construction, or finally reaches the grid. The diagram is drawn to scale: every band's width is proportional to the quantity flowing through it.</p>
     <div class="card">
       <h3>From application to the grid</h3>
-      <p class="sub">Flow of projects through the planning system. Band width is the number of projects.</p>
-      <div class="chart-box" id="sankey" style="height:520px"></div>
-      <div class="source">REPD Q1 2026, project counts. "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance.</div>
+      <div class="toolbar">
+        <p class="sub" style="margin:0">Node labels show the running total at each stage. Choose the scale:</p>
+        <div class="seg" id="flowUnit" role="group" aria-label="Choose scale">
+          <button data-unit="mw" class="on">Megawatts</button>
+          <button data-unit="n">Applications</button>
+        </div>
+      </div>
+      <div class="chart-box" id="sankey" style="height:540px"></div>
+      <div class="source">REPD Q1 2026. "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance. Capacity is Installed Capacity (MWelec); shown as GW on the diagram.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">The bottleneck</div>
+    <h2>What's stuck in the queue — and for how long</h2>
+    <p class="dek">Before a project is ever approved or refused it has to be <em>decided</em>, and a growing pile never is. A live queue of applications sits awaiting a verdict — some filed months ago, but a long tail has been waiting years, well past the ~4-month statutory target. This is where the gigawatts actually pile up.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Capacity awaiting a decision, by how long it has waited</h3>
+        <p class="sub">Bars to the right are years past the statutory determination window.</p>
+        <div class="chart-box" id="queueGW"></div>
+      </div>
+      <div class="card">
+        <h3>Number of applications waiting</h3>
+        <p class="sub">The same queue, counted as projects.</p>
+        <div class="chart-box" id="queueN"></div>
+      </div>
+    </div>
+    <div class="callout gold" id="queueCallout">
+      <span class="tag">The real attrition</span>
+      <p></p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">The geography</div>
+    <h2>Where Britain wants to build</h2>
+    <p class="dek">Every project in the database with a grid reference, mapped. Colour is the technology; the size of each dot is its capacity. The clusters tell the story — solar strung across the sunnier, flatter south and east; onshore wind concentrated in Scotland and Wales; batteries clumping around the grid's pinch-points.</p>
+    <div class="card">
+      <h3>All proposed &amp; built energy projects</h3>
+      <div class="legend" id="mapLegend"></div>
+      <div class="map-box" id="map"></div>
+      <div class="source" id="mapSource">REPD Q1 2026 · 14,289 projects with an Ordnance Survey grid reference, converted to latitude/longitude. Click a dot for detail; click a legend colour to toggle a technology.</div>
     </div>
   </section>
 
@@ -67,32 +112,26 @@
 
   <section>
     <div class="section-num">Read the story</div>
-    <h2>Four ways into the data</h2>
-    <p class="dek">The dashboard is built around the political geography of consent. Each section takes one thread.</p>
+    <h2>Three ways into the data</h2>
+    <p class="dek">The dashboard breaks down into three questions. Each takes one thread.</p>
     <div class="story-grid">
-      <a class="story-card" href="devolution.html">
+      <a class="story-card" href="technology.html">
         <div class="sc-num">01</div>
-        <h3>Four nations, four systems</h3>
-        <p>Councils decide the vast majority everywhere — what really diverged is policy. The collapse of English onshore wind after 2015 is devolution made visible.</p>
-        <div class="go">Explore the four nations →</div>
-      </a>
-      <a class="story-card" href="politics.html">
-        <div class="sc-num">02</div>
-        <h3>Does the town hall's party matter?</h3>
-        <p>Approval rates by the political control of the deciding council — and where party actually moves the needle (it's onshore wind).</p>
-        <div class="go">Explore party politics →</div>
+        <h3>What are we building?</h3>
+        <p>The solar boom, the battery surge, and the collapse of English onshore wind after the 2015 de-facto ban — the shifting shape of what Britain proposes.</p>
+        <div class="go">Explore the technologies →</div>
       </a>
       <a class="story-card" href="speed.html">
-        <div class="sc-num">03</div>
-        <h3>The planning machine</h3>
-        <p>How long decisions take, why big projects crawl, and how developers size schemes at 49.9 MW to dodge the national route.</p>
-        <div class="go">Explore the machine →</div>
+        <div class="sc-num">02</div>
+        <h3>How long does it take?</h3>
+        <p>How fast decisions come, why big projects crawl, the backlog in the queue, and how developers size schemes at 49.9 MW to dodge the national route.</p>
+        <div class="go">Explore the process →</div>
       </a>
-      <a class="story-card" href="technology.html">
-        <div class="sc-num">04</div>
-        <h3>What Britain is trying to build</h3>
-        <p>The solar boom, the battery surge, and the collapse of English onshore wind after the 2015 de-facto ban.</p>
-        <div class="go">Explore the technologies →</div>
+      <a class="story-card" href="politics.html">
+        <div class="sc-num">03</div>
+        <h3>Does party politics matter?</h3>
+        <p>Approval rates by the party that controlled the council <em>when the decision was made</em> — and the one technology where who runs the town hall actually moves the needle.</p>
+        <div class="go">Explore party politics →</div>
       </a>
     </div>
   </section>
@@ -121,25 +160,29 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-sankey@0.12.1/dist/chartjs-chart-sankey.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script src="data.js"></script>
 <script src="charts.js"></script>
 <script src="nav.js"></script>
 <script>
-const P1 = window.PHASE1, o = P1.overall;
+const F = window.FLOW, o = window.PHASE1.overall;
+const mk = id => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
+const gw = mw => (mw / 1000);
 
-// stat tiles
+// ---------- headline stat tiles ----------
+const decidedPct = F.n.decided / F.n.applied * 100;
 document.getElementById("topstats").innerHTML = [
   { num: fmt.n(o.n), lab: "planning records analysed" },
   { num: fmt.gw(o.cap), suf: " GW", lab: "of capacity ever proposed" },
-  { num: fmt.pct(o.approvalRatePct), lab: "of decided projects approved" },
-  { num: fmt.pct(o.nationalPct), lab: "decided by the national / devolved route" },
+  { num: fmt.pct(decidedPct), lab: "of applications have reached a decision" },
+  { num: fmt.gw(o.pendingCap), suf: " GW", lab: "still waiting in the queue for a decision" },
 ].map(s => `<div class="stat"><div class="num">${s.num}${s.suf ? `<small>${s.suf}</small>` : ""}</div><div class="lab">${s.lab}</div></div>`).join("");
 
-const mk = id => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
+// decision-framed headline
+document.querySelector("#decisionCallout p").innerHTML =
+  `<strong>Refusal is not the bottleneck — indecision is.</strong> Only ${fmt.pct(decidedPct)} of all applications have actually reached a planning decision; ${fmt.n(o.pending)} projects worth <strong>${gw(o.pendingCap).toFixed(0)} GW</strong> are still sitting in the queue with no verdict at all. Of the applications that <em>do</em> get decided, ${fmt.pct(o.approvalRatePct)} are approved — so the capacity that never reaches the grid is lost between "yes" and construction, and in the waiting line before "yes" is even possible.`;
 
 // ---------- symmetrical funnel ----------
-// Centred floating bars give a true funnel silhouette; a small plugin writes
-// the value inside each band.
 const funnelLabels = (stages, fmtVal) => ({
   id: "funnelLabels",
   afterDatasetsDraw(chart) {
@@ -151,16 +194,10 @@ const funnelLabels = (stages, fmtVal) => ({
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     meta.data.forEach((bar, i) => {
-      const w = Math.abs(bar.x - bar.base); // full band width in px
+      const w = Math.abs(bar.x - bar.base);
       const txt = fmtVal(stages[i].v);
-      // light text inside wide bands, dark text beside narrow ones
-      if (w > ctx.measureText(txt).width + 18) {
-        ctx.fillStyle = "#fff";
-        ctx.fillText(txt, cx, bar.y);
-      } else {
-        ctx.fillStyle = C.inkSoft;
-        ctx.fillText(txt, cx, bar.y);
-      }
+      ctx.fillStyle = (w > ctx.measureText(txt).width + 18) ? "#fff" : C.inkSoft;
+      ctx.fillText(txt, cx, bar.y);
     });
     ctx.restore();
   },
@@ -201,33 +238,16 @@ function funnel(id, stages, fmtVal, unit) {
 }
 
 const stageDefs = [
-  { k: "Submitted",          c: C.inkFaint, n: o.n,                       cap: o.cap },
-  { k: "Decided",            c: C.gold,     n: o.granted + o.refused,     cap: o.grantedCap + o.refusedCap },
-  { k: "Approved",           c: C.greenL,   n: o.granted,                 cap: o.grantedCap },
-  { k: "Under construction", c: C.green,    n: o.built,                   cap: o.builtCap },
-  { k: "Operational",        c: C.greenD,   n: o.op,                      cap: o.opCap },
+  { k: "Submitted",          c: C.inkFaint, n: F.n.applied,  mw: F.mw.applied },
+  { k: "Decided",            c: C.gold,     n: F.n.decided,  mw: F.mw.decided },
+  { k: "Approved",           c: C.greenL,   n: F.n.granted,  mw: F.mw.granted },
+  { k: "Under construction", c: C.green,    n: F.n.built,    mw: F.mw.built },
+  { k: "Operational",        c: C.greenD,   n: F.n.op,       mw: F.mw.op },
 ];
-
 funnel("funnelProjects", stageDefs.map(s => ({ k: s.k, v: s.n, c: s.c })), fmt.n, " projects");
-funnel("funnelGW",       stageDefs.map(s => ({ k: s.k, v: s.cap, c: s.c })), v => fmt.gw(v), " GW");
+funnel("funnelGW",       stageDefs.map(s => ({ k: s.k, v: s.mw, c: s.c })), v => fmt.gw(v), " GW");
 
-// ---------- Sankey: the full project journey ----------
-const otherOut   = o.n - o.granted - o.refused - o.pending; // withdrawn/abandoned + residual
-const permitted  = o.granted - o.built - o.expired;         // consent held, not started
-const building   = o.built - o.op;                          // started, not yet generating
-
-const flows = [
-  { from: "Applied",  to: "Refused",          flow: o.refused },
-  { from: "Applied",  to: "Withdrawn",        flow: otherOut },
-  { from: "Applied",  to: "Pending",          flow: o.pending },
-  { from: "Applied",  to: "Approved",         flow: o.granted },
-  { from: "Approved", to: "Expired",          flow: o.expired },
-  { from: "Approved", to: "Permitted",        flow: permitted },
-  { from: "Approved", to: "Building",         flow: o.built },
-  { from: "Building", to: "UnderConstruction", flow: building },
-  { from: "Building", to: "Operational",      flow: o.op },
-];
-
+// ---------- Sankey: toggleable MW / applications, drawn to scale ----------
 const sankeyLabel = {
   Applied: "Applied", Approved: "Approved", Building: "Construction started",
   Refused: "Refused", Withdrawn: "Withdrawn / abandoned", Pending: "Awaiting a decision",
@@ -240,53 +260,168 @@ const sankeyColor = {
   Expired: "#b08968", Permitted: C.goldL, UnderConstruction: "#6fae8a",
 };
 const sankeyCol = {
-  Applied: 0,
-  Refused: 1, Withdrawn: 1, Pending: 1, Approved: 1,
-  Expired: 2, Permitted: 2, Building: 2,
-  UnderConstruction: 3, Operational: 3,
+  Applied: 0, Refused: 1, Withdrawn: 1, Pending: 1, Approved: 1,
+  Expired: 2, Permitted: 2, Building: 2, UnderConstruction: 3, Operational: 3,
 };
 const sankeyPriority = {
   Applied: 0, Approved: 0, Refused: 4, Withdrawn: 5, Pending: 6,
   Building: 0, Permitted: 2, Expired: 3, Operational: 0, UnderConstruction: 2,
 };
 
-try {
-  new Chart(mk("sankey"), {
-    type: "sankey",
-    data: {
-      datasets: [{
-        data: flows,
-        colorFrom: c => sankeyColor[c.dataset.data[c.dataIndex].from],
-        colorTo:   c => sankeyColor[c.dataset.data[c.dataIndex].to],
-        colorMode: "gradient",
-        labels: sankeyLabel,
-        column: sankeyCol,
-        priority: sankeyPriority,
-        borderWidth: 0,
-        nodeWidth: 13,
-        font: { size: 12, family: "Tahoma, Verdana, sans-serif", weight: "600" },
-      }],
-    },
-    options: {
-      layout: { padding: { left: 4, right: 90, top: 6, bottom: 6 } },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: () => "",
-            label: c => {
-              const d = c.dataset.data[c.dataIndex];
-              return `${sankeyLabel[d.from]} → ${sankeyLabel[d.to]}: ${fmt.n(d.flow)} projects`;
+// node totals per unit, used to write a scale value onto each label
+function nodeTotals(u) {
+  return {
+    Applied: u.applied, Refused: u.refused, Withdrawn: u.otherOut, Pending: u.pending,
+    Approved: u.granted, Expired: u.expired, Permitted: u.permitted, Building: u.built,
+    UnderConstruction: u.building, Operational: u.op,
+  };
+}
+
+let sankeyChart = null;
+function buildSankey(unit) {
+  const u = F[unit];
+  const isMW = unit === "mw";
+  const val = v => isMW ? `${gw(v).toLocaleString("en-GB", { maximumFractionDigits: 1 })} GW` : `${fmt.n(v)}`;
+  const totals = nodeTotals(u);
+  const labels = {};
+  Object.keys(sankeyLabel).forEach(k => { labels[k] = `${sankeyLabel[k]}  ·  ${val(totals[k])}`; });
+
+  const flows = [
+    { from: "Applied",  to: "Refused",           flow: u.refused },
+    { from: "Applied",  to: "Withdrawn",         flow: u.otherOut },
+    { from: "Applied",  to: "Pending",           flow: u.pending },
+    { from: "Applied",  to: "Approved",          flow: u.granted },
+    { from: "Approved", to: "Expired",           flow: u.expired },
+    { from: "Approved", to: "Permitted",         flow: u.permitted },
+    { from: "Approved", to: "Building",          flow: u.built },
+    { from: "Building", to: "UnderConstruction", flow: u.building },
+    { from: "Building", to: "Operational",       flow: u.op },
+  ];
+
+  if (sankeyChart) sankeyChart.destroy();
+  try {
+    sankeyChart = new Chart(mk("sankey"), {
+      type: "sankey",
+      data: {
+        datasets: [{
+          data: flows,
+          colorFrom: c => sankeyColor[c.dataset.data[c.dataIndex].from],
+          colorTo:   c => sankeyColor[c.dataset.data[c.dataIndex].to],
+          colorMode: "gradient",
+          labels, column: sankeyCol, priority: sankeyPriority,
+          borderWidth: 0, nodeWidth: 13,
+          font: { size: 12, family: "Tahoma, Verdana, sans-serif", weight: "600" },
+        }],
+      },
+      options: {
+        layout: { padding: { left: 4, right: 150, top: 6, bottom: 6 } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: () => "",
+              label: c => {
+                const d = c.dataset.data[c.dataIndex];
+                return `${sankeyLabel[d.from]} → ${sankeyLabel[d.to]}: ${val(d.flow)}`;
+              },
             },
           },
         },
       },
+    });
+  } catch (e) {
+    document.getElementById("sankey").innerHTML =
+      '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Flow diagram could not be loaded.</p>';
+  }
+}
+buildSankey("mw");
+
+document.getElementById("flowUnit").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-unit]");
+  if (!btn) return;
+  document.querySelectorAll("#flowUnit button").forEach(b => b.classList.toggle("on", b === btn));
+  // clear the old canvas so a fresh one is created
+  document.getElementById("sankey").innerHTML = "";
+  buildSankey(btn.dataset.unit);
+});
+
+// ---------- the queue: what's stuck, and for how long ----------
+const pb = Object.entries(window.PHASE1B.pendingBands);
+const queueColour = k => /^(<4|4-12)/.test(k) ? C.greenL : (/(2-3|3-5|5\+)/.test(k) ? C.refuse : C.pending);
+function queueChart(id, pick, title, fmtTip) {
+  new Chart(mk(id), {
+    type: "bar",
+    data: { labels: pb.map(([k]) => k), datasets: [{ data: pb.map(([, v]) => pick(v)), backgroundColor: pb.map(([k]) => queueColour(k)), borderRadius: 5, maxBarThickness: 60 }] },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => fmtTip(pb[c.dataIndex][1]) } } },
+      scales: { y: axis({ title: { display: true, text: title } }), x: axis({ grid: { display: false }, ticks: { font: { size: 10.5 } } }) },
     },
   });
-} catch (e) {
-  document.getElementById("sankey").innerHTML =
-    '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Flow diagram could not be loaded.</p>';
 }
+queueChart("queueGW", v => +gw(v.cap).toFixed(1), "GW awaiting a decision", v => `${gw(v.cap).toFixed(1)} GW · ${fmt.n(v.n)} projects`);
+queueChart("queueN", v => v.n, "applications awaiting a decision", v => `${fmt.n(v.n)} projects · ${gw(v.cap).toFixed(1)} GW`);
+
+// "over a year" roll-up for the callout
+const overYear = pb.filter(([k]) => /(1-2|2-3|3-5|5\+)/.test(k)).reduce((a, [, v]) => ({ n: a.n + v.n, cap: a.cap + v.cap }), { n: 0, cap: 0 });
+const over5 = window.PHASE1B.pendingBands["5+ yrs"];
+document.querySelector("#queueCallout p").innerHTML =
+  `<strong>${gw(overYear.cap).toFixed(0)} GW has been waiting more than a year for a decision.</strong> That is ${fmt.n(overYear.n)} projects past the point where the ~4-month statutory target is a distant memory — and ${fmt.n(over5.n)} of them have been in limbo for over five years. The system's real drag isn't the projects it turns down; it's the ones it never gets around to answering.`;
+
+// ---------- map of every project ----------
+const TECHS = [
+  { key: "Solar",        name: "Solar",         c: "#e3a72f" },
+  { key: "OnshoreWind",  name: "Onshore wind",  c: "#2e7fb8" },
+  { key: "OffshoreWind", name: "Offshore wind", c: "#6b7280" },
+  { key: "Battery",      name: "Battery",       c: "#6a4c93" },
+  { key: "Other",        name: "Other",         c: "#b0aca4" },
+];
+const techColour = Object.fromEntries(TECHS.map(t => [t.key, t.c]));
+
+(function initMap() {
+  const el = document.getElementById("map");
+  const map = L.map(el, { preferCanvas: true, scrollWheelZoom: false }).setView([54.6, -3.2], 6);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+    attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 18, subdomains: "abcd",
+  }).addTo(map);
+  map.on("focus", () => map.scrollWheelZoom.enable());
+
+  const layers = Object.fromEntries(TECHS.map(t => [t.key, L.layerGroup().addTo(map)]));
+  const canvas = L.canvas({ padding: 0.5 });
+
+  fetch("data/processed/map_points.json")
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(({ points }) => {
+      // draw smaller dots first so big schemes sit on top
+      points.slice().sort((a, b) => a[4] - b[4]).forEach(p => {
+        const [lat, lon, tech, status, mw, site, authority] = p;
+        const key = techColour[tech] ? tech : "Other";
+        const r = Math.max(2.2, Math.min(13, 2.2 + Math.sqrt(mw) / 2.4));
+        L.circleMarker([lat, lon], {
+          renderer: canvas, radius: r,
+          color: "#fff", weight: 0.4, fillColor: techColour[key], fillOpacity: 0.72,
+        }).bindPopup(
+          `<strong>${site || "Unnamed site"}</strong><br>` +
+          `${TECHS.find(t => t.key === key).name} · ${mw ? mw.toLocaleString("en-GB") + " MW" : "capacity n/a"}<br>` +
+          `<span style="color:#666">${status}${authority ? " · " + authority : ""}</span>`
+        ).addTo(layers[key]);
+      });
+    })
+    .catch(() => {
+      document.getElementById("mapSource").innerHTML =
+        "The project map loads from <code>data/processed/map_points.json</code> and needs to be served over http(s) (it is live on the published site).";
+    });
+
+  // clickable legend that toggles each technology layer
+  document.getElementById("mapLegend").innerHTML = TECHS.map(t =>
+    `<button data-tech="${t.key}"><i style="background:${t.c}"></i>${t.name}</button>`).join("");
+  document.getElementById("mapLegend").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-tech]");
+    if (!btn) return;
+    const key = btn.dataset.tech, on = btn.classList.toggle("off");
+    if (on) map.removeLayer(layers[key]); else map.addLayer(layers[key]);
+  });
+})();
 </script>
 </body>
 </html>

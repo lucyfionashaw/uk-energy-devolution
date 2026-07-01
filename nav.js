@@ -2,10 +2,9 @@
 (function () {
   const PAGES = [
     { href: "index.html",      label: "Overview" },
-    { href: "devolution.html", label: "Four Nations" },
-    { href: "politics.html",   label: "Party Politics" },
-    { href: "speed.html",      label: "The Machine" },
     { href: "technology.html", label: "What We Build" },
+    { href: "speed.html",      label: "How Long It Takes" },
+    { href: "politics.html",   label: "Does Party Matter?" },
   ];
   const here = (location.pathname.split("/").pop() || "index.html").toLowerCase();
 
