@@ -65,6 +65,30 @@
     </div>
   </section>
 
+  <hr class="divider">
+
+  <section>
+    <div class="section-num">National vs local</div>
+    <h2>The approvals boom is cross-party</h2>
+    <p class="dek">It's tempting to credit a rise in renewable approvals to the national government of the day. But councils grant local applications, not Westminster — and the post-2021 surge runs through councils of every colour. Conservative-controlled councils have approved the most capacity throughout, including in 2025 under a Labour national government. The jump after 2021 is the solar-and-battery pipeline maturing, not a change of government.</p>
+    <div class="card">
+      <h3>Capacity approved each year, by controlling council party</h3>
+      <div class="toolbar">
+        <div class="legend" id="apprLegend"></div>
+        <div class="seg" id="apprUnit" role="group" aria-label="Choose scale">
+          <button data-unit="mw" class="on">Capacity (GW)</button>
+          <button data-unit="n">Applications</button>
+        </div>
+      </div>
+      <div class="chart-box tall" id="apprYear"></div>
+      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the grant date. GB local route only; national-route projects (offshore wind, NSIP) excluded. Smaller parties grouped as "Other".</div>
+    </div>
+    <div class="callout gold">
+      <span class="tag">Where the national government does show up: onshore wind</span>
+      <p>The one place Westminster policy bites is <a href="technology.html">onshore wind</a>. England's 2015 de-facto ban cut English onshore applications from ~60 a year to nearly zero for a decade; after the ban was lifted in 2024 they rebounded to 42 in 2025. Scotland, with no ban, kept approving 0.5–1.7 GW a year throughout. National government matters through <em>policy</em> — not by deciding the applications.</p>
+    </div>
+  </section>
+
   <section>
     <div class="callout">
       <span class="tag">A note on Northern Ireland</span>
@@ -137,6 +161,53 @@ new Chart(mk("byParty"), {
     plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${fmt.pct(c.parsed.y)}  ·  ${fmt.n(all[c.dataIndex][1].n)} projects` } } },
     scales: { y: axis({ min: 0, max: 100, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
   },
+});
+
+// 5. capacity/applications approved each year, by controlling council party (stacked area)
+const AY = window.APPR_YEAR;
+const apprSeries = [
+  { key: "Con", name: "Conservative", c: C.party.Con },
+  { key: "Lab", name: "Labour", c: C.party.Lab },
+  { key: "LibDem", name: "Lib Dem", c: C.party.LibDem },
+  { key: "SNP", name: "SNP", c: C.party.SNP },
+  { key: "__other", name: "Other", c: "#9b9b9b" },
+];
+const OTHERS = ["Plaid", "Green", "Reform", "Other/Ind"];
+const apprVal = (key, unit, i) => key === "__other"
+  ? OTHERS.reduce((a, p) => a + AY.series[p][unit][i], 0)
+  : AY.series[key][unit][i];
+document.getElementById("apprLegend").innerHTML = apprSeries.map(s => `<span><i style="background:${s.c}"></i>${s.name}</span>`).join("");
+let apprChart = null;
+function renderAppr(unit) {
+  const isMW = unit === "mw";
+  if (apprChart) apprChart.destroy();
+  document.getElementById("apprYear").innerHTML = "";
+  apprChart = new Chart(mk("apprYear"), {
+    type: "line",
+    data: {
+      labels: AY.years,
+      datasets: apprSeries.map(s => ({
+        label: s.name,
+        data: AY.years.map((_, i) => { const v = apprVal(s.key, unit, i); return isMW ? v / 1000 : v; }),
+        borderColor: s.c, backgroundColor: s.c + "cc",
+        fill: true, stack: "s", tension: .3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 1,
+      })),
+    },
+    options: {
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " approved"}` } },
+      },
+      scales: { y: axis({ stacked: true, min: 0, title: { display: true, text: isMW ? "capacity approved (GW)" : "projects approved" } }), x: axis({ grid: { display: false } }) },
+    },
+  });
+}
+renderAppr("mw");
+document.getElementById("apprUnit").addEventListener("click", e => {
+  const b = e.target.closest("button[data-unit]"); if (!b) return;
+  document.querySelectorAll("#apprUnit button").forEach(x => x.classList.toggle("on", x === b));
+  renderAppr(b.dataset.unit);
 });
 </script>
 </body>
