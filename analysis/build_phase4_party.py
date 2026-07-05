@@ -67,8 +67,12 @@ def national_at(d):
     return party
 
 # ---- ONS land area (lower-tier LADs), km2, by normalised name ----
+# GB only: skip Northern Ireland LADs (code starts with "N") — NI is not part of the GB
+# party comparison, and its councils would otherwise pile into the "Other/Ind" bucket.
 landKm2 = {}
 for r in csv.DictReader(open(RAW / "SAM_LAD_DEC_2018_UK.csv", encoding="utf-8-sig")):
+    if (r.get("LAD18CD") or "").startswith("N"):
+        continue
     try: landKm2[norm(r["LAD18NM"])] = float(r["AREALHECT"]) / 100.0
     except (ValueError, KeyError): pass
 
