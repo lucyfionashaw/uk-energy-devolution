@@ -42,7 +42,7 @@
   <section>
     <div class="section-num">Per unit of land</div>
     <h2>Approval per km² of land controlled</h2>
-    <p class="dek">Raw capacity favours whoever governs the most countryside. Normalising by the land each party actually controlled — MW approved per km², per year — reorders it: dense urban councils approve the most for the land they have. Labour is the densest of the major parties; the Greens are higher still, but on only a handful of councils.</p>
+    <p class="dek">Raw capacity favours whoever governs the most countryside. Normalising by the land each party actually controlled — MW approved per km², per year — reorders it: the denser, more urban Labour and Lib Dem councils approve the most for the land they have, while the land-rich Conservative, SNP and independent-led shires approve the least per acre. (Green and Reform are left off here — too few decisions, and too recently in control, to give a stable rate.)</p>
     <div class="card">
       <h3>Capacity approved per km² of land controlled</h3>
       <p class="sub">2010–2025, lower-tier councils. MW approved per km² of controlled land, per year.</p>
@@ -142,7 +142,8 @@ new Chart(mk("timeByParty"), {
 });
 
 // 3. land density — MW approved per km² per year, credited at the decision date
-const landYr = GB.map(p => ({ p, ...(T[p] || {}) })).filter(r => r.mwPerKm2PerYr != null).sort((a, b) => b.mwPerKm2PerYr - a.mwPerKm2PerYr);
+// exclude parties with too few grants to give a stable per-km² rate (Green, Reform, Plaid)
+const landYr = GB.map(p => ({ p, ...(T[p] || {}) })).filter(r => r.mwPerKm2PerYr != null && (r.granted || 0) >= 100).sort((a, b) => b.mwPerKm2PerYr - a.mwPerKm2PerYr);
 new Chart(mk("landYr"), {
   type: "bar",
   data: { labels: landYr.map(r => lab(r.p)), datasets: [{ data: landYr.map(r => r.mwPerKm2PerYr), backgroundColor: landYr.map(r => pc(r.p)), borderRadius: 5, maxBarThickness: 46 }] },

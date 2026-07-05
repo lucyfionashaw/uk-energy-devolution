@@ -28,7 +28,7 @@
   <section>
     <div class="section-num">The big picture</div>
     <h2>Every application, and where it goes</h2>
-    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity; about <strong>58 GW</strong> is generating today. Read left to right to see where the rest goes: each application either falls away — withdrawn, resubmitted (a revised application that replaces it), or still awaiting a decision — or wins consent, and approved projects then peel off as consent lapses, stalls before construction, or reaches the grid. Resubmitted duplicates are counted once. The diagram is drawn to scale, and you can filter by technology or council party, or switch between capacity and application count.</p>
+    <p class="dek">Britain's renewable pipeline runs to <strong>375 GW</strong> of applications, or <strong>358 GW</strong> of distinct projects once resubmitted duplicates are merged; about <strong>58 GW</strong> is generating today. Every project below is counted once. Read left to right to see where each one goes: it either falls away — withdrawn or still awaiting a decision — or wins consent, and approved projects then peel off as consent lapses, stall before construction, or reach the grid. The diagram is drawn to scale, and you can filter by technology or council party, or switch between capacity and project count.</p>
     <div class="card">
       <h3>From application to the grid</h3>
       <div class="toolbar">
@@ -47,7 +47,7 @@
       </div>
       <p class="sub" id="flowNote" style="margin:.3rem 0 0"></p>
       <div class="chart-box" id="sankey" style="height:540px"></div>
-      <div class="source">REPD Q1 2026. "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance. Capacity is Installed Capacity (MWelec); shown as GW on the diagram. Party is the control of the deciding council at the decision date (application date if undecided); national-route and unmatched projects have no council party.</div>
+      <div class="source">REPD Q1 2026, distinct projects (815 resubmitted duplicate applications — 17 GW — merged to their live record). "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance. Capacity is Installed Capacity (MWelec), shown as GW. Party is the control of the deciding council at the decision date (application date if undecided); national-route and unmatched projects have no council party.</div>
     </div>
     <div class="callout" id="decisionCallout">
       <span class="tag">The headline</span>
@@ -131,8 +131,8 @@ const F = window.FLOW;
 const mk = id => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
 const gw = mw => (mw / 1000);
 
-// ---------- headline stat tiles (deduplicated: unique projects, not raw records) ----------
-const uniqueN = F.n.applied - F.n.resubmitted, uniqueCap = F.mw.applied - F.mw.resubmitted;
+// ---------- headline stat tiles (deduplicated: applied is already distinct projects) ----------
+const uniqueN = F.n.applied, uniqueCap = F.mw.applied;
 const decidedPct = F.n.decided / uniqueN * 100;
 const approvalPct = F.n.granted / (F.n.granted + F.n.refused) * 100;
 document.getElementById("topstats").innerHTML = [
@@ -150,26 +150,25 @@ document.querySelector("#decisionCallout p").innerHTML =
 const sankeyLabel = {
   Applied: "Applied", DecisionMade: "Decision made", Approved: "Approved", Building: "Broke ground",
   Refused: "Refused", Withdrawn: "Withdrawn / abandoned", Pending: "Awaiting a decision",
-  Resubmitted: "Application resubmitted",
   Expired: "Consent lapsed", Permitted: "Permitted, not built",
   UnderConstruction: "Under construction", Operational: "Operational",
 };
 const sankeyColor = {
   Applied: C.inkFaint, DecisionMade: "#6b8e7f", Approved: C.greenL, Building: C.green, Operational: C.greenD,
-  Refused: C.refuse, Withdrawn: "#9b9b9b", Pending: C.gold, Resubmitted: "#7a6f9b",
+  Refused: C.refuse, Withdrawn: "#9b9b9b", Pending: C.gold,
   Expired: "#b08968", Permitted: C.goldL, UnderConstruction: "#6fae8a",
 };
 // columns follow the same gates as the Gantt: submission → decision → approval → construction → commissioning
 const sankeyCol = {
   Applied: 0,
-  DecisionMade: 1, Withdrawn: 1, Pending: 1, Resubmitted: 1,
+  DecisionMade: 1, Withdrawn: 1, Pending: 1,
   Approved: 2, Refused: 2,
   Expired: 3, Permitted: 3, Building: 3,
   UnderConstruction: 4, Operational: 4,
 };
 const sankeyPriority = {
   Applied: 0,
-  DecisionMade: 0, Pending: 5, Resubmitted: 6, Withdrawn: 7,
+  DecisionMade: 0, Pending: 5, Withdrawn: 6,
   Approved: 0, Refused: 4,
   Building: 0, Permitted: 2, Expired: 3,
   Operational: 0, UnderConstruction: 2,
@@ -179,7 +178,6 @@ const sankeyPriority = {
 function nodeTotals(u) {
   return {
     Applied: u.applied, DecisionMade: u.decided, Refused: u.refused, Withdrawn: u.otherOut, Pending: u.pending,
-    Resubmitted: u.resubmitted,
     Approved: u.granted, Expired: u.expired, Permitted: u.permitted, Building: u.built,
     UnderConstruction: u.building, Operational: u.op,
   };
@@ -213,9 +211,9 @@ function sumCells(unit, tech, party) {
   });
   return {
     applied: b.applied, refused: b.refused, pending: b.pending, granted: b.granted,
-    expired: b.expired, built: b.built, op: b.op, resubmitted: b.resubmitted || 0,
+    expired: b.expired, built: b.built, op: b.op,
     decided: b.granted + b.refused,
-    otherOut: Math.max(0, b.applied - (b.resubmitted || 0) - b.granted - b.refused - b.pending),
+    otherOut: Math.max(0, b.applied - b.granted - b.refused - b.pending),
     permitted: Math.max(0, b.granted - b.built - b.expired),
     building: Math.max(0, b.built - b.op),
   };
@@ -260,7 +258,6 @@ function buildSankey() {
   Object.keys(sankeyLabel).forEach(k => { labels[k] = `${sankeyLabel[k]}  ·  ${val(totals[k])}`; });
 
   const flows = [
-    { from: "Applied",      to: "Resubmitted",       flow: u.resubmitted },
     { from: "Applied",      to: "Withdrawn",         flow: u.otherOut },
     { from: "Applied",      to: "Pending",           flow: u.pending },
     { from: "Applied",      to: "DecisionMade",      flow: u.decided },

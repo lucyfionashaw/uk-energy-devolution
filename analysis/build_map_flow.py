@@ -125,9 +125,12 @@ def agg_over(pred, rowset):
             cap += num(r["Installed Capacity (MWelec)"]) or 0
     return n, cap
 
+# The funnel is DISTINCT projects (live records). `applied` = distinct projects; `filed`
+# and `resubmitted` are carried only as context ("375 GW filed, 358 GW distinct").
 raw = {
-    "applied":     agg_over(lambda r: True, rows),
-    "resubmitted": agg_over(lambda r: True, superseded),
+    "applied":     agg_over(lambda r: True, live),
+    "filed":       agg_over(lambda r: True, rows),        # all applications incl. duplicates
+    "resubmitted": agg_over(lambda r: True, superseded),  # duplicates merged out
     "granted":     agg_over(granted, live),
     "refused":     agg_over(lambda r: S(r) in REF, live),
     "pending":     agg_over(lambda r: S(r) in PEND, live),
@@ -138,8 +141,8 @@ raw = {
 
 def pack(idx):
     q = {k: round(v[idx]) for k, v in raw.items()}
-    # withdrawn/abandoned residual = live applications minus the accounted-for outcomes
-    q["otherOut"] = q["applied"] - q["resubmitted"] - q["granted"] - q["refused"] - q["pending"]
+    # withdrawn/abandoned residual = distinct projects minus the accounted-for outcomes
+    q["otherOut"] = q["applied"] - q["granted"] - q["refused"] - q["pending"]
     q["permitted"] = q["granted"] - q["built"] - q["expired"]
     q["building"] = q["built"] - q["op"]
     q["decided"] = q["granted"] + q["refused"]

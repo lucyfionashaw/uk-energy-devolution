@@ -94,10 +94,10 @@ for r in R.load():
     def add(metric):
         cell["n"][metric] += 1
         cell["mw"][metric] += cap
-    add("applied")                       # every application
     if r["_superseded"]:
-        add("resubmitted")               # superseded duplicate -> peels off as its own outcome
-    else:                                # live records carry the real downstream outcomes
+        add("resubmitted")               # duplicate merged out (kept only as context)
+    else:                                # distinct project: counts as applied + its outcome
+        add("applied")
         if granted: add("granted")
         if refused: add("refused")
         if pending: add("pending")
