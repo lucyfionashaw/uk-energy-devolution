@@ -29,40 +29,11 @@ RAW = ROOT / "data" / "raw"
 CSVF = RAW / "REPD_publication_Q1_2026.csv"
 OUT = ROOT / "data" / "processed" / "gantt_data.json"
 
-# --- council-control series + date-aware lookup (mirrors build_phase4_party.py) ---
-STOP = {"council", "county", "city", "borough", "district", "metropolitan",
-        "unitary", "authority", "royal", "of", "the", "cyngor", "sir"}
-def norm(s):
-    s = (s or "").lower().strip().replace("&", "and").replace(".", "")
-    s = re.sub(r"[^a-z ]", " ", s)
-    return " ".join(t for t in s.split() if t and t not in STOP)
-PARTY_COL = {"con": "Con", "lab": "Lab", "ld": "LibDem", "green": "Green", "snp": "SNP",
-             "pc": "Plaid", "ref": "Reform", "ukip": "Reform", "other": "Other/Ind"}
-def _largest(row, cols):
-    best, bv = None, -1
-    for c in cols:
-        try: v = int(row[c] or 0)
-        except ValueError: v = 0
-        if v > bv: best, bv = c, v
-    return best, bv
-_ctrl = defaultdict(dict)
-for r in csv.DictReader(open(RAW / "history1973-2015.csv", encoding="cp1252")):
-    best, bv = _largest(r, ["con", "lab", "ld", "other", "nat"])
-    if bv <= 0: continue
-    _ctrl[norm(r["authority"])][int(r["year"])] = "Other/Ind" if best == "nat" else PARTY_COL.get(best, "Other/Ind")
-for r in csv.DictReader(open(RAW / "history2016-26.csv", encoding="cp1252")):
-    best, bv = _largest(r, ["con", "lab", "ld", "green", "ukip", "ref", "pc", "snp", "other"])
-    if bv <= 0: continue
-    _ctrl[norm(r["authority"])][int(r["year"])] = PARTY_COL.get(best, "Other/Ind")
-def _take_office(year):
-    may1 = datetime.date(year, 5, 1)
-    return may1 + datetime.timedelta(days=(3 - may1.weekday()) % 7) + datetime.timedelta(days=4)
-def control_at(council_norm, d):
-    yrs = _ctrl.get(council_norm)
-    if not yrs or d is None: return None
-    eff = d.year if d >= _take_office(d.year) else d.year - 1
-    cand = [y for y in yrs if y <= eff]
-    return yrs[max(cand)] if cand else None
+# Council control via the shared module (reads the `majority` column, not seat counts).
+import sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from council_control import norm, control_at
+import repd_records as R
 
 def pdate(s):
     s = (s or "").strip()
@@ -96,7 +67,7 @@ BIO = {"Anaerobic Digestion", "Landfill Gas", "Biomass (dedicated)", "Biomass (c
 HYDRO = {"Small Hydro", "Large Hydro", "Pumped Storage Hydroelectricity"}
 
 GRANT_DATES = ["Planning Permission  Granted", "Appeal Granted", "Secretary of State - Granted"]
-rows = list(csv.DictReader(open(CSVF, encoding="latin-1")))
+rows = R.live()                         # de-duplicated: one row per physical project
 for x in rows:
     x["_mw"] = num(x["Installed Capacity (MWelec)"])
     x["_t"] = x["Technology Type"].strip()
@@ -143,7 +114,10 @@ def stats(rowset):
     lists = [[], [], []]
     for x in rowset:
         for i, (c0, c1) in enumerate(STAGE_COLS):
-            m = months(pdate(x[c0]), pdate(x[c1]))
+            # stage 0 (submission -> decision) starts from the ORIGINAL application date, so a
+            # resubmitted scheme shows its true time-to-approve, not just the last resubmission
+            start = R.original_submission(x) if i == 0 else pdate(x[c0])
+            m = months(start, pdate(x[c1]))
             if m is not None:
                 lists[i].append(m)
     med = [round(median(l), 1) if len(l) >= MIN_STAGE else None for l in lists]

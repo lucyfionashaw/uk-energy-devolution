@@ -10,14 +10,18 @@
 
 Run:  python3 analysis/build_map_flow.py   (then re-run build_data_js.py)
 """
-import csv, json, pathlib
+import csv, json, pathlib, sys
 from pyproj import Transformer
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw" / "REPD_publication_Q1_2026.csv"
 PROC = ROOT / "data" / "processed"
 
-rows = list(csv.DictReader(open(RAW, encoding="latin-1")))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import repd_records as R
+rows = R.load()                                    # all rows (each flagged _superseded)
+live = [r for r in rows if not r["_superseded"]]   # one row per physical project
+superseded = [r for r in rows if r["_superseded"]] # resubmitted duplicates
 
 def has(x):
     return bool((x or "").strip())
@@ -76,7 +80,7 @@ def status_bucket(r):
 # EPSG:27700 = British National Grid; EPSG:4326 = WGS84 lat/lon.
 tf = Transformer.from_crs(27700, 4326, always_xy=True)
 points = []
-for r in rows:
+for r in live:                                     # dedup: don't plot superseded twins
     x, y = num(r["X-coordinate"]), num(r["Y-coordinate"])
     if x is None or y is None:
         continue
@@ -111,23 +115,31 @@ def agg(pred):
             cap += num(r["Installed Capacity (MWelec)"]) or 0
     return n, cap
 
-metrics = {
-    "applied": lambda r: True,
-    "granted": granted,
-    "refused": lambda r: S(r) in REF,
-    "withdrawn": lambda r: S(r) in WDR,
-    "abandoned": lambda r: S(r) == "Abandoned",
-    "pending": lambda r: S(r) in PEND,
-    "expired": lambda r: S(r) == "Planning Permission Expired",
-    "built": built,
-    "op": oper,
+# applied counts EVERY application; resubmitted = the superseded duplicates that peel off
+# as their own outcome; every other stage is measured on LIVE (deduplicated) records only.
+def agg_over(pred, rowset):
+    n = cap = 0
+    for r in rowset:
+        if pred(r):
+            n += 1
+            cap += num(r["Installed Capacity (MWelec)"]) or 0
+    return n, cap
+
+raw = {
+    "applied":     agg_over(lambda r: True, rows),
+    "resubmitted": agg_over(lambda r: True, superseded),
+    "granted":     agg_over(granted, live),
+    "refused":     agg_over(lambda r: S(r) in REF, live),
+    "pending":     agg_over(lambda r: S(r) in PEND, live),
+    "expired":     agg_over(lambda r: S(r) == "Planning Permission Expired", live),
+    "built":       agg_over(built, live),
+    "op":          agg_over(oper, live),
 }
-raw = {k: agg(p) for k, p in metrics.items()}
 
 def pack(idx):
     q = {k: round(v[idx]) for k, v in raw.items()}
-    # derived flow segments
-    q["otherOut"] = q["applied"] - q["granted"] - q["refused"] - q["pending"]
+    # withdrawn/abandoned residual = live applications minus the accounted-for outcomes
+    q["otherOut"] = q["applied"] - q["resubmitted"] - q["granted"] - q["refused"] - q["pending"]
     q["permitted"] = q["granted"] - q["built"] - q["expired"]
     q["building"] = q["built"] - q["op"]
     q["decided"] = q["granted"] + q["refused"]

@@ -44,61 +44,12 @@ LAND_WINDOW = range(2010, 2026)  # 2010..2025: the grid-scale renewable era. Ear
                                 # negligible in volume and predate stable (post-2009) council
                                 # boundaries, so the 2018 land file matches them poorly. 2026 omitted (partial).
 
-def take_office(year):
-    """When a newly elected council takes office: UK ordinary elections are the first
-    Thursday of May; elected members take office on the fourth day after (LGA 1972 s.7).
-    So the control recorded for `year` is in effect from this date; before it, the
-    previous year's council still governs."""
-    may1 = datetime.date(year, 5, 1)
-    first_thu = may1 + datetime.timedelta(days=(3 - may1.weekday()) % 7)  # Thu = weekday 3
-    return first_thu + datetime.timedelta(days=4)
-
-STOP = {"council", "county", "city", "borough", "district", "metropolitan",
-        "unitary", "authority", "royal", "of", "the", "cyngor", "sir"}
-
-def norm(s):
-    s = s.lower().strip().replace("&", "and").replace(".", "")
-    s = re.sub(r"[^a-z ]", " ", s)
-    return " ".join(t for t in s.split() if t and t not in STOP)
-
-PARTY_COL = {"con": "Con", "lab": "Lab", "ld": "LibDem", "green": "Green", "snp": "SNP",
-             "pc": "Plaid", "ref": "Reform", "ukip": "Reform", "other": "Other/Ind"}
-
-def largest(row, cols):
-    best, bv = None, -1
-    for c in cols:
-        try: v = int(row[c] or 0)
-        except ValueError: v = 0
-        if v > bv: best, bv = c, v
-    return best, bv
-
-# ---- control[council_norm][year] = party ----
-ctrl = defaultdict(dict)
-for r in csv.DictReader(open(RAW / "history1973-2015.csv", encoding="cp1252")):
-    best, bv = largest(r, ["con", "lab", "ld", "other", "nat"])
-    if bv <= 0: continue
-    party = "Nationalist (pre-2007)" if best == "nat" else PARTY_COL.get(best, "Other/Ind")
-    ctrl[norm(r["authority"])][int(r["year"])] = party
-for r in csv.DictReader(open(RAW / "history2016-26.csv", encoding="cp1252")):
-    best, bv = largest(r, ["con", "lab", "ld", "green", "ukip", "ref", "pc", "snp", "other"])
-    if bv <= 0: continue
-    ctrl[norm(r["authority"])][int(r["year"])] = PARTY_COL.get(best, "Other/Ind")
-
-def control_in_year(council_norm, year):
-    """Carry-forward: control as recorded for the most recent election year <= year."""
-    yrs = ctrl.get(council_norm)
-    if not yrs: return None
-    cand = [y for y in yrs if y <= year]
-    return yrs[max(cand)] if cand else yrs[min(yrs)]
-
-def control_at_decision(council_norm, d):
-    """Control in effect on the actual decision date `d`. A composition recorded for a
-    year only takes office in mid-May (take_office); a decision before that date is still
-    governed by the previous council. This buckets each decision into its real council
-    term, not just the calendar year — which matters because planning behaviour can flip
-    the moment control changes hands."""
-    eff_year = d.year if d >= take_office(d.year) else d.year - 1
-    return control_in_year(council_norm, eff_year)
+# Council control now comes from the shared module, which reads the `majority` (control)
+# column rather than largest-party-by-seats — see analysis/council_control.py.
+import sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from council_control import norm, take_office, control_in_year, control_at
+control_at_decision = control_at
 
 # National government on a given date (for the Westminster-alignment cut). Con-led
 # 2010-15 coalition counts as Con. Dates: Major->Blair May 1997, Brown->Cameron May 2010,
@@ -149,7 +100,8 @@ align = {"aligned": gr_node(), "misaligned": gr_node()}            # council par
 alignOnshore = {"aligned": gr_node(), "misaligned": gr_node()}
 landApprovedMW = defaultdict(float)   # numerator: MW granted in-window, in a LAD, at permit-date control
 matched = unmatched = 0
-for r in csv.DictReader(open(RAW / "REPD_publication_Q1_2026.csv", encoding="cp1252")):
+import repd_records as R
+for r in R.live():                       # de-duplicated: one row per physical project
     st = r["Development Status (short)"]
     if st in GRANT_ST: outcome = "granted"
     elif st in REFUSE_ST: outcome = "refused"
@@ -182,7 +134,7 @@ for r in csv.DictReader(open(RAW / "REPD_publication_Q1_2026.csv", encoding="cp1
 
     if outcome == "granted" and d.year in LAND_WINDOW and pa in landKm2:
         landApprovedMW[party] += cap
-    sub = parse_date(r["Planning Application Submitted"].strip())
+    sub = R.original_submission(r)   # original application date (true time-to-decide)
     if sub:
         m = months_between(sub, d)
         if m is not None and 0 <= m < 360: agg[party]["months"].append(m)

@@ -30,39 +30,11 @@ def pdate(s):
         d, m, y = s.split("/"); return datetime.date(int(y), int(m), int(d))
     except (ValueError, IndexError): return None
 
-STOP = {"council", "county", "city", "borough", "district", "metropolitan", "unitary",
-        "authority", "royal", "of", "the", "cyngor", "sir"}
-def norm(s):
-    s = (s or "").lower().strip().replace("&", "and").replace(".", "")
-    s = re.sub(r"[^a-z ]", " ", s)
-    return " ".join(t for t in s.split() if t and t not in STOP)
-PC = {"con": "Con", "lab": "Lab", "ld": "LibDem", "green": "Green", "snp": "SNP",
-      "pc": "Plaid", "ref": "Reform", "ukip": "Reform", "other": "Other/Ind"}
-def largest(row, cols):
-    best, bv = None, -1
-    for c in cols:
-        try: v = int(row[c] or 0)
-        except ValueError: v = 0
-        if v > bv: best, bv = c, v
-    return best, bv
-ctrl = defaultdict(dict)
-for r in csv.DictReader(open(RAW / "history1973-2015.csv", encoding="cp1252")):
-    b, bv = largest(r, ["con", "lab", "ld", "other", "nat"])
-    if bv <= 0: continue
-    ctrl[norm(r["authority"])][int(r["year"])] = "Other/Ind" if b == "nat" else PC.get(b, "Other/Ind")
-for r in csv.DictReader(open(RAW / "history2016-26.csv", encoding="cp1252")):
-    b, bv = largest(r, ["con", "lab", "ld", "green", "ukip", "ref", "pc", "snp", "other"])
-    if bv <= 0: continue
-    ctrl[norm(r["authority"])][int(r["year"])] = PC.get(b, "Other/Ind")
-def take_office(y):
-    m = datetime.date(y, 5, 1)
-    return m + datetime.timedelta(days=(3 - m.weekday()) % 7) + datetime.timedelta(days=4)
-def control_at(pa, d):
-    yrs = ctrl.get(pa)
-    if not yrs or d is None: return None
-    eff = d.year if d >= take_office(d.year) else d.year - 1
-    cand = [y for y in yrs if y <= eff]
-    return yrs[max(cand)] if cand else None
+# Council control via the shared module (reads the `majority` column, not seat counts).
+import sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from council_control import norm, control_at
+import repd_records as R
 
 GRANT_DATES = ["Planning Permission  Granted", "Appeal Granted", "Secretary of State - Granted"]
 ORDER = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind"]
@@ -70,7 +42,7 @@ Y0, Y1 = 2010, 2025
 
 n_ct = defaultdict(lambda: defaultdict(int))
 mw_ct = defaultdict(lambda: defaultdict(float))
-for x in csv.DictReader(open(RAW / "REPD_publication_Q1_2026.csv", encoding="latin-1")):
+for x in R.live():                       # de-duplicated: one row per physical project
     gd = next((pdate(x[c]) for c in GRANT_DATES if has(x[c])), None)
     if gd is None or gd.year < Y0 or gd.year > Y1:
         continue

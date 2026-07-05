@@ -27,57 +27,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 OUT = ROOT / "data" / "processed" / "flow_cells.json"
 
-# --------------------------------------------------------------------------- #
-# Council-control series + date-aware lookup (mirrors build_phase4_party.py).
-# --------------------------------------------------------------------------- #
-STOP = {"council", "county", "city", "borough", "district", "metropolitan",
-        "unitary", "authority", "royal", "of", "the", "cyngor", "sir"}
-
-def norm(s):
-    s = (s or "").lower().strip().replace("&", "and").replace(".", "")
-    s = re.sub(r"[^a-z ]", " ", s)
-    return " ".join(t for t in s.split() if t and t not in STOP)
-
-PARTY_COL = {"con": "Con", "lab": "Lab", "ld": "LibDem", "green": "Green", "snp": "SNP",
-             "pc": "Plaid", "ref": "Reform", "ukip": "Reform", "other": "Other/Ind"}
-
-def largest(row, cols):
-    best, bv = None, -1
-    for c in cols:
-        try: v = int(row[c] or 0)
-        except ValueError: v = 0
-        if v > bv: best, bv = c, v
-    return best, bv
-
-ctrl = defaultdict(dict)
-for r in csv.DictReader(open(RAW / "history1973-2015.csv", encoding="cp1252")):
-    best, bv = largest(r, ["con", "lab", "ld", "other", "nat"])
-    if bv <= 0: continue
-    party = "Nationalist (pre-2007)" if best == "nat" else PARTY_COL.get(best, "Other/Ind")
-    ctrl[norm(r["authority"])][int(r["year"])] = party
-for r in csv.DictReader(open(RAW / "history2016-26.csv", encoding="cp1252")):
-    best, bv = largest(r, ["con", "lab", "ld", "green", "ukip", "ref", "pc", "snp", "other"])
-    if bv <= 0: continue
-    ctrl[norm(r["authority"])][int(r["year"])] = PARTY_COL.get(best, "Other/Ind")
-
-def take_office(year):
-    may1 = datetime.date(year, 5, 1)
-    first_thu = may1 + datetime.timedelta(days=(3 - may1.weekday()) % 7)
-    return first_thu + datetime.timedelta(days=4)
-
-def control_in_year(council_norm, year):
-    yrs = ctrl.get(council_norm)
-    if not yrs: return None
-    cand = [y for y in yrs if y <= year]
-    return yrs[max(cand)] if cand else yrs[min(yrs)]
-
-def control_at(council_norm, d):
-    """Party controlling `council_norm` on date `d`, with the May take-office cut-off."""
-    if d is None:
-        yrs = ctrl.get(council_norm)
-        return yrs[max(yrs)] if yrs else None
-    eff_year = d.year if d >= take_office(d.year) else d.year - 1
-    return control_in_year(council_norm, eff_year)
+# Council control via the shared module (reads the `majority` column, not seat counts).
+import sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from council_control import norm, control_at
+import repd_records as R
 
 def parse_date(d):
     d = (d or "").strip()
@@ -111,11 +65,11 @@ def tech_bucket(t):
     return {"Solar Photovoltaics": "Solar", "Wind Onshore": "OnshoreWind",
             "Wind Offshore": "OffshoreWind", "Battery": "Battery"}.get(t, "Other")
 
-METRICS = ["applied", "granted", "refused", "pending", "expired", "built", "op"]
+METRICS = ["applied", "resubmitted", "granted", "refused", "pending", "expired", "built", "op"]
 # cells[(tech, party)] = {"n": {...}, "mw": {...}}
 cells = defaultdict(lambda: {"n": {m: 0 for m in METRICS}, "mw": {m: 0.0 for m in METRICS}})
 
-for r in csv.DictReader(open(RAW / "REPD_publication_Q1_2026.csv", encoding="cp1252")):
+for r in R.load():
     st = r["Development Status (short)"].strip()
     granted = has(r[GCOL]) or st in GRANT_ST
     built = has(r[UCOL]) or st in BUILT_ST
@@ -140,13 +94,16 @@ for r in csv.DictReader(open(RAW / "REPD_publication_Q1_2026.csv", encoding="cp1
     def add(metric):
         cell["n"][metric] += 1
         cell["mw"][metric] += cap
-    add("applied")
-    if granted: add("granted")
-    if refused: add("refused")
-    if pending: add("pending")
-    if expired: add("expired")
-    if built: add("built")
-    if oper: add("op")
+    add("applied")                       # every application
+    if r["_superseded"]:
+        add("resubmitted")               # superseded duplicate -> peels off as its own outcome
+    else:                                # live records carry the real downstream outcomes
+        if granted: add("granted")
+        if refused: add("refused")
+        if pending: add("pending")
+        if expired: add("expired")
+        if built: add("built")
+        if oper: add("op")
 
 out = {"metrics": METRICS,
        "cells": [{"tech": t, "party": p,

@@ -51,7 +51,10 @@ def sub_year(s):
 
 n_ct = defaultdict(lambda: defaultdict(int))     # n_ct[year][bucket]
 mw_ct = defaultdict(lambda: defaultdict(float))  # mw_ct[year][bucket]
-for r in csv.DictReader(open(RAW, encoding="latin-1")):
+import sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import repd_records as R
+for r in R.live():                       # de-duplicated: one row per physical project
     y = sub_year(r["Planning Application Submitted"])
     if y is None or y < Y0 or y > Y1:
         continue

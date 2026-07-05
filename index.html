@@ -28,7 +28,7 @@
   <section>
     <div class="section-num">The big picture</div>
     <h2>Every application, and where it goes</h2>
-    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity; about <strong>58 GW</strong> is generating today. Read left to right to see where the rest goes: each application either falls away — withdrawn, refused, or still awaiting a decision — or wins consent, and approved projects then peel off as consent lapses, stalls before construction, or reaches the grid. The diagram is drawn to scale — every band's width is the quantity flowing through it — and you can filter by technology or council party, or switch between capacity and application count.</p>
+    <p class="dek">Britain has proposed roughly <strong>375 GW</strong> of renewable capacity; about <strong>58 GW</strong> is generating today. Read left to right to see where the rest goes: each application either falls away — withdrawn, resubmitted (a revised application that replaces it), or still awaiting a decision — or wins consent, and approved projects then peel off as consent lapses, stalls before construction, or reaches the grid. Resubmitted duplicates are counted once. The diagram is drawn to scale, and you can filter by technology or council party, or switch between capacity and application count.</p>
     <div class="card">
       <h3>From application to the grid</h3>
       <div class="toolbar">
@@ -106,7 +106,7 @@
       <div>
         <h4>About this dashboard</h4>
         <p>A non-commercial data project on the politics of Britain's energy transition. The underlying analysis joins the Renewable Energy Planning Database to the political composition of every deciding local authority, and separates locally-decided projects from those consented through the devolved/national routes (Scotland's Section 36, Westminster's NSIP/DCO regime, the Planning Inspectorate and Secretary of State).</p>
-        <p>Figures cover 14,316 projects representing 375 GW of proposed capacity. Approval rates are calculated on decided applications only.</p>
+        <p>The register holds 14,316 applications; merging resubmitted duplicates leaves <strong>13,501 unique projects</strong> representing about <strong>358 GW</strong> of proposed capacity. Approval rates are calculated on decided projects only.</p>
       </div>
       <div>
         <h4>Data sources</h4>
@@ -127,46 +127,49 @@
 <script src="charts.js"></script>
 <script src="nav.js"></script>
 <script>
-const F = window.FLOW, o = window.PHASE1.overall;
+const F = window.FLOW;
 const mk = id => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
 const gw = mw => (mw / 1000);
 
-// ---------- headline stat tiles ----------
-const decidedPct = F.n.decided / F.n.applied * 100;
+// ---------- headline stat tiles (deduplicated: unique projects, not raw records) ----------
+const uniqueN = F.n.applied - F.n.resubmitted, uniqueCap = F.mw.applied - F.mw.resubmitted;
+const decidedPct = F.n.decided / uniqueN * 100;
+const approvalPct = F.n.granted / (F.n.granted + F.n.refused) * 100;
 document.getElementById("topstats").innerHTML = [
-  { num: fmt.n(o.n), lab: "planning records analysed" },
-  { num: fmt.gw(o.cap), suf: " GW", lab: "of capacity ever proposed" },
-  { num: fmt.pct(decidedPct), lab: "of applications have reached a decision" },
-  { num: fmt.gw(o.pendingCap), suf: " GW", lab: "still waiting in the queue for a decision" },
+  { num: fmt.n(uniqueN), lab: "unique projects (resubmissions merged)" },
+  { num: fmt.gw(uniqueCap), suf: " GW", lab: "of capacity proposed" },
+  { num: fmt.pct(decidedPct), lab: "of projects have reached a decision" },
+  { num: fmt.gw(F.mw.pending), suf: " GW", lab: "still waiting in the queue for a decision" },
 ].map(s => `<div class="stat"><div class="num">${s.num}${s.suf ? `<small>${s.suf}</small>` : ""}</div><div class="lab">${s.lab}</div></div>`).join("");
 
 // decision-framed headline
 document.querySelector("#decisionCallout p").innerHTML =
-  `Of the applications that reach a decision, <strong>${fmt.pct(o.approvalRatePct)}</strong> are approved — refusal is rare. But only <strong>${fmt.pct(decidedPct)}</strong> have reached a decision at all: ${fmt.n(o.pending)} projects, <strong>${gw(o.pendingCap).toFixed(0)} GW</strong>, are still in the queue awaiting a verdict.`;
+  `Of the projects that reach a decision, <strong>${fmt.pct(approvalPct)}</strong> are approved — refusal is rare. But only <strong>${fmt.pct(decidedPct)}</strong> have reached a decision at all: ${fmt.n(F.n.pending)} projects, <strong>${gw(F.mw.pending).toFixed(0)} GW</strong>, are still in the queue awaiting a verdict.`;
 
 // ---------- Sankey: toggleable MW / applications, drawn to scale ----------
 const sankeyLabel = {
   Applied: "Applied", DecisionMade: "Decision made", Approved: "Approved", Building: "Broke ground",
   Refused: "Refused", Withdrawn: "Withdrawn / abandoned", Pending: "Awaiting a decision",
+  Resubmitted: "Application resubmitted",
   Expired: "Consent lapsed", Permitted: "Permitted, not built",
   UnderConstruction: "Under construction", Operational: "Operational",
 };
 const sankeyColor = {
   Applied: C.inkFaint, DecisionMade: "#6b8e7f", Approved: C.greenL, Building: C.green, Operational: C.greenD,
-  Refused: C.refuse, Withdrawn: "#9b9b9b", Pending: C.gold,
+  Refused: C.refuse, Withdrawn: "#9b9b9b", Pending: C.gold, Resubmitted: "#7a6f9b",
   Expired: "#b08968", Permitted: C.goldL, UnderConstruction: "#6fae8a",
 };
 // columns follow the same gates as the Gantt: submission → decision → approval → construction → commissioning
 const sankeyCol = {
   Applied: 0,
-  DecisionMade: 1, Withdrawn: 1, Pending: 1,
+  DecisionMade: 1, Withdrawn: 1, Pending: 1, Resubmitted: 1,
   Approved: 2, Refused: 2,
   Expired: 3, Permitted: 3, Building: 3,
   UnderConstruction: 4, Operational: 4,
 };
 const sankeyPriority = {
   Applied: 0,
-  DecisionMade: 0, Pending: 5, Withdrawn: 6,
+  DecisionMade: 0, Pending: 5, Resubmitted: 6, Withdrawn: 7,
   Approved: 0, Refused: 4,
   Building: 0, Permitted: 2, Expired: 3,
   Operational: 0, UnderConstruction: 2,
@@ -176,6 +179,7 @@ const sankeyPriority = {
 function nodeTotals(u) {
   return {
     Applied: u.applied, DecisionMade: u.decided, Refused: u.refused, Withdrawn: u.otherOut, Pending: u.pending,
+    Resubmitted: u.resubmitted,
     Approved: u.granted, Expired: u.expired, Permitted: u.permitted, Building: u.built,
     UnderConstruction: u.building, Operational: u.op,
   };
@@ -209,9 +213,9 @@ function sumCells(unit, tech, party) {
   });
   return {
     applied: b.applied, refused: b.refused, pending: b.pending, granted: b.granted,
-    expired: b.expired, built: b.built, op: b.op,
+    expired: b.expired, built: b.built, op: b.op, resubmitted: b.resubmitted || 0,
     decided: b.granted + b.refused,
-    otherOut: Math.max(0, b.applied - b.granted - b.refused - b.pending),
+    otherOut: Math.max(0, b.applied - (b.resubmitted || 0) - b.granted - b.refused - b.pending),
     permitted: Math.max(0, b.granted - b.built - b.expired),
     building: Math.max(0, b.built - b.op),
   };
@@ -256,6 +260,7 @@ function buildSankey() {
   Object.keys(sankeyLabel).forEach(k => { labels[k] = `${sankeyLabel[k]}  ·  ${val(totals[k])}`; });
 
   const flows = [
+    { from: "Applied",      to: "Resubmitted",       flow: u.resubmitted },
     { from: "Applied",      to: "Withdrawn",         flow: u.otherOut },
     { from: "Applied",      to: "Pending",           flow: u.pending },
     { from: "Applied",      to: "DecisionMade",      flow: u.decided },
