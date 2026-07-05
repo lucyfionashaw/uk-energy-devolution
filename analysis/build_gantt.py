@@ -127,7 +127,8 @@ BUCKET_NAME = {
     "Bioenergy": "Bioenergy", "Hydro": "Hydro",
 }
 
-MIN_STAGE = 15  # a stage needs this many validly-dated projects to report a duration
+MIN_STAGE = 1  # show every stage that has at least one validly-dated project (sample size is
+               # carried in n[] and surfaced in the tooltip, so thin bars are visible-but-labelled)
 
 def stats(rowset):
     """median, mean, n for each of the three stages over a set of rows.
