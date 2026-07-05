@@ -239,6 +239,8 @@ a { color: var(--green); }
   padding-top: 12px;
   border-top: 1px solid var(--line-soft);
 }
+.source a { color: var(--ink-soft); text-decoration: underline; text-underline-offset: 2px; }
+.source a:hover { color: var(--green); }
 .chart-box { position: relative; width: 100%; height: 360px; }
 .chart-box.tall { height: 440px; }
 .chart-box.short { height: 280px; }
@@ -367,6 +369,8 @@ footer {
 footer .wrap { padding-top: 32px; padding-bottom: 40px; }
 footer h4 { font-family: var(--font); margin: 0 0 8px; font-size: 1rem; }
 footer p, footer li { font-size: .84rem; color: var(--ink-soft); }
+footer a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+footer a:hover { color: var(--green); }
 footer ul { margin: 0; padding-left: 18px; }
 footer .cols { display: grid; grid-template-columns: 2fr 1fr; gap: 32px; }
 

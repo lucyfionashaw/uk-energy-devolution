@@ -47,7 +47,11 @@
       <h3>Capacity approved per km² of land controlled</h3>
       <p class="sub">2010–2025, lower-tier councils. MW approved per km² of controlled land, per year.</p>
       <div class="chart-box short" id="landYr"></div>
-      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the decision date, plus ONS Standard Area Measurement land area (LAD, data/raw/SAM_LAD_DEC_2018_UK.csv). GB local route only (analysis/build_phase4_party.py).</div>
+      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control, and <a href="https://geoportal.statistics.gov.uk/" target="_blank" rel="noopener">ONS Standard Area Measurements</a> land areas. Approvals credited to the party controlling the deciding council on the decision date, normalised by the land that party controlled, 2010–2025. GB lower-tier councils only. <strong>Excludes Green, Reform and Plaid</strong> (fewer than 100 decisions each — too few for a stable per-km² rate), and Northern Ireland.</div>
+    </div>
+    <div class="callout gold">
+      <span class="tag">A big caveat: Scotland</span>
+      <p>The two lowest bars — <strong>SNP</strong> and <strong>Independent</strong> — are both dominated by Scotland, and both are held down by the same thing. Independents' vast land base is largely rural Scottish councils (Highland alone is ~24,000 km²); the SNP has run much of Scotland for years. But Scotland consents its <em>big</em> renewables nationally, not locally: of 111 granted Scottish onshore wind farms of 50 MW or more, <strong>109 were decided by Scottish Ministers, not councils</strong>. So this chart — which only sees council decisions — understates Scotland. Read the SNP and Independent bars as "what Scottish <em>councils</em> approve," not "what Scotland builds."</p>
     </div>
   </section>
 
@@ -61,16 +65,16 @@
       <h3>Approval rate by controlling party — all technologies</h3>
       <p class="sub">Locally-decided projects, by the party in control at the decision date.</p>
       <div class="chart-box" id="byParty"></div>
-      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the decision date. GB local route, decided applications (analysis/build_phase4_party.py).</div>
+      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the decision date. GB locally-decided applications with a recorded outcome; resubmitted duplicates merged.</div>
     </div>
   </section>
 
   <hr class="divider">
 
   <section>
-    <div class="section-num">National vs local</div>
-    <h2>The approvals boom is cross-party</h2>
-    <p class="dek">Labour's national government approved wind and solar at roughly <em>double</em> the Conservative rate — the headline of the Guardian's analysis, and by capacity it checks out. But that's a timing story: councils grant these applications, not Westminster. The dashed line marks Labour's July 2024 election; the surge runs through councils of every colour, and the ones doing the approving are still majority Conservative.</p>
+    <div class="section-num">Approvals by year</div>
+    <h2>Who actually approved it, year by year</h2>
+    <p class="dek">The Guardian reported that roughly twice as much renewable capacity was approved in Labour's first stretch in office as in the Conservatives' last. But Westminster doesn't grant applications — councils do. Crediting each year's approvals to the party controlling the deciding council shows where the jump really is: not a clean 2024 step-change, but a pipeline that swells into 2025, granted by councils of every colour (Conservative-run ones most of all).</p>
     <div class="card">
       <h3>Capacity approved each year, by controlling council party</h3>
       <div class="toolbar">
@@ -81,14 +85,14 @@
         </div>
       </div>
       <div class="chart-box tall" id="apprYear"></div>
-      <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the grant date. GB local route only; national-route projects (offshore wind, NSIP) excluded. Smaller parties grouped as "Other".</div>
+      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. GB local route only — national-route projects (offshore wind, NSIP) are excluded. Plaid, Green and Reform grouped as "Other". Resubmitted duplicates merged.</div>
     </div>
     <div class="callout">
-      <span class="tag">"Double" — but a period, not a cause</span>
-      <p>In its first 21 months Labour approved about <strong>30 GW</strong> of wind and solar, against the Conservatives' <strong>16 GW</strong> in their final 21 — the ≈2× the Guardian reported. But by <em>project count</em> Labour approved slightly <em>fewer</em>, larger schemes, and the councils granting them are still majority Conservative. The pipeline was already surging under the Conservatives; "under Labour" is a period, not a cause.</p>
+      <span class="tag">The "2×" is real, but it's a period, not a cause</span>
+      <p>Matched 21-month windows do show it — about <strong>30 GW</strong> of wind and solar approved after July 2024 against <strong>16 GW</strong> before. But the pipeline was already surging under the Conservatives, the biggest single year is 2025, and by <em>project count</em> the later approvals are fewer but larger. Whoever sits in Westminster, the grants are made by councils — most of them Conservative-controlled.</p>
     </div>
     <div class="callout gold">
-      <span class="tag">Where the national government does show up: onshore wind</span>
+      <span class="tag">Where national policy does bite: onshore wind</span>
       <p>The one place Westminster policy bites is <a href="technology.html">onshore wind</a>. England's 2015 de-facto ban cut English onshore applications from ~60 a year to nearly zero for a decade; after the ban was lifted in 2024 they rebounded to 42 in 2025. Scotland, with no ban, kept approving 0.5–1.7 GW a year throughout. National government matters through <em>policy</em> — not by deciding the applications.</p>
     </div>
   </section>
@@ -183,38 +187,19 @@ const apprVal = (key, unit, i) => key === "__other"
   : AY.series[key][unit][i];
 document.getElementById("apprLegend").innerHTML = apprSeries.map(s => `<span><i style="background:${s.c}"></i>${s.name}</span>`).join("");
 
-// vertical marker at Labour's July 2024 election
-const labourMarker = {
-  id: "labourMarker",
-  afterDatasetsDraw(chart) {
-    const i = AY.years.indexOf(2024);
-    if (i < 0) return;
-    const x = chart.scales.x.getPixelForValue(i), top = chart.chartArea.top, bot = chart.chartArea.bottom;
-    const { ctx } = chart;
-    ctx.save();
-    ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
-    ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bot); ctx.stroke();
-    ctx.setLineDash([]); ctx.fillStyle = C.inkSoft;
-    ctx.font = "600 10.5px Tahoma, Verdana, sans-serif"; ctx.textAlign = "left";
-    ctx.fillText("Labour elected (Jul 2024)", x + 5, top + 12);
-    ctx.restore();
-  },
-};
-
 let apprChart = null;
 function renderAppr(unit) {
   const isMW = unit === "mw";
   if (apprChart) apprChart.destroy();
   document.getElementById("apprYear").innerHTML = "";
   apprChart = new Chart(mk("apprYear"), {
-    type: "line",
+    type: "bar",
     data: {
       labels: AY.years,
       datasets: apprSeries.map(s => ({
         label: s.name,
         data: AY.years.map((_, i) => { const v = apprVal(s.key, unit, i); return isMW ? v / 1000 : v; }),
-        borderColor: s.c, backgroundColor: s.c + "cc",
-        fill: true, stack: "s", tension: .3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 1,
+        backgroundColor: s.c, stack: "s", maxBarThickness: 34,
       })),
     },
     options: {
@@ -223,9 +208,8 @@ function renderAppr(unit) {
         legend: { display: false },
         tooltip: { callbacks: { label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " approved"}` } },
       },
-      scales: { y: axis({ stacked: true, min: 0, title: { display: true, text: isMW ? "capacity approved (GW)" : "projects approved" } }), x: axis({ grid: { display: false } }) },
+      scales: { y: axis({ stacked: true, min: 0, title: { display: true, text: isMW ? "capacity approved (GW)" : "projects approved" } }), x: axis({ stacked: true, grid: { display: false } }) },
     },
-    plugins: [labourMarker],
   });
 }
 renderAppr("mw");
