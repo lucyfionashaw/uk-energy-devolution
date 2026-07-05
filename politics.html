@@ -56,7 +56,7 @@
   <section>
     <div class="section-num">Approval rate</div>
     <h2>The rate they say yes</h2>
-    <p class="dek">Approval rates are high under every party — roughly 85% to 93% of decided projects. Labour-run councils approve at a slightly higher rate than Conservative ones, but at this altitude the gaps are small.</p>
+    <p class="dek">Approval rates are high under every party — roughly 81% to 93% of decided projects. Labour-run councils approve at a slightly higher rate than Conservative ones; independent-led councils are the lowest. At this altitude the gaps are modest.</p>
     <div class="card">
       <h3>Approval rate by controlling party — all technologies</h3>
       <p class="sub">Locally-decided projects, by the party in control at the decision date.</p>
@@ -70,7 +70,7 @@
   <section>
     <div class="section-num">National vs local</div>
     <h2>The approvals boom is cross-party</h2>
-    <p class="dek">It's tempting to credit a rise in renewable approvals to the national government of the day. But councils grant local applications, not Westminster — and the post-2021 surge runs through councils of every colour. Conservative-controlled councils have approved the most capacity overall, with Labour and Independent-run councils close behind by 2025. The jump after 2021 is the solar-and-battery pipeline maturing, not a change of government.</p>
+    <p class="dek">Labour's national government approved wind and solar at roughly <em>double</em> the Conservative rate — the headline of the Guardian's analysis, and by capacity it checks out. But that's a timing story: councils grant these applications, not Westminster. The dashed line marks Labour's July 2024 election; the surge runs through councils of every colour, and the ones doing the approving are still majority Conservative.</p>
     <div class="card">
       <h3>Capacity approved each year, by controlling council party</h3>
       <div class="toolbar">
@@ -82,6 +82,10 @@
       </div>
       <div class="chart-box tall" id="apprYear"></div>
       <div class="source">REPD Q1 2026 joined to Open Council Data UK control at the grant date. GB local route only; national-route projects (offshore wind, NSIP) excluded. Smaller parties grouped as "Other".</div>
+    </div>
+    <div class="callout">
+      <span class="tag">"Double" — but a period, not a cause</span>
+      <p>In its first 21 months Labour approved about <strong>30 GW</strong> of wind and solar, against the Conservatives' <strong>16 GW</strong> in their final 21 — the ≈2× the Guardian reported. But by <em>project count</em> Labour approved slightly <em>fewer</em>, larger schemes, and the councils granting them are still majority Conservative. The pipeline was already surging under the Conservatives; "under Labour" is a period, not a cause.</p>
     </div>
     <div class="callout gold">
       <span class="tag">Where the national government does show up: onshore wind</span>
@@ -178,6 +182,25 @@ const apprVal = (key, unit, i) => key === "__other"
   ? OTHERS.reduce((a, p) => a + AY.series[p][unit][i], 0)
   : AY.series[key][unit][i];
 document.getElementById("apprLegend").innerHTML = apprSeries.map(s => `<span><i style="background:${s.c}"></i>${s.name}</span>`).join("");
+
+// vertical marker at Labour's July 2024 election
+const labourMarker = {
+  id: "labourMarker",
+  afterDatasetsDraw(chart) {
+    const i = AY.years.indexOf(2024);
+    if (i < 0) return;
+    const x = chart.scales.x.getPixelForValue(i), top = chart.chartArea.top, bot = chart.chartArea.bottom;
+    const { ctx } = chart;
+    ctx.save();
+    ctx.strokeStyle = C.ink; ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bot); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle = C.inkSoft;
+    ctx.font = "600 10.5px Tahoma, Verdana, sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("Labour elected (Jul 2024)", x + 5, top + 12);
+    ctx.restore();
+  },
+};
+
 let apprChart = null;
 function renderAppr(unit) {
   const isMW = unit === "mw";
@@ -202,6 +225,7 @@ function renderAppr(unit) {
       },
       scales: { y: axis({ stacked: true, min: 0, title: { display: true, text: isMW ? "capacity approved (GW)" : "projects approved" } }), x: axis({ grid: { display: false } }) },
     },
+    plugins: [labourMarker],
   });
 }
 renderAppr("mw");
