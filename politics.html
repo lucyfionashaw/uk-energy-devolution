@@ -51,7 +51,7 @@
     </div>
     <div class="card">
       <h3>The same story as a scatter: land vs capacity</h3>
-      <p class="sub">Each major party plotted by the land its councils governed (2010–2025) against the capacity they approved. The dashed line is the average — points <em>above</em> it approve more per acre, points <em>below</em> less. The per-km² rate is just the steepness from the origin.</p>
+      <p class="sub">Each major party plotted by the land its councils governed (2010–2025) against the capacity they approved. The dashed line is the average — points <em>above</em> it approve more per acre, points <em>below</em> less. The per-km² rate is just the steepness from the origin. The <strong>diamond</strong> is Scotland's <em>national</em> route: the onshore wind + solar consented by Scottish Ministers, not councils — which dwarfs what SNP-run councils decide.</p>
       <div class="chart-box" id="landScatter"></div>
       <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> and <a href="https://geoportal.statistics.gov.uk/" target="_blank" rel="noopener">ONS Standard Area Measurements</a>. Same basis as the bar above. Green, Reform and Plaid omitted (fewer than 100 decisions each); Northern Ireland excluded.</div>
     </div>
@@ -160,7 +160,10 @@ new Chart(mk("landYr"), {
 
 // 3b. same data as a scatter: avg land controlled (x) vs capacity approved (y)
 const scatPts = landYr.map(r => ({ p: r.p, x: r.avgLandKm2, y: r.landApprovedMW / 1000, dens: r.mwPerKm2PerYr, n: r.granted }));
-const scatMaxX = Math.ceil(Math.max(...scatPts.map(d => d.x)) * 1.1 / 20000) * 20000;
+// a distinct marker: what Scottish MINISTERS (not councils) consent nationally — onshore + solar
+const NS = P.nationalScotland;
+const natPt = NS ? { x: NS.avgLandKm2, y: NS.landApprovedMW / 1000 } : null;
+const scatMaxX = Math.ceil(Math.max(...scatPts.map(d => d.x), natPt ? natPt.x : 0) * 1.1 / 20000) * 20000;
 const avgSlope = scatPts.reduce((a, d) => a + d.y, 0) / scatPts.reduce((a, d) => a + d.x, 0); // GW per km² (avg)
 const scatDecor = {
   id: "scatDecor",
@@ -175,24 +178,35 @@ const scatDecor = {
     ctx.restore();
   },
   afterDatasetsDraw(chart) {
-    const { ctx } = chart, meta = chart.getDatasetMeta(0), mid = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
+    const { ctx } = chart, mid = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
     ctx.save();
     ctx.font = "600 12px Tahoma, Verdana, sans-serif"; ctx.textBaseline = "middle"; ctx.fillStyle = C.inkSoft;
-    meta.data.forEach((pt, i) => {
+    chart.getDatasetMeta(0).data.forEach((pt, i) => {
       const right = pt.x > mid;                 // keep labels on-canvas
       ctx.textAlign = right ? "right" : "left";
       ctx.fillText(lab(scatPts[i].p), pt.x + (right ? -13 : 13), pt.y);
     });
+    const nm = chart.getDatasetMeta(1);          // the national-Scotland marker
+    if (natPt && nm && nm.data[0]) {
+      const pt = nm.data[0], right = pt.x > mid;
+      ctx.textAlign = right ? "right" : "left"; ctx.fillStyle = "#0b4f6c";
+      ctx.fillText("Scotland (national)", pt.x + (right ? -15 : 15), pt.y);
+    }
     ctx.restore();
   },
 };
 new Chart(mk("landScatter"), {
   type: "scatter",
-  data: { datasets: [{ data: scatPts.map(d => ({ x: d.x, y: d.y })), backgroundColor: scatPts.map(d => pc(d.p)), pointRadius: 9, pointHoverRadius: 12, borderColor: "#fff", borderWidth: 1.5 }] },
+  data: { datasets: [
+    { data: scatPts.map(d => ({ x: d.x, y: d.y })), backgroundColor: scatPts.map(d => pc(d.p)), pointRadius: 9, pointHoverRadius: 12, borderColor: "#fff", borderWidth: 1.5 },
+    { data: natPt ? [natPt] : [], backgroundColor: "#0b4f6c", pointStyle: "rectRot", pointRadius: 11, pointHoverRadius: 14, borderColor: "#fff", borderWidth: 1.5 },
+  ] },
   options: {
     plugins: {
       legend: { display: false },
-      tooltip: { callbacks: { label: c => { const d = scatPts[c.dataIndex]; return [`${lab(d.p)}`, `${d.y.toFixed(1)} GW approved`, `${fmt.n(Math.round(d.x))} km² avg controlled`, `${d.dens.toFixed(3)} MW/km²/yr · ${fmt.n(d.n)} grants`]; } } },
+      tooltip: { callbacks: { label: c => {
+        if (c.datasetIndex === 1) return [NS.label, `${(NS.landApprovedMW / 1000).toFixed(1)} GW approved`, `decided by Scottish Ministers, not councils`, `onshore wind + solar, over ~${fmt.n(NS.avgLandKm2)} km²`];
+        const d = scatPts[c.dataIndex]; return [`${lab(d.p)}`, `${d.y.toFixed(1)} GW approved`, `${fmt.n(Math.round(d.x))} km² avg controlled`, `${d.dens.toFixed(3)} MW/km²/yr · ${fmt.n(d.n)} grants`]; } } },
     },
     scales: {
       x: axis({ min: 0, max: scatMaxX, title: { display: true, text: "average land controlled (km²)" }, ticks: { callback: v => (v / 1000) + "k" } }),

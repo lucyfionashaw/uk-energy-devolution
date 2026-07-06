@@ -288,5 +288,11 @@
       "refused": 88,
       "approvalRate": 67.5
     }
+  },
+  "nationalScotland": {
+    "label": "Scotland \u2014 national route",
+    "landApprovedMW": 9881,
+    "avgLandKm2": 77911,
+    "note": "Onshore wind + solar granted via the national route (Scottish Ministers), 2010-2025."
   }
 }

@@ -100,6 +100,7 @@ byTech = {"Wind Onshore": defaultdict(gr_node),  # by party, per contested/uncon
 align = {"aligned": gr_node(), "misaligned": gr_node()}            # council party vs Westminster
 alignOnshore = {"aligned": gr_node(), "misaligned": gr_node()}
 landApprovedMW = defaultdict(float)   # numerator: MW granted in-window, in a LAD, at permit-date control
+natScotMW = 0.0                       # land-based Scottish capacity consented NATIONALLY (Scottish Ministers)
 matched = unmatched = 0
 import repd_records as R
 for r in R.live():                       # de-duplicated: one row per physical project
@@ -112,6 +113,13 @@ for r in R.live():                       # de-duplicated: one row per physical p
     if d is None: continue
     # The named planning authority is the authority; control read at the decision date.
     auth, route, _note = G.resolve(r["Planning Authority"], r["Country"])
+    # National-route Scottish onshore wind + solar (the land-based renewables Scottish Ministers,
+    # not councils, consent) — used for the "Scotland, national route" marker on the land scatter.
+    if (route == "National" and outcome == "granted" and r["Country"].strip() == "Scotland"
+            and r["Technology Type"].strip() in ("Wind Onshore", "Solar Photovoltaics")
+            and d.year in LAND_WINDOW):
+        try: natScotMW += float(r["Installed Capacity (MWelec)"] or 0)
+        except ValueError: pass
     party = control_at(auth, d) if auth else None
     if not party:
         unmatched += 1
@@ -200,7 +208,24 @@ out = {
     "align": align_block(align),
     "alignOnshore": align_block(alignOnshore),
 }
+
+# ---- national-route Scotland marker for the land scatter ----
+# Scottish Ministers (not councils) consent Scotland's big onshore wind + solar. Plot that
+# capacity against Scotland's total land, to sit alongside the council-party points.
+scotLandKm2 = 0.0
+for r in csv.DictReader(open(RAW / "SAM_LAD_DEC_2018_UK.csv", encoding="utf-8-sig")):
+    if (r.get("LAD18CD") or "").startswith("S"):
+        try: scotLandKm2 += float(r["AREALHECT"]) / 100.0
+        except (ValueError, KeyError): pass
+out["nationalScotland"] = {
+    "label": "Scotland — national route",
+    "landApprovedMW": round(natScotMW),
+    "avgLandKm2": round(scotLandKm2),
+    "note": "Onshore wind + solar granted via the national route (Scottish Ministers), 2010-2025.",
+}
+
 OUT.write_text(json.dumps(out, indent=2), encoding="utf-8")
+print("national Scotland (onshore+solar, national route):", out["nationalScotland"])
 print(f"matched={matched} unmatched={unmatched} -> {OUT}")
 for p, v in out["byParty"].items():
     print(f"  {p:24s} n={v['n']:5d} appr={v['approvalRate']:5.1f}% MW={v['approvedMW']:7d} "
