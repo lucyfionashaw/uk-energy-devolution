@@ -151,12 +151,12 @@ const sankeyLabel = {
   Applied: "Applied", DecisionMade: "Decision made", Approved: "Approved", Building: "Broke ground",
   Refused: "Refused", Withdrawn: "Withdrawn / abandoned", Pending: "Awaiting a decision",
   Expired: "Consent lapsed", Permitted: "Permitted, not built",
-  UnderConstruction: "Under construction", Operational: "Operational",
+  UnderConstruction: "Under construction", Operational: "Operational", Decommissioned: "Decommissioned",
 };
 const sankeyColor = {
   Applied: C.inkFaint, DecisionMade: "#6b8e7f", Approved: C.greenL, Building: C.green, Operational: C.greenD,
   Refused: C.refuse, Withdrawn: "#9b9b9b", Pending: C.gold,
-  Expired: "#b08968", Permitted: C.goldL, UnderConstruction: "#6fae8a",
+  Expired: "#b08968", Permitted: C.goldL, UnderConstruction: "#6fae8a", Decommissioned: "#7a7f87",
 };
 // columns follow the same gates as the Gantt: submission → decision → approval → construction → commissioning
 const sankeyCol = {
@@ -164,14 +164,14 @@ const sankeyCol = {
   DecisionMade: 1, Withdrawn: 1, Pending: 1,
   Approved: 2, Refused: 2,
   Expired: 3, Permitted: 3, Building: 3,
-  UnderConstruction: 4, Operational: 4,
+  UnderConstruction: 4, Operational: 4, Decommissioned: 4,
 };
 const sankeyPriority = {
   Applied: 0,
   DecisionMade: 0, Pending: 5, Withdrawn: 6,
   Approved: 0, Refused: 4,
   Building: 0, Permitted: 2, Expired: 3,
-  Operational: 0, UnderConstruction: 2,
+  Operational: 0, UnderConstruction: 2, Decommissioned: 3,
 };
 
 // node totals per unit, used to write a scale value onto each label
@@ -179,7 +179,7 @@ function nodeTotals(u) {
   return {
     Applied: u.applied, DecisionMade: u.decided, Refused: u.refused, Withdrawn: u.otherOut, Pending: u.pending,
     Approved: u.granted, Expired: u.expired, Permitted: u.permitted, Building: u.built,
-    UnderConstruction: u.building, Operational: u.op,
+    UnderConstruction: u.building, Operational: u.op, Decommissioned: u.decommissioned,
   };
 }
 
@@ -211,11 +211,11 @@ function sumCells(unit, tech, party) {
   });
   return {
     applied: b.applied, refused: b.refused, pending: b.pending, granted: b.granted,
-    expired: b.expired, built: b.built, op: b.op,
+    expired: b.expired, built: b.built, op: b.op, decommissioned: b.decommissioned,
     decided: b.granted + b.refused,
     otherOut: Math.max(0, b.applied - b.granted - b.refused - b.pending),
     permitted: Math.max(0, b.granted - b.built - b.expired),
-    building: Math.max(0, b.built - b.op),
+    building: Math.max(0, b.built - b.op - b.decommissioned),
   };
 }
 
@@ -268,6 +268,7 @@ function buildSankey() {
     { from: "Approved",     to: "Building",          flow: u.built },
     { from: "Building",     to: "UnderConstruction", flow: u.building },
     { from: "Building",     to: "Operational",       flow: u.op },
+    { from: "Building",     to: "Decommissioned",    flow: u.decommissioned },
   ].filter(f => f.flow > 0);
 
   // draw every node label on the RIGHT of its node for a consistent read; the library

@@ -66,7 +66,7 @@ def tech_bucket(t):
     return {"Solar Photovoltaics": "Solar", "Wind Onshore": "OnshoreWind",
             "Wind Offshore": "OffshoreWind", "Battery": "Battery"}.get(t, "Other")
 
-METRICS = ["applied", "resubmitted", "granted", "refused", "pending", "expired", "built", "op"]
+METRICS = ["applied", "resubmitted", "granted", "refused", "pending", "expired", "built", "op", "decommissioned"]
 # cells[(tech, party)] = {"n": {...}, "mw": {...}}
 cells = defaultdict(lambda: {"n": {m: 0 for m in METRICS}, "mw": {m: 0.0 for m in METRICS}})
 
@@ -74,7 +74,8 @@ for r in R.load():
     st = r["Development Status (short)"].strip()
     granted = has(r[GCOL]) or st in GRANT_ST
     built = has(r[UCOL]) or st in BUILT_ST
-    oper = has(r[OCOL]) or st in OP_ST
+    decommissioned = st == "Decommissioned"
+    oper = (has(r[OCOL]) or st == "Operational") and not decommissioned  # operational-only
     refused = st in REF
     pending = st in PEND
     expired = st == "Planning Permission Expired"
@@ -105,6 +106,7 @@ for r in R.load():
         if expired: add("expired")
         if built: add("built")
         if oper: add("op")
+        if decommissioned: add("decommissioned")
 
 out = {"metrics": METRICS,
        "cells": [{"tech": t, "party": p,

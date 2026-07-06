@@ -45,7 +45,8 @@ PEND = {"Application Submitted", "Appeal Lodged"}
 
 granted = lambda r: has(r[GCOL]) or S(r) in GRANT_ST
 built = lambda r: has(r[UCOL]) or S(r) in BUILT_ST
-oper = lambda r: has(r[OCOL]) or S(r) in OP_ST
+decommissioned = lambda r: S(r) == "Decommissioned"
+oper = lambda r: (has(r[OCOL]) or S(r) == "Operational") and not decommissioned(r)  # operational-only
 
 # ---- technology buckets (match charts.js colour keys) ------------------------
 def tech_bucket(t):
@@ -66,7 +67,7 @@ def status_bucket(r):
         return "Pending"
     if S(r) in REF:
         return "Refused"
-    if oper(r):
+    if oper(r) or decommissioned(r):     # decommissioned plants reached operation
         return "Operational"
     if S(r) == "Under Construction":
         return "Construction"
@@ -137,6 +138,7 @@ raw = {
     "expired":     agg_over(lambda r: S(r) == "Planning Permission Expired", live),
     "built":       agg_over(built, live),
     "op":          agg_over(oper, live),
+    "decommissioned": agg_over(decommissioned, live),
 }
 
 def pack(idx):
@@ -144,7 +146,7 @@ def pack(idx):
     # withdrawn/abandoned residual = distinct projects minus the accounted-for outcomes
     q["otherOut"] = q["applied"] - q["granted"] - q["refused"] - q["pending"]
     q["permitted"] = q["granted"] - q["built"] - q["expired"]
-    q["building"] = q["built"] - q["op"]
+    q["building"] = q["built"] - q["op"] - q["decommissioned"]   # under construction only
     q["decided"] = q["granted"] + q["refused"]
     return q
 
