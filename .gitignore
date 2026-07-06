@@ -10,3 +10,7 @@ desktop.ini
 # Private framing essays — keep local, never publish to the public repo
 docs/source-essays/
 *.pdf
+
+# Python bytecode
+__pycache__/
+*.pyc
