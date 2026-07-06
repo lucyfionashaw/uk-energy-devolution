@@ -43,8 +43,7 @@ def months(a, b):
     return round(v, 1) if 0 <= v < 600 else None
 
 HEAD = ["Ref ID", "Site Name", "Technology", "Capacity MW", "Country", "Planning Authority",
-        "Deciding council (boundaries of the day)", "Council party (at decision)", "Council land km²",
-        "Route", "Council match note",
+        "Council party (at decision)", "Council land km²", "Route", "Council match note",
         "Status", "Superseded duplicate?", "Replaced by (Ref)",
         "Submitted (own)", "Original submitted", "Decision date", "Under construction", "Operational",
         "Months: original submission → decision"]
@@ -66,12 +65,9 @@ for x in R.load():                      # every row, superseded flagged
     if granted: dec = next((pdate(x[c]) for c in GD if has(x[c])), None)
     elif refused: dec = next((pdate(x[c]) for c in RD if has(x[c])), None)
     orig = R.original_submission(x)
-    # Resolve the deciding council on the boundaries of the decision date (falls back to the
-    # application date when undecided) — this places pre-reorganisation projects in the
-    # historic district, not today's successor unitary.
-    ref_date = dec or orig
-    auth, route, note = G.resolve(x["Planning Authority"], ref_date,
-                                  x["X-coordinate"], x["Y-coordinate"], x["Country"])
+    # The named planning authority IS the authority. Control is read at the DECISION date; if
+    # there is no decision date we cannot know who was in office, so the party is left blank.
+    auth, route, note = G.resolve(x["Planning Authority"], x["Country"])
     if auth and dec:
         party = CC.control_at(auth, dec)
     elif auth and not dec:
@@ -81,22 +77,18 @@ for x in R.load():                      # every row, superseded flagged
     else:
         party = None
     km2 = G.land_km2(auth) if auth else None
-    # NI councils have real land (shown here) but sit outside the GB land-density chart.
-    disp_auth = ""
-    if auth and CC.norm(x["Planning Authority"]) != auth:
-        disp_auth = " ".join(w if w in ("and", "of", "the") else w.capitalize() for w in auth.split())
     ws.append([
         x["Ref ID"].strip(), x["Site Name"].strip(), x["Technology Type"].strip(),
         num(x["Installed Capacity (MWelec)"]), x["Country"].strip(), x["Planning Authority"].strip(),
-        disp_auth, party or "", km2 if km2 is not None else "", route, note,
+        party or "", km2 if km2 is not None else "", route, note,
         st, "Y" if x["_superseded"] else "", x["Are they re-applying (New REPD Ref)"].strip(),
         iso(x["_sub"]), iso(orig), iso(dec), iso(pdate(x["Under Construction"])), iso(pdate(x["Operational"])),
         months(orig, dec) if dec else "",
     ])
 ws.freeze_panes = "A2"
-widths = {"A": 10, "B": 34, "C": 20, "D": 11, "E": 10, "F": 26, "G": 24, "H": 20, "I": 13,
-          "J": 15, "K": 46, "L": 22, "M": 15, "N": 16, "O": 14, "P": 16, "Q": 14, "R": 16,
-          "S": 14, "T": 26}
+widths = {"A": 10, "B": 34, "C": 20, "D": 11, "E": 10, "F": 26, "G": 20, "H": 13, "I": 15,
+          "J": 46, "K": 22, "L": 15, "M": 16, "N": 14, "O": 16, "P": 14, "Q": 16, "R": 14,
+          "S": 26}
 for col, w in widths.items():
     ws.column_dimensions[col].width = w
 
@@ -106,19 +98,15 @@ notes = [
     ("Source", "Renewable Energy Planning Database (REPD) Q1 2026, DESNZ."),
     ("Rows", "Every application. 'Superseded duplicate? = Y' marks the 815 resubmitted rows that "
              "are replaced by a newer record (dropped from the site's charts)."),
-    ("Deciding council (boundaries of the day)", "The REPD labels every project with TODAY's "
-             "planning authority. Where local government was reorganised (11 English areas merged "
-             "into unitaries 2019-2023), a decision taken BEFORE the merger was actually made by a "
-             "former district council. This column names that historic district — found from the "
-             "project's grid reference (point-in-polygon against 2013 district boundaries). Blank "
-             "when the REPD's own authority name is already correct for the decision date."),
-    ("Council party (at decision)", "Party controlling the DECIDING council (previous column, or the "
-             "REPD authority) on the DECISION date, from Open Council Data UK's `majority` control "
-             "column — coalitions credited to the lead party. Blank where no council applies or the "
-             "decision date is missing (see 'Council match note')."),
-    ("Council land km²", "ONS Standard Area Measurement land area of the deciding council. New "
-             "unitaries = sum of their former districts' areas. Northern Ireland areas are shown but "
-             "excluded from the GB land-density chart. Blank for national-route / unmatched rows."),
+    ("Council party (at decision)", "Party controlling the NAMED planning authority on the DECISION "
+             "date, from Open Council Data UK's `majority` control column — coalitions credited to the "
+             "lead party. Control is read at the decision date honouring the May take-office cut-off "
+             "(decisions before mid-May fall under the previous administration). Blank where no council "
+             "applies or the decision date is missing (see 'Council match note')."),
+    ("Council land km²", "ONS Standard Area Measurement land area of the named authority. The 11 "
+             "unitaries created by the 2019-2023 reorganisation = sum of their former districts' "
+             "areas. Northern Ireland areas are shown but excluded from the GB land-density chart. "
+             "Blank for national-route / unmatched rows."),
     ("Route", "'Local council' = matched to a GB lower-tier council; 'National' = a national "
              "consenting body (Scottish Government S36, Planning Inspectorate NSIP, Crown Estate, "
              "Marine Scotland, NI Planning Service, DECC S36, Marine Management Organisation, Welsh "

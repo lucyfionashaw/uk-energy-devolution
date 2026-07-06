@@ -110,9 +110,8 @@ for r in R.live():                       # de-duplicated: one row per physical p
     dec = next((r[c].strip() for c in (GRANT_DATES if outcome == "granted" else REFUSE_DATES) if r[c].strip()), "")
     d = parse_date(dec)
     if d is None: continue
-    # Deciding council on the boundaries of the decision date: a pre-reorganisation decision is
-    # credited to the historic DISTRICT (from the grid reference), not today's successor unitary.
-    auth, route, _note = G.resolve(r["Planning Authority"], d, r["X-coordinate"], r["Y-coordinate"], r["Country"])
+    # The named planning authority is the authority; control read at the decision date.
+    auth, route, _note = G.resolve(r["Planning Authority"], r["Country"])
     party = control_at(auth, d) if auth else None
     if not party:
         unmatched += 1
@@ -147,18 +146,8 @@ for r in R.live():                       # de-duplicated: one row per physical p
 # credited to the old party for ~Jan-May and the new party for the rest of the year.
 landYears = defaultdict(float)  # km2 * years
 nYears = len(LAND_WINDOW)
-def active(lad, y):
-    """Was this geography a live planning authority in year y? Former districts stop at their
-    reorganisation year; the successor unitary only starts from it — so their shared land is
-    counted once per year, on the boundaries that actually existed then."""
-    if lad in G.UNITARY_VEST and y < G.UNITARY_VEST[lad]:
-        return False
-    if lad in G.DISTRICT_VEST and y >= G.DISTRICT_VEST[lad]:
-        return False
-    return True
 for lad, area in landKm2.items():
     for y in LAND_WINDOW:
-        if not active(lad, y): continue
         cur = control_in_year(lad, y)
         if not cur: continue
         prev = control_in_year(lad, y - 1)
