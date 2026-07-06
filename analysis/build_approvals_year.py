@@ -35,6 +35,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from council_control import norm, control_at
 import repd_records as R
+import geo_resolve as G
 
 GRANT_DATES = ["Planning Permission  Granted", "Appeal Granted", "Secretary of State - Granted"]
 ORDER = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind"]
@@ -46,7 +47,7 @@ for x in R.live():                       # de-duplicated: one row per physical p
     gd = next((pdate(x[c]) for c in GRANT_DATES if has(x[c])), None)
     if gd is None or gd.year < Y0 or gd.year > Y1:
         continue
-    p = control_at(norm(x["Planning Authority"]), gd)
+    p = G.party_at(x, gd)     # deciding council on the boundaries of the decision date
     if p == "Nationalist (pre-2007)":
         p = "Other/Ind"
     if p not in ORDER:      # unmatched / national-route projects have no council party

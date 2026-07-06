@@ -49,6 +49,7 @@ LAND_WINDOW = range(2010, 2026)  # 2010..2025: the grid-scale renewable era. Ear
 import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from council_control import norm, take_office, control_in_year, control_at
+import geo_resolve as G
 control_at_decision = control_at
 
 # National government on a given date (for the Westminster-alignment cut). Con-led
@@ -67,14 +68,10 @@ def national_at(d):
     return party
 
 # ---- ONS land area (lower-tier LADs), km2, by normalised name ----
-# GB only: skip Northern Ireland LADs (code starts with "N") — NI is not part of the GB
-# party comparison, and its councils would otherwise pile into the "Other/Ind" bucket.
-landKm2 = {}
-for r in csv.DictReader(open(RAW / "SAM_LAD_DEC_2018_UK.csv", encoding="utf-8-sig")):
-    if (r.get("LAD18CD") or "").startswith("N"):
-        continue
-    try: landKm2[norm(r["LAD18NM"])] = float(r["AREALHECT"]) / 100.0
-    except (ValueError, KeyError): pass
+# GB only: exclude Northern Ireland — NI is not part of the GB party comparison, and its
+# councils would otherwise pile into the "Other/Ind" bucket. Land areas (incl. the summed
+# new-unitary areas) and NI membership come from the shared geo_resolve module.
+landKm2 = {n: a for n, a in G._land.items() if n not in G.NI_LADS}
 
 def parse_date(d):
     d = d.strip()
@@ -113,8 +110,10 @@ for r in R.live():                       # de-duplicated: one row per physical p
     dec = next((r[c].strip() for c in (GRANT_DATES if outcome == "granted" else REFUSE_DATES) if r[c].strip()), "")
     d = parse_date(dec)
     if d is None: continue
-    pa = norm(r["Planning Authority"])
-    party = control_at_decision(pa, d)
+    # Deciding council on the boundaries of the decision date: a pre-reorganisation decision is
+    # credited to the historic DISTRICT (from the grid reference), not today's successor unitary.
+    auth, route, _note = G.resolve(r["Planning Authority"], d, r["X-coordinate"], r["Y-coordinate"], r["Country"])
+    party = control_at(auth, d) if auth else None
     if not party:
         unmatched += 1
         continue
@@ -136,7 +135,7 @@ for r in R.live():                       # de-duplicated: one row per physical p
         tally(align[key])
         if tech == "Wind Onshore": tally(alignOnshore[key])
 
-    if outcome == "granted" and d.year in LAND_WINDOW and pa in landKm2:
+    if outcome == "granted" and d.year in LAND_WINDOW and auth in landKm2:
         landApprovedMW[party] += cap
     sub = R.original_submission(r)   # original application date (true time-to-decide)
     if sub:
@@ -148,8 +147,18 @@ for r in R.live():                       # de-duplicated: one row per physical p
 # credited to the old party for ~Jan-May and the new party for the rest of the year.
 landYears = defaultdict(float)  # km2 * years
 nYears = len(LAND_WINDOW)
+def active(lad, y):
+    """Was this geography a live planning authority in year y? Former districts stop at their
+    reorganisation year; the successor unitary only starts from it — so their shared land is
+    counted once per year, on the boundaries that actually existed then."""
+    if lad in G.UNITARY_VEST and y < G.UNITARY_VEST[lad]:
+        return False
+    if lad in G.DISTRICT_VEST and y >= G.DISTRICT_VEST[lad]:
+        return False
+    return True
 for lad, area in landKm2.items():
     for y in LAND_WINDOW:
+        if not active(lad, y): continue
         cur = control_in_year(lad, y)
         if not cur: continue
         prev = control_in_year(lad, y - 1)

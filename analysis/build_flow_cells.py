@@ -32,6 +32,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from council_control import norm, control_at
 import repd_records as R
+import geo_resolve as G
 
 def parse_date(d):
     d = (d or "").strip()
@@ -88,7 +89,7 @@ for r in R.load():
         d = None
     if d is None:  # undecided, or decided with no recorded date -> fall back to submission
         d = parse_date(r["Planning Application Submitted"])
-    party = control_at(norm(r["Planning Authority"]), d) or "None"
+    party = (G.party_at(r, d) if d else None) or "None"
 
     cell = cells[(tech_bucket(r["Technology Type"]), party)]
     def add(metric):

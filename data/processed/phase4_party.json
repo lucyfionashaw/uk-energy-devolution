@@ -1,53 +1,53 @@
 {
   "note": "Everything on the politics page from one join: council party in control ON THE DECISION DATE (decisions before the May take-office date fall under the pre-election administration). GB local route only. Land density: 2015-2025, lower-tier (LAD) geography, land-years split fractionally at election dates.",
   "landWindow": "2010-2025",
-  "matchedDecided": 9817,
-  "unmatchedDecided": 530,
+  "matchedDecided": 9820,
+  "unmatchedDecided": 527,
   "byParty": {
     "Con": {
-      "n": 3763,
-      "granted": 3370,
-      "refused": 393,
-      "approvalRate": 89.6,
-      "approvedMW": 47634,
+      "n": 3688,
+      "granted": 3299,
+      "refused": 389,
+      "approvalRate": 89.5,
+      "approvedMW": 47157,
       "medMonthsToDecision": 3.7,
-      "nTimed": 3758,
-      "landApprovedMW": 37963,
-      "avgLandKm2": 98035,
-      "mwPerKm2PerYr": 0.0242
+      "nTimed": 3683,
+      "landApprovedMW": 45427,
+      "avgLandKm2": 96951,
+      "mwPerKm2PerYr": 0.0293
     },
     "Lab": {
-      "n": 2613,
-      "granted": 2400,
-      "refused": 213,
-      "approvalRate": 91.8,
-      "approvedMW": 30976,
+      "n": 2588,
+      "granted": 2382,
+      "refused": 206,
+      "approvalRate": 92.0,
+      "approvedMW": 30789,
       "medMonthsToDecision": 2.5,
-      "nTimed": 2610,
-      "landApprovedMW": 27353,
-      "avgLandKm2": 22946,
-      "mwPerKm2PerYr": 0.0745
+      "nTimed": 2586,
+      "landApprovedMW": 29001,
+      "avgLandKm2": 23377,
+      "mwPerKm2PerYr": 0.0775
     },
     "LibDem": {
-      "n": 890,
-      "granted": 798,
-      "refused": 92,
-      "approvalRate": 89.7,
-      "approvedMW": 11190,
-      "medMonthsToDecision": 3.4,
-      "nTimed": 890,
-      "landApprovedMW": 9216,
-      "avgLandKm2": 10699,
-      "mwPerKm2PerYr": 0.0538
+      "n": 893,
+      "granted": 809,
+      "refused": 84,
+      "approvalRate": 90.6,
+      "approvedMW": 11237,
+      "medMonthsToDecision": 3.2,
+      "nTimed": 893,
+      "landApprovedMW": 10709,
+      "avgLandKm2": 11728,
+      "mwPerKm2PerYr": 0.0571
     },
     "SNP": {
-      "n": 388,
-      "granted": 349,
+      "n": 389,
+      "granted": 350,
       "refused": 39,
-      "approvalRate": 89.9,
+      "approvalRate": 90.0,
       "approvedMW": 4320,
       "medMonthsToDecision": 4.4,
-      "nTimed": 388,
+      "nTimed": 389,
       "landApprovedMW": 4226,
       "avgLandKm2": 14141,
       "mwPerKm2PerYr": 0.0187
@@ -72,9 +72,9 @@
       "approvedMW": 1422,
       "medMonthsToDecision": 4.4,
       "nTimed": 81,
-      "landApprovedMW": 1314,
-      "avgLandKm2": 471,
-      "mwPerKm2PerYr": 0.1745
+      "landApprovedMW": 1422,
+      "avgLandKm2": 628,
+      "mwPerKm2PerYr": 0.1416
     },
     "Reform": {
       "n": 35,
@@ -84,44 +84,44 @@
       "approvedMW": 135,
       "medMonthsToDecision": 2.5,
       "nTimed": 35,
-      "landApprovedMW": 20,
-      "avgLandKm2": 98,
-      "mwPerKm2PerYr": 0.013
+      "landApprovedMW": 33,
+      "avgLandKm2": 196,
+      "mwPerKm2PerYr": 0.0104
     },
     "Other/Ind": {
-      "n": 2000,
-      "granted": 1612,
-      "refused": 388,
-      "approvalRate": 80.6,
-      "approvedMW": 19821,
-      "medMonthsToDecision": 8.7,
-      "nTimed": 1993,
-      "landApprovedMW": 13799,
-      "avgLandKm2": 78147,
-      "mwPerKm2PerYr": 0.011
+      "n": 2099,
+      "granted": 1690,
+      "refused": 409,
+      "approvalRate": 80.5,
+      "approvedMW": 20438,
+      "medMonthsToDecision": 8.6,
+      "nTimed": 2091,
+      "landApprovedMW": 14360,
+      "avgLandKm2": 77516,
+      "mwPerKm2PerYr": 0.0116
     }
   },
   "byPartyOnshore": {
     "Con": {
-      "n": 320,
-      "granted": 195,
-      "refused": 125,
-      "approvalRate": 60.9,
-      "approvedMW": 2174
+      "n": 313,
+      "granted": 189,
+      "refused": 124,
+      "approvalRate": 60.4,
+      "approvedMW": 2148
     },
     "Lab": {
-      "n": 241,
-      "granted": 157,
-      "refused": 84,
-      "approvalRate": 65.1,
-      "approvedMW": 1712
+      "n": 226,
+      "granted": 149,
+      "refused": 77,
+      "approvalRate": 65.9,
+      "approvedMW": 1661
     },
     "LibDem": {
-      "n": 54,
-      "granted": 31,
-      "refused": 23,
-      "approvalRate": 57.4,
-      "approvedMW": 237
+      "n": 41,
+      "granted": 27,
+      "refused": 14,
+      "approvalRate": 65.9,
+      "approvedMW": 221
     },
     "SNP": {
       "n": 60,
@@ -138,34 +138,34 @@
       "approvedMW": 5
     },
     "Other/Ind": {
-      "n": 909,
-      "granted": 628,
-      "refused": 281,
-      "approvalRate": 69.1,
-      "approvedMW": 7515
+      "n": 945,
+      "granted": 646,
+      "refused": 299,
+      "approvalRate": 68.4,
+      "approvedMW": 7607
     }
   },
   "byPartySolar": {
     "Con": {
-      "n": 2531,
-      "granted": 2333,
-      "refused": 198,
-      "approvalRate": 92.2,
-      "approvedMW": 18105
+      "n": 2479,
+      "granted": 2284,
+      "refused": 195,
+      "approvalRate": 92.1,
+      "approvedMW": 17780
     },
     "Lab": {
-      "n": 1625,
-      "granted": 1555,
-      "refused": 70,
+      "n": 1618,
+      "granted": 1549,
+      "refused": 69,
       "approvalRate": 95.7,
-      "approvedMW": 4122
+      "approvedMW": 4087
     },
     "LibDem": {
-      "n": 598,
-      "granted": 563,
-      "refused": 35,
+      "n": 612,
+      "granted": 576,
+      "refused": 36,
       "approvalRate": 94.1,
-      "approvedMW": 2894
+      "approvedMW": 2941
     },
     "SNP": {
       "n": 194,
@@ -196,34 +196,34 @@
       "approvedMW": 29
     },
     "Other/Ind": {
-      "n": 627,
-      "granted": 571,
-      "refused": 56,
-      "approvalRate": 91.1,
-      "approvedMW": 4253
+      "n": 672,
+      "granted": 613,
+      "refused": 59,
+      "approvalRate": 91.2,
+      "approvedMW": 4566
     }
   },
   "byPartyBattery": {
     "Con": {
-      "n": 565,
-      "granted": 526,
+      "n": 564,
+      "granted": 525,
       "refused": 39,
       "approvalRate": 93.1,
-      "approvedMW": 21560
+      "approvedMW": 21504
     },
     "Lab": {
-      "n": 451,
-      "granted": 415,
+      "n": 450,
+      "granted": 414,
       "refused": 36,
       "approvalRate": 92.0,
-      "approvedMW": 22818
+      "approvedMW": 22768
     },
     "LibDem": {
-      "n": 177,
-      "granted": 151,
+      "n": 176,
+      "granted": 150,
       "refused": 26,
-      "approvalRate": 85.3,
-      "approvedMW": 7782
+      "approvalRate": 85.2,
+      "approvedMW": 7784
     },
     "SNP": {
       "n": 104,
@@ -254,39 +254,39 @@
       "approvedMW": 106
     },
     "Other/Ind": {
-      "n": 156,
-      "granted": 140,
-      "refused": 16,
-      "approvalRate": 89.7,
-      "approvedMW": 5260
+      "n": 160,
+      "granted": 143,
+      "refused": 17,
+      "approvalRate": 89.4,
+      "approvedMW": 5365
     }
   },
   "align": {
     "aligned": {
-      "n": 4058,
-      "granted": 3655,
-      "refused": 403,
-      "approvalRate": 90.1
+      "n": 3988,
+      "granted": 3590,
+      "refused": 398,
+      "approvalRate": 90.0
     },
     "misaligned": {
-      "n": 2318,
-      "granted": 2115,
-      "refused": 203,
-      "approvalRate": 91.2
+      "n": 2288,
+      "granted": 2091,
+      "refused": 197,
+      "approvalRate": 91.4
     }
   },
   "alignOnshore": {
     "aligned": {
-      "n": 290,
-      "granted": 169,
-      "refused": 121,
-      "approvalRate": 58.3
+      "n": 279,
+      "granted": 161,
+      "refused": 118,
+      "approvalRate": 57.7
     },
     "misaligned": {
-      "n": 271,
-      "granted": 183,
-      "refused": 88,
-      "approvalRate": 67.5
+      "n": 260,
+      "granted": 177,
+      "refused": 83,
+      "approvalRate": 68.1
     }
   }
 }

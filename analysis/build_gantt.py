@@ -34,6 +34,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from council_control import norm, control_at
 import repd_records as R
+import geo_resolve as G
 
 def pdate(s):
     s = (s or "").strip()
@@ -73,7 +74,7 @@ for x in rows:
     x["_t"] = x["Technology Type"].strip()
     # party controlling the deciding council at the grant (decision) date
     gdate = next((pdate(x[c]) for c in GRANT_DATES if (x[c] or "").strip()), None)
-    x["_party"] = control_at(norm(x["Planning Authority"]), gdate)
+    x["_party"] = G.party_at(x, gdate)
 
 def bucket_of(x):
     t, mw = x["_t"], x["_mw"]
