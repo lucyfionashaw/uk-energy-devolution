@@ -1,0 +1,485 @@
+{
+ "categories": {
+  "private": {
+   "n": 12549,
+   "mw": 355398,
+   "granted": 9036,
+   "grantedMW": 227708,
+   "op": 2985,
+   "opMW": 57333,
+   "topTech": [
+    [
+     "Solar Photovoltaics",
+     6158
+    ],
+    [
+     "Wind Onshore",
+     2419
+    ],
+    [
+     "Battery",
+     2370
+    ]
+   ],
+   "topOperators": [
+    [
+     "Private Developer",
+     394
+    ],
+    [
+     "AMP Clean Energy",
+     283
+    ],
+    [
+     "Lightsource Renewable Energy",
+     169
+    ],
+    [
+     "Scottish and Southern Energy (SSE)",
+     83
+    ],
+    [
+     "Solar Options for Schools Limited",
+     81
+    ],
+    [
+     "Sainsburys Supermarkets Limited",
+     79
+    ],
+    [
+     "Renewable Energy Systems (RES)",
+     75
+    ],
+    [
+     "Anesco",
+     64
+    ],
+    [
+     "Scottish Power Renewables",
+     58
+    ],
+    [
+     "AMP Energy Services Limited",
+     58
+    ]
+   ]
+  },
+  "public-council": {
+   "n": 330,
+   "mw": 1482,
+   "granted": 275,
+   "grantedMW": 1161,
+   "op": 48,
+   "opMW": 185,
+   "topTech": [
+    [
+     "Solar Photovoltaics",
+     283
+    ],
+    [
+     "Battery",
+     26
+    ],
+    [
+     "Anaerobic Digestion",
+     5
+    ]
+   ],
+   "topOperators": [
+    [
+     "Wiltshire Council",
+     5
+    ],
+    [
+     "Dorset County Council",
+     5
+    ],
+    [
+     "Northumberland County Council",
+     4
+    ],
+    [
+     "North Ayrshire Council",
+     4
+    ],
+    [
+     "Stirling Council",
+     4
+    ],
+    [
+     "Wokingham Borough Council",
+     4
+    ],
+    [
+     "Newcastle City Council",
+     4
+    ],
+    [
+     "Sunderland City Council",
+     4
+    ],
+    [
+     "Surrey County Council",
+     3
+    ],
+    [
+     "Fife Council",
+     3
+    ]
+   ]
+  },
+  "public-nhs": {
+   "n": 134,
+   "mw": 52,
+   "granted": 99,
+   "grantedMW": 41,
+   "op": 8,
+   "opMW": 11,
+   "topTech": [
+    [
+     "Solar Photovoltaics",
+     122
+    ],
+    [
+     "Battery",
+     9
+    ],
+    [
+     "Biomass (dedicated)",
+     2
+    ]
+   ],
+   "topOperators": [
+    [
+     "Salisbury NHS Foundation Trust",
+     4
+    ],
+    [
+     "Robert Jones & Agnes Hunt Orthopaedic Hospital NHSTrust",
+     4
+    ],
+    [
+     "Frimley Health NHS Foundation Trust",
+     4
+    ],
+    [
+     "The Hillingdon Hospitals NHS Foundation Trust",
+     3
+    ],
+    [
+     "The Robert Jones and Agnes Hunt Orthopaedic Hospital NHS Trust Foundation",
+     3
+    ],
+    [
+     "York and Scarborough Teaching Hospital NHS Foundation Trust",
+     3
+    ],
+    [
+     "East Kent Hospitals University NHS Foundation Trust",
+     2
+    ],
+    [
+     "Gloucestershire Hospitals NHS Foundation Trust",
+     2
+    ],
+    [
+     "York Teaching Hospital Facilities Management Llp",
+     2
+    ],
+    [
+     "Oxford University Hospitals NHS Foundation Trust",
+     2
+    ]
+   ]
+  },
+  "public-education": {
+   "n": 220,
+   "mw": 145,
+   "granted": 189,
+   "grantedMW": 119,
+   "op": 12,
+   "opMW": 21,
+   "topTech": [
+    [
+     "Solar Photovoltaics",
+     194
+    ],
+    [
+     "Battery",
+     13
+    ],
+    [
+     "Wind Onshore",
+     7
+    ]
+   ],
+   "topOperators": [
+    [
+     "Newcastle University",
+     6
+    ],
+    [
+     "University of Exeter",
+     4
+    ],
+    [
+     "Mid Kent College",
+     4
+    ],
+    [
+     "Nelson & Colne College",
+     4
+    ],
+    [
+     "University for the Creative Arts",
+     4
+    ],
+    [
+     "Durham University",
+     4
+    ],
+    [
+     "Keele University",
+     3
+    ],
+    [
+     "Windsor Academy Trust",
+     3
+    ],
+    [
+     "Cambridge Meridian Academies Trust",
+     3
+    ],
+    [
+     "University of York",
+     3
+    ]
+   ]
+  },
+  "public-other": {
+   "n": 95,
+   "mw": 109,
+   "granted": 77,
+   "grantedMW": 66,
+   "op": 19,
+   "opMW": 21,
+   "topTech": [
+    [
+     "Solar Photovoltaics",
+     74
+    ],
+    [
+     "Anaerobic Digestion",
+     6
+    ],
+    [
+     "Battery",
+     6
+    ]
+   ],
+   "topOperators": [
+    [
+     "Scottish Water",
+     30
+    ],
+    [
+     "Scottish Water Horizons",
+     13
+    ],
+    [
+     "Scottish Water National Operations Control Centre",
+     9
+    ],
+    [
+     "Science and Technology Facilities Council",
+     6
+    ],
+    [
+     "Clean Power Properties & Network Rail Infrastructure",
+     5
+    ],
+    [
+     "Scottish Enterprise/SSE",
+     3
+    ],
+    [
+     "Clean Power Properties & Network Rail Infrastructure Ltd",
+     3
+    ],
+    [
+     "Scottish Fire and Rescue Service",
+     3
+    ],
+    [
+     "Ministry of Defence",
+     2
+    ],
+    [
+     "Environment Agency",
+     2
+    ]
+   ]
+  },
+  "community": {
+   "n": 70,
+   "mw": 324,
+   "granted": 48,
+   "grantedMW": 154,
+   "op": 19,
+   "opMW": 91,
+   "topTech": [
+    [
+     "Solar Photovoltaics",
+     46
+    ],
+    [
+     "Wind Onshore",
+     18
+    ],
+    [
+     "Battery",
+     3
+    ]
+   ],
+   "topOperators": [
+    [
+     "YnNi Newydd (New Energy Co-op)",
+     4
+    ],
+    [
+     "Community Power Ltd",
+     3
+    ],
+    [
+     "Bristol Energy Cooperative",
+     3
+    ],
+    [
+     "South East London Community Energy",
+     3
+    ],
+    [
+     "Bath & West Community Energy Ltd",
+     2
+    ],
+    [
+     "West Solent Solar Cooperative",
+     2
+    ],
+    [
+     "Energy4All",
+     2
+    ],
+    [
+     "Burenside Community Energy Limited",
+     2
+    ],
+    [
+     "Ouse Valley Energy Services Company CIC",
+     2
+    ],
+    [
+     "Bath & West Community Energy",
+     2
+    ]
+   ]
+  },
+  "charity": {
+   "n": 30,
+   "mw": 28,
+   "granted": 21,
+   "grantedMW": 25,
+   "op": 9,
+   "opMW": 23,
+   "topTech": [
+    [
+     "Solar Photovoltaics",
+     18
+    ],
+    [
+     "Small Hydro",
+     8
+    ],
+    [
+     "Sewage Sludge Digestion",
+     1
+    ]
+   ],
+   "topOperators": [
+    [
+     "Dwr Cymru Welsh Water",
+     13
+    ],
+    [
+     "National Trust",
+     2
+    ],
+    [
+     "The Salvation Army Trustee Company",
+     2
+    ],
+    [
+     "Caredig Housing Association",
+     2
+    ],
+    [
+     "First Wessex Housing Association",
+     1
+    ],
+    [
+     "Welsh Water",
+     1
+    ],
+    [
+     "National Trust/Ellergreen Hydro",
+     1
+    ],
+    [
+     "The National Trust",
+     1
+    ],
+    [
+     "Hyde Housing Association",
+     1
+    ],
+    [
+     "Church & Dwight",
+     1
+    ]
+   ]
+  },
+  "unknown": {
+   "n": 73,
+   "mw": 775,
+   "granted": 48,
+   "grantedMW": 380,
+   "op": 22,
+   "opMW": 138,
+   "topTech": [
+    [
+     "Wind Onshore",
+     27
+    ],
+    [
+     "Solar Photovoltaics",
+     25
+    ],
+    [
+     "Landfill Gas",
+     8
+    ]
+   ],
+   "topOperators": [
+    [
+     "Unknown",
+     72
+    ],
+    [
+     "",
+     1
+    ]
+   ]
+  }
+ },
+ "note": "Classify every REPD applicant (Operator field) by OWNERSHIP TYPE:"
+}
