@@ -154,11 +154,14 @@ buckets.sort(key=lambda d: d["total"])
 # ---- by size band (Solar / Onshore wind / Battery) ---------------------------
 BANDS = [(1, "<1 MW"), (5, "1–5 MW"), (10, "5–10 MW"), (25, "10–25 MW"),
          (50, "25–50 MW"), (100, "50–100 MW"), (float("inf"), "100+ MW")]
+# Batteries start at a single "<5 MW" band: the sub-1 MW battery fleet has almost no
+# construction/commissioning dates, so a separate <1 MW bar was one skewed project.
+BANDS_BATTERY = [(5, "<5 MW")] + BANDS[2:]
 
-def band_of(mw):
+def band_of(mw, bands):
     if mw is None:
         return None
-    for hi, lab in BANDS:
+    for hi, lab in bands:
         if mw < hi:
             return lab
     return "100+ MW"
@@ -166,13 +169,14 @@ def band_of(mw):
 SIZE_TECHS = {"Solar": "Solar Photovoltaics", "OnshoreWind": "Wind Onshore", "Battery": "Battery"}
 bySize = {}
 for key, tname in SIZE_TECHS.items():
+    bands = BANDS_BATTERY if key == "Battery" else BANDS
     per = defaultdict(list)
     for x in rows:
         if x["_t"] == tname:
-            b = band_of(x["_mw"])
+            b = band_of(x["_mw"], bands)
             if b:
                 per[b].append(x)
-    bySize[key] = [{"band": lab, **stats(per[lab])} for _, lab in BANDS if lab in per]
+    bySize[key] = [{"band": lab, **stats(per[lab])} for _, lab in bands if lab in per]
 
 # ---- by controlling party (at the decision date), per technology filter ------
 # Only local-route projects with a matched council carry a party; national-route

@@ -29,13 +29,13 @@
   // Number helpers
   window.fmt = {
     n: x => (x == null ? "—" : Number(x).toLocaleString("en-GB")),
-    gw: mw => (mw == null ? "—" : (mw / 1000).toLocaleString("en-GB", { maximumFractionDigits: 1 })),
+    gw: mw => (mw == null ? "—" : (mw / 1000).toLocaleString("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 })),
     pct: x => (x == null ? "—" : Number(x).toFixed(1) + "%"),
   };
 
   if (window.Chart) {
     Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-    Chart.defaults.font.size = 12;
+    Chart.defaults.font.size = 14;
     Chart.defaults.color = "#6e6c66";
     Chart.defaults.plugins.legend.labels.usePointStyle = true;
     Chart.defaults.plugins.legend.labels.boxWidth = 8;
@@ -62,7 +62,8 @@
   window.axis = (opts = {}) => ({
     grid: { color: "rgba(0,0,0,.055)", drawTicks: false },
     border: { display: false },
-    ticks: { padding: 8, font: { size: 11.5 }, ...(opts.ticks || {}) },
+    ticks: { padding: 8, font: { size: 14 }, ...(opts.ticks || {}) },
     ...opts,
+    ...(opts.title ? { title: { font: { size: 14, weight: "600" }, ...opts.title } } : {}),
   });
 })();

@@ -52,10 +52,6 @@
       <div class="chart-box" id="sankey" style="height:540px"></div>
       <div class="source">Source: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026). Distinct projects: 815 resubmitted duplicate applications (17 GW) are merged to their live record. "Withdrawn / abandoned" also absorbs a small residual of lapsed and unclassified records so the flows balance. Capacity is Installed Capacity (MWelec), shown as GW. Party (when filtering) is the control of the deciding council at the decision date, from <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a>; national-route and unmatched projects have no council party.</div>
     </div>
-    <div class="callout" id="decisionCallout">
-      <span class="tag">The headline</span>
-      <p></p>
-    </div>
   </section>
 
   <hr class="divider">
@@ -141,13 +137,9 @@ const approvalPct = F.n.granted / (F.n.granted + F.n.refused) * 100;
 document.getElementById("topstats").innerHTML = [
   { num: fmt.n(uniqueN), lab: "unique projects (resubmissions merged)" },
   { num: fmt.gw(uniqueCap), suf: " GW", lab: "of capacity proposed" },
-  { num: fmt.pct(decidedPct), lab: "of projects have reached a decision" },
+  { num: fmt.pct(decidedPct), lab: "of projects have reached a decision (by number of projects; 71% of capacity)" },
   { num: fmt.gw(F.mw.pending), suf: " GW", lab: "still waiting in the queue for a decision" },
 ].map(s => `<div class="stat"><div class="num">${s.num}${s.suf ? `<small>${s.suf}</small>` : ""}</div><div class="lab">${s.lab}</div></div>`).join("");
-
-// decision-framed headline
-document.querySelector("#decisionCallout p").innerHTML =
-  `Of the projects that reach a decision, <strong>${fmt.pct(approvalPct)}</strong> are approved — refusal is rare. But only <strong>${fmt.pct(decidedPct)}</strong> have reached a decision at all: ${fmt.n(F.n.pending)} projects, <strong>${gw(F.mw.pending).toFixed(0)} GW</strong>, are still in the queue awaiting a verdict.`;
 
 // ---------- Sankey: toggleable MW / applications, drawn to scale ----------
 const sankeyLabel = {

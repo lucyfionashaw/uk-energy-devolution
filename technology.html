@@ -136,7 +136,7 @@ function renderApps(unit) {
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " apps"}` } },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " apps"}` } },
       },
       scales: { y: axis({ stacked: true, min: 0, title: { display: true, text: isMW ? "capacity applied for (GW)" : "applications submitted" } }), x: axis({ grid: { display: false } }) },
     },
@@ -180,7 +180,7 @@ function renderOwn(unit) {
       ctx.fillStyle = C.inkSoft;
       meta.data.forEach((bar, i) => {
         const v = vals[i];
-        const txt = (isMW ? (v >= 10 ? Math.round(v) : v.toFixed(1)) + " GW" : fmt.n(v)) + ` (${(100 * v / total).toFixed(v / total < 0.01 ? 1 : 0)}%)`;
+        const txt = (isMW ? v.toFixed(1) + " GW" : fmt.n(v)) + ` (${(100 * v / total).toFixed(1)}%)`;
         ctx.fillText(txt, bar.x + 6, bar.y);
       });
       ctx.restore();
@@ -195,7 +195,7 @@ function renderOwn(unit) {
       plugins: {
         legend: { display: false },
         tooltip: { callbacks: { label: c => { const o = OWN[ownRows[c.dataIndex].k]; return [
-          isMW ? `${(o.mw / 1000).toLocaleString("en-GB", { maximumFractionDigits: 1 })} GW applied` : `${fmt.n(o.n)} projects`,
+          isMW ? `${(o.mw / 1000).toLocaleString("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} GW applied` : `${fmt.n(o.n)} projects`,
           `${fmt.n(o.granted)} granted · ${fmt.n(o.op)} operating (${(o.opMW / 1000).toFixed(1)} GW)`,
         ]; } } },
       },

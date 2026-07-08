@@ -205,7 +205,7 @@ new Chart(mk("landScatter"), {
       legend: { display: false },
       tooltip: { callbacks: { label: c => {
         if (c.datasetIndex === 1) return [NS.label, `${(NS.landApprovedMW / 1000).toFixed(1)} GW approved`, `decided by Scottish Ministers, not councils`, `onshore wind + solar, over ~${fmt.n(NS.avgLandKm2)} km²`];
-        const d = scatPts[c.dataIndex]; return [`${lab(d.p)}`, `${d.y.toFixed(1)} GW approved`, `${fmt.n(Math.round(d.x))} km² avg controlled`, `${d.dens.toFixed(3)} MW/km²/yr · ${fmt.n(d.n)} grants`]; } } },
+        const d = scatPts[c.dataIndex]; return [`${lab(d.p)}`, `${d.y.toFixed(1)} GW approved`, `${fmt.n(Math.round(d.x))} km² avg controlled`, `${(d.y * 1000 / d.x).toFixed(2)} MW per km², 2010–2025 · ${fmt.n(d.n)} grants`]; } } },
     },
     scales: {
       x: axis({ min: 0, max: scatMaxX, title: { display: true, text: "average land controlled (km²)" }, ticks: { callback: v => (v / 1000) + "k" } }),
@@ -266,14 +266,14 @@ function renderAppr(unit) {
       plugins: {
         legend: { display: false },
         tooltip: { callbacks: {
-          label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " approved"}`,
+          label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " approved"}`,
           // the national band stays one visual block; the tooltip shows who decided it
           afterLabel: c => {
             if (apprSeries[c.datasetIndex].key !== "__national") return "";
             return NATIONALS
               .map(k => [k, AY.series[k][unit][c.dataIndex]])
               .filter(([, v]) => v > 0)
-              .map(([k, v]) => `   ${NAT_NAMES[k]}: ${isMW ? (v / 1000).toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(v)}`)
+              .map(([k, v]) => `   ${NAT_NAMES[k]}: ${isMW ? (v / 1000).toLocaleString("en-GB", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " GW" : fmt.n(v)}`)
               .join("\n");
           },
         } },
