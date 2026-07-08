@@ -87,14 +87,7 @@
         </div>
       </div>
       <div class="chart-box tall" id="apprYear"></div>
-      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. Approving council party is the party in control of the administration on the decision date, from Open Council Data UK’s control column (grants before the May handover of power go to the outgoing administration). Councils under no overall control are credited to the largest party, treated as a minority administration; older records marked simply "NOC", with no largest party named, are grouped with independent-led councils. Coalitions are credited to the lead party. "Other council parties" groups Plaid, Green, Reform and independent-led councils. The dark band is everything consented nationally rather than by a council. Resubmitted duplicates merged.</div>
-    </div>
-  </section>
-
-  <section>
-    <div class="callout">
-      <span class="tag">A note on Northern Ireland</span>
-      <p>The analysis excludes Northern Ireland.</p>
+      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. Approving council party is the party in control of the administration on the decision date, from Open Council Data UK’s control column (grants before the May handover of power go to the outgoing administration). Councils under no overall control are credited to the largest party, treated as a minority administration; older records marked simply "NOC", with no largest party named, are grouped with independent-led councils. Coalitions are credited to the lead party. "Other council parties" groups Plaid, Green, Reform and independent-led councils. The dark band is everything consented nationally rather than by a council. Northern Ireland is not included. Resubmitted duplicates merged.</div>
     </div>
   </section>
 
@@ -238,7 +231,7 @@ const apprSeries = [
 ];
 const OTHERS = ["Plaid", "Green", "Reform", "Other/Ind"];
 const NATIONALS = ["NatUKCon", "NatUKLab", "NatSNP", "NatOther"];
-const NAT_NAMES = { NatUKCon: "UK Gov (Con)", NatUKLab: "UK Gov (Lab)", NatSNP: "Scottish Gov (SNP)", NatOther: "Welsh Gov / NI / other" };
+const NAT_NAMES = { NatUKCon: "UK Gov (Con)", NatUKLab: "UK Gov (Lab)", NatSNP: "Scottish Gov (SNP)", NatOther: "Welsh Gov / other" };
 const apprVal = (key, unit, i) => key === "__other"
   ? OTHERS.reduce((a, p) => a + AY.series[p][unit][i], 0)
   : key === "__national"

@@ -57,11 +57,13 @@ def national_bucket(x, gd):
         if gd < CON_IN or gd >= LAB_IN:
             return "NatUKLab"
         return "NatUKCon"
-    return "NatOther"     # Welsh Government DNS, Northern Ireland, unmatched names
+    return "NatOther"     # Welsh Government DNS, unmatched names
 
 n_ct = defaultdict(lambda: defaultdict(int))
 mw_ct = defaultdict(lambda: defaultdict(float))
 for x in R.live():                       # de-duplicated: one row per physical project
+    if (x["Country"] or "").strip() == "Northern Ireland":
+        continue                          # NI excluded from this chart (noted in the caption)
     gd = next((pdate(x[c]) for c in GRANT_DATES if has(x[c])), None)
     if gd is None or gd.year < Y0 or gd.year > Y1:
         continue
