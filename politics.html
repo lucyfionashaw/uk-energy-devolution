@@ -82,7 +82,7 @@
     <h2>Who actually approved it, year by year</h2>
     <div class="card">
       <h3>Capacity approved each year, by who granted it</h3>
-      <p class="sub">Local grants coloured by the party controlling the council; national-route consents in darker shades, by the government that decided them.</p>
+      <p class="sub">Local grants coloured by the party controlling the council; the dark band is everything consented nationally rather than by a council — hover it to see which government decided.</p>
       <div class="toolbar">
         <div class="legend" id="apprLegend"></div>
         <div class="seg" id="apprUnit" role="group" aria-label="Choose scale">
@@ -236,16 +236,16 @@ const apprSeries = [
   { key: "LibDem", name: "Lib Dem", c: C.party.LibDem },
   { key: "SNP", name: "SNP", c: C.party.SNP },
   { key: "__other", name: "Other council parties", c: "#9b9b9b" },
-  // national-route consents, by the GOVERNMENT that decided them (darker = national)
-  { key: "NatUKCon", name: "UK Gov (Con)", c: "#0a4f8a" },
-  { key: "NatSNP", name: "Scottish Gov (SNP)", c: "#8a7500" },
-  { key: "NatUKLab", name: "UK Gov (Lab)", c: "#8f0025" },
-  { key: "NatOther", name: "Other national / NI", c: "#55606d" },
+  { key: "__national", name: "National route (not council-decided)", c: "#3d4f63" },
 ];
 const OTHERS = ["Plaid", "Green", "Reform", "Other/Ind"];
+const NATIONALS = ["NatUKCon", "NatUKLab", "NatSNP", "NatOther"];
+const NAT_NAMES = { NatUKCon: "UK Gov (Con)", NatUKLab: "UK Gov (Lab)", NatSNP: "Scottish Gov (SNP)", NatOther: "Welsh Gov / NI / other" };
 const apprVal = (key, unit, i) => key === "__other"
   ? OTHERS.reduce((a, p) => a + AY.series[p][unit][i], 0)
-  : AY.series[key][unit][i];
+  : key === "__national"
+    ? NATIONALS.reduce((a, p) => a + AY.series[p][unit][i], 0)
+    : AY.series[key][unit][i];
 document.getElementById("apprLegend").innerHTML = apprSeries.map(s => `<span><i style="background:${s.c}"></i>${s.name}</span>`).join("");
 
 let apprChart = null;
@@ -267,7 +267,18 @@ function renderAppr(unit) {
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " approved"}` } },
+        tooltip: { callbacks: {
+          label: c => `${c.dataset.label}: ${isMW ? c.parsed.y.toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(c.parsed.y) + " approved"}`,
+          // the national band stays one visual block; the tooltip shows who decided it
+          afterLabel: c => {
+            if (apprSeries[c.datasetIndex].key !== "__national") return "";
+            return NATIONALS
+              .map(k => [k, AY.series[k][unit][c.dataIndex]])
+              .filter(([, v]) => v > 0)
+              .map(([k, v]) => `   ${NAT_NAMES[k]}: ${isMW ? (v / 1000).toLocaleString("en-GB", { maximumFractionDigits: 1 }) + " GW" : fmt.n(v)}`)
+              .join("\n");
+          },
+        } },
       },
       scales: { y: axis({ stacked: true, min: 0, title: { display: true, text: isMW ? "capacity approved (GW)" : "projects approved" } }), x: axis({ stacked: true, grid: { display: false } }) },
     },
