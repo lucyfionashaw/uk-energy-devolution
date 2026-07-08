@@ -40,6 +40,25 @@
   <hr class="divider">
 
   <section>
+    <div class="section-num">Who applies</div>
+    <h2>A privately-owned pipeline</h2>
+    <p class="dek">Classifying every applicant by name: the pipeline is overwhelmingly commercial. The public sector — councils, schools, the NHS — applies fairly often but almost entirely for rooftop-scale solar on its own buildings. Community-owned energy is barely visible: <strong>70 projects and 0.3 GW applied in 36 years</strong>, less than a thousandth of the pipeline's capacity.</p>
+    <div class="card">
+      <h3>Who applies for renewable energy projects</h3>
+      <div class="toolbar">
+        <div class="seg" id="ownUnit" role="group" aria-label="Choose scale">
+          <button data-unit="n" class="on">Projects</button>
+          <button data-unit="mw">Capacity</button>
+        </div>
+      </div>
+      <div class="chart-box tall" id="ownership"></div>
+      <div class="source">Source: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), Operator/Applicant field classified by name; resubmitted duplicates merged. Assumptions: "trust" is split by what the trust is (NHS trusts → NHS; academy trusts → education; investment and family trusts → private; development trusts → community); commercially-owned firms with community-sounding names (e.g. Community Windpower Ltd, Solar Options for Schools Ltd) are counted as private. The applicant may be an agent for another owner, and ownership can change after consent — REPD's dedicated community-scheme field is unpopulated, so name-based classification is the only route.</div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
     <div class="section-num">The divergence</div>
     <h2>The two approval stories</h2>
     <p class="dek">Overall approval rates have drifted up to ~90%. That headline sits above onshore wind, whose approval rate fell through the early 2010s and then recovered later in the decade.</p>
@@ -129,6 +148,71 @@ document.getElementById("appsUnit").addEventListener("click", e => {
   if (!btn) return;
   document.querySelectorAll("#appsUnit button").forEach(b => b.classList.toggle("on", b === btn));
   renderApps(btn.dataset.unit);
+});
+
+// 1b. who applies — ownership categories, toggle projects / capacity
+const OWN = window.OWNERSHIP.categories;
+const ownRows = [
+  { k: "private", t: "Private", c: C.inkFaint },
+  { k: "public-council", t: "Councils", c: "#5b7fa6" },
+  { k: "public-education", t: "Schools & universities", c: "#7fa65b" },
+  { k: "public-nhs", t: "NHS", c: "#4f9ec4" },
+  { k: "public-other", t: "Other public bodies", c: "#8c9bab" },
+  { k: "community", t: "Community energy", c: C.gold },
+  { k: "charity", t: "Charity / non-profit", c: "#b08968" },
+  { k: "unknown", t: "Unknown", c: "#cfcbc2" },
+];
+let ownChart = null;
+function renderOwn(unit) {
+  const isMW = unit === "mw";
+  if (ownChart) ownChart.destroy();
+  document.getElementById("ownership").innerHTML = "";
+  const vals = ownRows.map(r => isMW ? OWN[r.k].mw / 1000 : OWN[r.k].n);
+  const total = vals.reduce((a, v) => a + v, 0);
+  // linear axis from 0 (private dominance IS the story); write each value at the bar end
+  // so the small categories stay legible.
+  const ownLabels = {
+    id: "ownLabels",
+    afterDatasetsDraw(chart) {
+      const { ctx } = chart, meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = "600 11px Tahoma, Verdana, sans-serif"; ctx.textBaseline = "middle"; ctx.textAlign = "left";
+      ctx.fillStyle = C.inkSoft;
+      meta.data.forEach((bar, i) => {
+        const v = vals[i];
+        const txt = (isMW ? (v >= 10 ? Math.round(v) : v.toFixed(1)) + " GW" : fmt.n(v)) + ` (${(100 * v / total).toFixed(v / total < 0.01 ? 1 : 0)}%)`;
+        ctx.fillText(txt, bar.x + 6, bar.y);
+      });
+      ctx.restore();
+    },
+  };
+  ownChart = new Chart(mk("ownership"), {
+    type: "bar",
+    data: { labels: ownRows.map(r => r.t), datasets: [{ data: vals, backgroundColor: ownRows.map(r => r.c), borderRadius: 4, maxBarThickness: 26 }] },
+    options: {
+      indexAxis: "y",
+      layout: { padding: { right: 110 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => { const o = OWN[ownRows[c.dataIndex].k]; return [
+          isMW ? `${(o.mw / 1000).toLocaleString("en-GB", { maximumFractionDigits: 1 })} GW applied` : `${fmt.n(o.n)} projects`,
+          `${fmt.n(o.granted)} granted · ${fmt.n(o.op)} operating (${(o.opMW / 1000).toFixed(1)} GW)`,
+        ]; } } },
+      },
+      scales: {
+        x: axis({ min: 0, title: { display: true, text: isMW ? "capacity applied for (GW)" : "projects" } }),
+        y: axis({ grid: { display: false } }),
+      },
+    },
+    plugins: [ownLabels],
+  });
+}
+renderOwn("n");
+document.getElementById("ownUnit").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-unit]");
+  if (!btn) return;
+  document.querySelectorAll("#ownUnit button").forEach(b => b.classList.toggle("on", b === btn));
+  renderOwn(btn.dataset.unit);
 });
 
 // 2. approval trend dual line

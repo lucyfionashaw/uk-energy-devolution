@@ -39,6 +39,9 @@
           <label class="fld">Council party
             <select id="flowParty"></select>
           </label>
+          <label class="fld">Application year
+            <select id="flowYear"></select>
+          </label>
         </div>
         <div class="seg" id="flowUnit" role="group" aria-label="Choose scale">
           <button data-unit="mw" class="on">Megawatts</button>
@@ -194,18 +197,25 @@ const PARTY_OPTS = [
   { v: "LibDem", t: "Lib Dem" }, { v: "SNP", t: "SNP" }, { v: "Plaid", t: "Plaid Cymru" },
   { v: "Green", t: "Green" }, { v: "Reform", t: "Reform / UKIP" }, { v: "Other/Ind", t: "Other / Independent" },
 ];
+const YEAR_OPTS = [{ v: "All", t: "All years" }]
+  .concat([...new Set(window.FLOWX.cells.map(c => c.year))]
+    .filter(y => y !== "na" && y !== "pre").sort().reverse()
+    .map(y => ({ v: y, t: y })))
+  .concat([{ v: "pre", t: "Before 2010" }]);
 const optText = (opts, v) => (opts.find(o => o.v === v) || {}).t;
 const fillSel = (id, opts) => { document.getElementById(id).innerHTML = opts.map(o => `<option value="${o.v}">${o.t}</option>`).join(""); };
 fillSel("flowTech", TECH_OPTS);
 fillSel("flowParty", PARTY_OPTS);
+fillSel("flowYear", YEAR_OPTS);
 
 // ---- sum the technology×party cells for the current filter, in the chosen unit ----
 const METRICS = window.FLOWX.metrics;
-function sumCells(unit, tech, party) {
+function sumCells(unit, tech, party, year) {
   const b = Object.fromEntries(METRICS.map(m => [m, 0]));
   window.FLOWX.cells.forEach(c => {
     if (tech !== "All" && c.tech !== tech) return;
     if (party !== "All" && !(c.party === party || (party === "Other/Ind" && c.party === "Nationalist (pre-2007)"))) return;
+    if (year !== "All" && c.year !== year) return;
     const src = c[unit];
     METRICS.forEach(m => b[m] += src[m]);
   });
@@ -219,13 +229,14 @@ function sumCells(unit, tech, party) {
   };
 }
 
-const flowState = { unit: "mw", tech: "All", party: "All" };
+const flowState = { unit: "mw", tech: "All", party: "All", year: "All" };
 let sankeyChart = null;
 
 function updateFlowNote(n) {
   const bits = [];
   if (flowState.tech !== "All") bits.push(optText(TECH_OPTS, flowState.tech).toLowerCase());
   if (flowState.party !== "All") bits.push(`${optText(PARTY_OPTS, flowState.party)}-controlled councils`);
+  if (flowState.year !== "All") bits.push(flowState.year === "pre" ? "applied before 2010" : `applied in ${flowState.year}`);
   let s = bits.length
     ? `Showing ${bits.join(", ")} — ${fmt.n(n)} applications. Node labels show the running total at each stage.`
     : "Node labels show the running total at each stage; band width is proportional to the amount flowing through.";
@@ -241,9 +252,9 @@ function buildSankey() {
 
   const isMW = flowState.unit === "mw";
   const val = v => isMW ? `${gw(v).toLocaleString("en-GB", { maximumFractionDigits: 0 })} GW` : `${fmt.n(v)}`;
-  const u = sumCells(flowState.unit, flowState.tech, flowState.party);
+  const u = sumCells(flowState.unit, flowState.tech, flowState.party, flowState.year);
 
-  const nApplied = flowState.unit === "n" ? u.applied : sumCells("n", flowState.tech, flowState.party).applied;
+  const nApplied = flowState.unit === "n" ? u.applied : sumCells("n", flowState.tech, flowState.party, flowState.year).applied;
   if (!u.applied) {
     host.innerHTML = '<p style="color:var(--ink-faint);font-size:.9rem;padding:2rem 1rem">No projects match this combination of technology and party.</p>';
     updateFlowNote(0);
@@ -354,6 +365,7 @@ document.getElementById("flowUnit").addEventListener("click", e => {
 });
 document.getElementById("flowTech").addEventListener("change", e => { flowState.tech = e.target.value; buildSankey(); });
 document.getElementById("flowParty").addEventListener("change", e => { flowState.party = e.target.value; buildSankey(); });
+document.getElementById("flowYear").addEventListener("change", e => { flowState.year = e.target.value; buildSankey(); });
 
 // ---------- map of every project ----------
 const TECHS = [

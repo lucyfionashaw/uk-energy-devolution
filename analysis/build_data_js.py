@@ -27,6 +27,7 @@ MAP = {
     "gantt_data.json":      "GANTT",          # median stage durations by technology (Gantt timeline)
     "apps_tech.json":       "APPSTECH",        # applications & capacity per year, by technology bucket
     "approvals_year.json":  "APPR_YEAR",        # capacity/count approved each year, by controlling council party
+    "ownership.json":       "OWNERSHIP",        # who applies: public / community / charity / private
 }
 # map_points.json is deliberately NOT inlined here — it is ~1.4 MB and only the
 # overview page needs it, so index.html fetches it lazily instead.

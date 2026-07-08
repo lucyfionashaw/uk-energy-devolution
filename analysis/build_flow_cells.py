@@ -67,7 +67,16 @@ def tech_bucket(t):
             "Wind Offshore": "OffshoreWind", "Battery": "Battery"}.get(t, "Other")
 
 METRICS = ["applied", "resubmitted", "granted", "refused", "pending", "expired", "built", "op", "decommissioned"]
-# cells[(tech, party)] = {"n": {...}, "mw": {...}}
+
+def year_bucket(r):
+    """Application year for the Sankey's year filter: original submission year for distinct
+    projects (so a resubmitted scheme keeps its first application date), own submission for
+    superseded rows. Years before 2010 are grouped ('pre'); missing dates are 'na'."""
+    d = R.original_submission(r) if not r["_superseded"] else r["_sub"]
+    if d is None: return "na"
+    return "pre" if d.year < 2010 else str(d.year)
+
+# cells[(tech, party, year)] = {"n": {...}, "mw": {...}}
 cells = defaultdict(lambda: {"n": {m: 0 for m in METRICS}, "mw": {m: 0.0 for m in METRICS}})
 
 for r in R.load():
@@ -92,7 +101,7 @@ for r in R.load():
         d = parse_date(r["Planning Application Submitted"])
     party = (G.party_at(r, d) if d else None) or "None"
 
-    cell = cells[(tech_bucket(r["Technology Type"]), party)]
+    cell = cells[(tech_bucket(r["Technology Type"]), party, year_bucket(r))]
     def add(metric):
         cell["n"][metric] += 1
         cell["mw"][metric] += cap
@@ -109,9 +118,9 @@ for r in R.load():
         if decommissioned: add("decommissioned")
 
 out = {"metrics": METRICS,
-       "cells": [{"tech": t, "party": p,
+       "cells": [{"tech": t, "party": p, "year": y,
                   "n": v["n"], "mw": {m: round(v["mw"][m]) for m in METRICS}}
-                 for (t, p), v in sorted(cells.items())]}
+                 for (t, p, y), v in sorted(cells.items())]}
 OUT.write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
 
 # ---- sanity: All/All totals should match flow_data.json ----
