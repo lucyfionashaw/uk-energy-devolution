@@ -42,22 +42,18 @@
   <section>
     <div class="section-num">Per unit of land</div>
     <h2>Approval per km² of land controlled</h2>
-    <p class="dek">Raw capacity favours whoever governs the most countryside. Normalising by the land each party actually controlled — MW approved per km², per year — reorders it: the denser, more urban Labour and Lib Dem councils approve the most for the land they have, while the land-rich Conservative, SNP and independent-led shires approve the least per acre. (Green and Reform are left off here — too few decisions, and too recently in control, to give a stable rate.)</p>
+    <p class="dek">Raw capacity favours whoever governs the most countryside. Normalising by the land each party actually controlled — MW approved per km² — reorders it: the denser, more urban Labour and Lib Dem councils approve the most for the land they have, while the land-rich Conservative, SNP and independent-led shires approve the least per acre. (Green and Reform are left off here — too few decisions, and too recently in control, to give a stable rate.)</p>
     <div class="card">
       <h3>Capacity approved per km² of land controlled</h3>
-      <p class="sub">2010–2025, lower-tier councils. MW approved per km² of controlled land, per year.</p>
+      <p class="sub">2010–2025, lower-tier councils. MW approved per km² of controlled land over the period.</p>
       <div class="chart-box short" id="landYr"></div>
       <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control, and <a href="https://geoportal.statistics.gov.uk/" target="_blank" rel="noopener">ONS Standard Area Measurements</a> land areas. Approvals credited to the party controlling the deciding council on the decision date, normalised by the land that party controlled, 2010–2025. GB lower-tier councils only. <strong>Excludes Green, Reform and Plaid</strong> (fewer than 100 decisions each — too few for a stable per-km² rate), and Northern Ireland.</div>
     </div>
     <div class="card">
       <h3>The same story as a scatter: land vs capacity</h3>
-      <p class="sub">Each major party plotted by the land its councils governed (2010–2025) against the capacity they approved. The dashed line is the average — points <em>above</em> it approve more per acre, points <em>below</em> less. The per-km² rate is just the steepness from the origin. The <strong>diamond</strong> is Scotland's <em>national</em> route: the onshore wind + solar consented by Scottish Ministers, not councils — which dwarfs what SNP-run councils decide.</p>
+      <p class="sub">Each major party plotted by the land its councils governed (2010–2025) against the capacity they approved. The dashed line is the average — points <em>above</em> it approve more per acre, points <em>below</em> less. The <strong>diamond</strong> is Scotland's <em>national</em> route: the onshore wind + solar consented by Scottish Ministers, not councils — which dwarfs what SNP-run councils decide.</p>
       <div class="chart-box" id="landScatter"></div>
       <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> and <a href="https://geoportal.statistics.gov.uk/" target="_blank" rel="noopener">ONS Standard Area Measurements</a>. Same basis as the bar above. Green, Reform and Plaid omitted (fewer than 100 decisions each); Northern Ireland excluded.</div>
-    </div>
-    <div class="callout gold">
-      <span class="tag">A big caveat: Scotland</span>
-      <p>The two lowest bars — <strong>SNP</strong> and <strong>Independent</strong> — are both dominated by Scotland. Independents' vast land base is largely rural Scottish councils (Highland alone is ~24,000 km²). Scotland consents its <em>big</em> renewables nationally, not locally: of 111 granted Scottish onshore wind farms of 50 MW or more, <strong>109 were decided by Scottish Ministers, not councils</strong>. So this chart — which only sees council decisions — understates Scotland. Read the SNP and Independent bars as "what Scottish <em>councils</em> approve," not "what Scotland builds."</p>
     </div>
   </section>
 
@@ -147,15 +143,17 @@ new Chart(mk("timeByParty"), {
   },
 });
 
-// 3. land density — MW approved per km² per year, credited at the decision date
+// 3. land density — MW approved per km² of controlled land, 2010-2025, credited at the decision date
 // exclude parties with too few grants to give a stable per-km² rate (Green, Reform, Plaid)
-const landYr = GB.map(p => ({ p, ...(T[p] || {}) })).filter(r => r.mwPerKm2PerYr != null && (r.granted || 0) >= 100).sort((a, b) => b.mwPerKm2PerYr - a.mwPerKm2PerYr);
+const landYr = GB.map(p => ({ p, ...(T[p] || {}) })).filter(r => r.mwPerKm2PerYr != null && (r.granted || 0) >= 100)
+  .map(r => ({ ...r, dens: r.landApprovedMW / r.avgLandKm2 }))   // whole-window rate, not per-year
+  .sort((a, b) => b.dens - a.dens);
 new Chart(mk("landYr"), {
   type: "bar",
-  data: { labels: landYr.map(r => lab(r.p)), datasets: [{ data: landYr.map(r => r.mwPerKm2PerYr), backgroundColor: landYr.map(r => pc(r.p)), borderRadius: 5, maxBarThickness: 46 }] },
+  data: { labels: landYr.map(r => lab(r.p)), datasets: [{ data: landYr.map(r => +r.dens.toFixed(2)), backgroundColor: landYr.map(r => pc(r.p)), borderRadius: 5, maxBarThickness: 46 }] },
   options: {
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = landYr[c.dataIndex]; return [`${r.mwPerKm2PerYr.toFixed(3)} MW per km² per year`, `${fmt.n(r.landApprovedMW)} MW approved · ${fmt.n(r.avgLandKm2)} km² avg controlled`]; } } } },
-    scales: { y: axis({ min: 0, title: { display: true, text: "MW per km² per year" } }), x: axis({ grid: { display: false } }) },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => { const r = landYr[c.dataIndex]; return [`${r.dens.toFixed(2)} MW per km², 2010–2025`, `${fmt.n(r.landApprovedMW)} MW approved · ${fmt.n(r.avgLandKm2)} km² avg controlled`]; } } } },
+    scales: { y: axis({ min: 0, title: { display: true, text: "MW per km², 2010–2025" } }), x: axis({ grid: { display: false } }) },
   },
 });
 
