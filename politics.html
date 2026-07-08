@@ -90,7 +90,7 @@
         </div>
       </div>
       <div class="chart-box tall" id="apprYear"></div>
-      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. "National route / other" is everything granted without a GB council party: national consenting bodies (offshore wind, Scottish S36, NSIP), Northern Ireland, and a handful of unmatched authorities. Plaid, Green and Reform grouped as "Other". Resubmitted duplicates merged.</div>
+      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. "Not council-decided (national route)" is everything granted without a GB council party: national consenting bodies (offshore wind, Scottish S36, NSIP), Northern Ireland, and a handful of unmatched authorities. "Other council parties" groups Plaid, Green, Reform and independent-led councils — all locally decided. Resubmitted duplicates merged.</div>
     </div>
   </section>
 
@@ -234,8 +234,8 @@ const apprSeries = [
   { key: "Lab", name: "Labour", c: C.party.Lab },
   { key: "LibDem", name: "Lib Dem", c: C.party.LibDem },
   { key: "SNP", name: "SNP", c: C.party.SNP },
-  { key: "__other", name: "Other", c: "#9b9b9b" },
-  { key: "National", name: "National route / other", c: "#3d4f63" },
+  { key: "__other", name: "Other council parties", c: "#9b9b9b" },
+  { key: "National", name: "Not council-decided (national route)", c: "#3d4f63" },
 ];
 const OTHERS = ["Plaid", "Green", "Reform", "Other/Ind"];
 const apprVal = (key, unit, i) => key === "__other"
