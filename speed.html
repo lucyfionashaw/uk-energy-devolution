@@ -62,30 +62,6 @@
     </div>
   </section>
 
-  <hr class="divider">
-
-  <section>
-    <div class="section-num">Does the party matter?</div>
-    <h2>Is it quicker under one party than another?</h2>
-    <p class="dek">Credit each decision to the party controlling the council when it was made, and compare how long each stage takes. Labour-run councils decide fastest; but their pipeline skews urban and solar-heavy, so use the technology filter to compare like-for-like. Some parties only have a decision-stage bar — too few, or too newly in control, to have projects that reached construction yet.</p>
-    <div class="card">
-      <h3>Duration of each stage, by controlling party</h3>
-      <div class="toolbar">
-        <div class="filters">
-          <label class="fld">Technology
-            <select id="ganttPartyTech"></select>
-          </label>
-        </div>
-        <div class="seg" id="ganttPartyStat" role="group" aria-label="Median or average">
-          <button data-stat="median" class="on">Median</button>
-          <button data-stat="mean">Average</button>
-        </div>
-      </div>
-      <div class="legend" id="ganttPartyLegend"></div>
-      <div class="chart-box" id="ganttParty" style="height:380px"></div>
-      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the decision date. GB local route only — national-route projects (offshore wind, NSIP) have no council party. Parties shown where 30+ projects reached a decision; individual stages with fewer than 10 dated projects are omitted.</div>
-    </div>
-  </section>
 
   <hr class="divider">
 
@@ -193,7 +169,7 @@ function stackedGantt(canvasId, rows, metric) {
 
 // stage legend doubles as the labels shown once, above the rows
 const stageLegendHTML = G.stages.map((s, i) => `<span><i style="background:${stageColours[i]}"></i>${s}</span>`).join("");
-["ganttLegend", "ganttSizeLegend", "ganttPartyLegend"].forEach(id => document.getElementById(id).innerHTML = stageLegendHTML);
+["ganttLegend", "ganttSizeLegend"].forEach(id => document.getElementById(id).innerHTML = stageLegendHTML);
 
 // a small helper to wire a {tech-select, stat-toggle} pair to a re-render
 function wireControls(selId, statId, state, render) {
@@ -220,15 +196,8 @@ function renderGanttSize() { if (ganttSizeChart) ganttSizeChart.destroy(); docum
 renderGanttSize();
 wireControls("ganttSizeTech", "ganttSizeStat", sizeState, renderGanttSize);
 
-// --- by controlling party, per technology ---
-document.getElementById("ganttPartyTech").innerHTML = Object.entries(G.partyTechNames).map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
-const partyState = { tech: "All", metric: "median" };
-let ganttPartyChart = null;
-function renderGanttParty() { if (ganttPartyChart) ganttPartyChart.destroy(); document.getElementById("ganttParty").innerHTML = ""; ganttPartyChart = stackedGantt("ganttParty", G.byParty[partyState.tech], partyState.metric); }
-renderGanttParty();
-wireControls("ganttPartyTech", "ganttPartyStat", partyState, renderGanttParty);
 } catch (e) {
-  ["gantt", "ganttSize", "ganttParty"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Couldn\'t draw this chart. If you just saw the site update, hard-refresh the page (Ctrl/Cmd+Shift+R) to load the latest data.</p>'; });
+  ["gantt", "ganttSize"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = '<p style="color:var(--ink-faint);font-size:.9rem;padding:1rem">Couldn\'t draw this chart. If you just saw the site update, hard-refresh the page (Ctrl/Cmd+Shift+R) to load the latest data.</p>'; });
 }
 
 // ---- what's stuck in the queue (single colour; the split that matters is the wait) ----
