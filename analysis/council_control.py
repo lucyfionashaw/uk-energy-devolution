@@ -33,7 +33,8 @@ _SEAT = {"con": "Con", "lab": "Lab", "ld": "LibDem", "green": "Green", "snp": "S
          "nat": "Other/Ind"}
 # parsed majority token -> party
 _MAJ = {"CON": "Con", "LAB": "Lab", "LD": "LibDem", "LIBDEM": "LibDem", "SNP": "SNP",
-        "PLAID": "Plaid", "PC": "Plaid", "GREEN": "Green", "REF": "Reform", "UKIP": "Reform",
+        "PLAID": "Plaid", "PC": "Plaid", "GREEN": "Green", "GRN": "Green",   # source switches to "GRN" from 2025
+        "REF": "Reform", "UKIP": "Reform",
         "IND": "Other/Ind", "OTHER": "Other/Ind", "NAT": "Other/Ind"}
 
 def _largest(row, cols):

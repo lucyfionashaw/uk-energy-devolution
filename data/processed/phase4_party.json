@@ -65,16 +65,16 @@
       "mwPerKm2PerYr": 0.0112
     },
     "Green": {
-      "n": 81,
-      "granted": 75,
-      "refused": 6,
-      "approvalRate": 92.6,
-      "approvedMW": 1422,
-      "medMonthsToDecision": 4.4,
-      "nTimed": 81,
-      "landApprovedMW": 1422,
-      "avgLandKm2": 628,
-      "mwPerKm2PerYr": 0.1416
+      "n": 105,
+      "granted": 95,
+      "refused": 10,
+      "approvalRate": 90.5,
+      "approvedMW": 1882,
+      "medMonthsToDecision": 4.5,
+      "nTimed": 105,
+      "landApprovedMW": 1823,
+      "avgLandKm2": 869,
+      "mwPerKm2PerYr": 0.1312
     },
     "Reform": {
       "n": 35,
@@ -89,16 +89,16 @@
       "mwPerKm2PerYr": 0.0104
     },
     "Other/Ind": {
-      "n": 2001,
-      "granted": 1612,
-      "refused": 389,
-      "approvalRate": 80.6,
-      "approvedMW": 19821,
-      "medMonthsToDecision": 8.7,
-      "nTimed": 1994,
-      "landApprovedMW": 13799,
-      "avgLandKm2": 73784,
-      "mwPerKm2PerYr": 0.0117
+      "n": 1977,
+      "granted": 1592,
+      "refused": 385,
+      "approvalRate": 80.5,
+      "approvedMW": 19361,
+      "medMonthsToDecision": 8.8,
+      "nTimed": 1970,
+      "landApprovedMW": 13398,
+      "avgLandKm2": 73543,
+      "mwPerKm2PerYr": 0.0114
     }
   },
   "byPartyOnshore": {
@@ -182,11 +182,11 @@
       "approvedMW": 72
     },
     "Green": {
-      "n": 55,
-      "granted": 50,
-      "refused": 5,
-      "approvalRate": 90.9,
-      "approvedMW": 407
+      "n": 68,
+      "granted": 61,
+      "refused": 7,
+      "approvalRate": 89.7,
+      "approvedMW": 521
     },
     "Reform": {
       "n": 23,
@@ -196,11 +196,11 @@
       "approvedMW": 29
     },
     "Other/Ind": {
-      "n": 627,
-      "granted": 571,
-      "refused": 56,
-      "approvalRate": 91.1,
-      "approvedMW": 4253
+      "n": 614,
+      "granted": 560,
+      "refused": 54,
+      "approvalRate": 91.2,
+      "approvedMW": 4139
     }
   },
   "byPartyBattery": {
@@ -240,11 +240,11 @@
       "approvedMW": 818
     },
     "Green": {
-      "n": 23,
-      "granted": 23,
-      "refused": 0,
-      "approvalRate": 100.0,
-      "approvedMW": 1015
+      "n": 33,
+      "granted": 31,
+      "refused": 2,
+      "approvalRate": 93.9,
+      "approvedMW": 1361
     },
     "Reform": {
       "n": 12,
@@ -254,11 +254,11 @@
       "approvedMW": 106
     },
     "Other/Ind": {
-      "n": 157,
-      "granted": 140,
-      "refused": 17,
-      "approvalRate": 89.2,
-      "approvedMW": 5260
+      "n": 147,
+      "granted": 132,
+      "refused": 15,
+      "approvalRate": 89.8,
+      "approvedMW": 4914
     }
   },
   "align": {
