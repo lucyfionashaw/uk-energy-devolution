@@ -81,7 +81,8 @@
     <div class="section-num">Approvals by year</div>
     <h2>Who actually approved it, year by year</h2>
     <div class="card">
-      <h3>Capacity approved each year, by controlling council party</h3>
+      <h3>Capacity approved each year, by who granted it</h3>
+      <p class="sub">Local grants coloured by the party controlling the council; national-route consents in darker shades, by the government that decided them.</p>
       <div class="toolbar">
         <div class="legend" id="apprLegend"></div>
         <div class="seg" id="apprUnit" role="group" aria-label="Choose scale">
@@ -90,7 +91,7 @@
         </div>
       </div>
       <div class="chart-box tall" id="apprYear"></div>
-      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. "Not council-decided (national route)" is everything granted without a GB council party: national consenting bodies (offshore wind, Scottish S36, NSIP), Northern Ireland, and a handful of unmatched authorities. "Other council parties" groups Plaid, Green, Reform and independent-led councils — all locally decided. Resubmitted duplicates merged.</div>
+      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. National-route consents (no council involved) are attributed to the government in power on the decision date: Scottish Ministers (S36 / Marine Scotland — SNP-run throughout this window), or the UK government (Planning Inspectorate NSIP, DECC, Secretary of State — Conservative 11 May 2010 to 4 Jul 2024, Labour after). "Other national / NI" is the Welsh Government\u2019s DNS route, Northern Ireland and a handful of unmatched authorities. "Other council parties" groups Plaid, Green, Reform and independent-led councils — all locally decided. Resubmitted duplicates merged.</div>
     </div>
   </section>
 
@@ -235,7 +236,11 @@ const apprSeries = [
   { key: "LibDem", name: "Lib Dem", c: C.party.LibDem },
   { key: "SNP", name: "SNP", c: C.party.SNP },
   { key: "__other", name: "Other council parties", c: "#9b9b9b" },
-  { key: "National", name: "Not council-decided (national route)", c: "#3d4f63" },
+  // national-route consents, by the GOVERNMENT that decided them (darker = national)
+  { key: "NatUKCon", name: "UK Gov (Con)", c: "#0a4f8a" },
+  { key: "NatSNP", name: "Scottish Gov (SNP)", c: "#8a7500" },
+  { key: "NatUKLab", name: "UK Gov (Lab)", c: "#8f0025" },
+  { key: "NatOther", name: "Other national / NI", c: "#55606d" },
 ];
 const OTHERS = ["Plaid", "Green", "Reform", "Other/Ind"];
 const apprVal = (key, unit, i) => key === "__other"

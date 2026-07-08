@@ -38,10 +38,26 @@ import repd_records as R
 import geo_resolve as G
 
 GRANT_DATES = ["Planning Permission  Granted", "Appeal Granted", "Secretary of State - Granted"]
-# "National" = granted with no GB council party: national consenting bodies (S36 / NSIP /
-# offshore), Northern Ireland, and the handful of unmatched names.
-ORDER = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind", "National"]
+# Grants with no GB council party are national-route consents — attributed to the
+# GOVERNMENT that decided them: Scottish Ministers (S36 / Marine Scotland; SNP-run
+# throughout the window), the UK government (Planning Inspectorate NSIP / DECC / SoS;
+# Con to 5 Jul 2024, Lab after), or the residual (Welsh Government, NI, unmatched).
+ORDER = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind",
+         "NatUKCon", "NatUKLab", "NatSNP", "NatOther"]
 Y0, Y1 = 2010, 2025
+CON_IN = datetime.date(2010, 5, 11)       # Brown -> Cameron (2010 election)
+LAB_IN = datetime.date(2024, 7, 5)        # Sunak -> Starmer (4 Jul 2024 election)
+
+def national_bucket(x, gd):
+    pa = norm(x["Planning Authority"])
+    if "scottish government" in pa or "marine scotland" in pa or "energy consents" in pa:
+        return "NatSNP"                    # Scottish Ministers: SNP-run since May 2007
+    if ("planning inspectorate" in pa or "decc" in pa or "secretary of state" in pa
+            or "crown estate" in pa or "marine management" in pa or "national infrastructure" in pa):
+        if gd < CON_IN or gd >= LAB_IN:
+            return "NatUKLab"
+        return "NatUKCon"
+    return "NatOther"     # Welsh Government DNS, Northern Ireland, unmatched names
 
 n_ct = defaultdict(lambda: defaultdict(int))
 mw_ct = defaultdict(lambda: defaultdict(float))
@@ -52,8 +68,8 @@ for x in R.live():                       # de-duplicated: one row per physical p
     p = G.party_at(x, gd)     # deciding council on the boundaries of the decision date
     if p == "Nationalist (pre-2007)":
         p = "Other/Ind"
-    if p not in ORDER:      # no council party -> the national/other route
-        p = "National"
+    if p not in ORDER:      # no council party -> attribute to the deciding government
+        p = national_bucket(x, gd)
     n_ct[gd.year][p] += 1
     mw_ct[gd.year][p] += num(x["Installed Capacity (MWelec)"]) or 0.0
 
