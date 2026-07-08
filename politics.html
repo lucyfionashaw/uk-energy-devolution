@@ -90,7 +90,7 @@
         </div>
       </div>
       <div class="chart-box tall" id="apprYear"></div>
-      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. GB local route only — national-route projects (offshore wind, NSIP) are excluded. Plaid, Green and Reform grouped as "Other". Resubmitted duplicates merged.</div>
+      <div class="source">Sources: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026), joined to <a href="http://opencouncildata.co.uk/" target="_blank" rel="noopener">Open Council Data UK</a> council control at the grant date. "National route / other" is everything granted without a GB council party: national consenting bodies (offshore wind, Scottish S36, NSIP), Northern Ireland, and a handful of unmatched authorities. Plaid, Green and Reform grouped as "Other". Resubmitted duplicates merged.</div>
     </div>
   </section>
 
@@ -180,7 +180,7 @@ const scatDecor = {
   afterDatasetsDraw(chart) {
     const { ctx } = chart, mid = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
     ctx.save();
-    ctx.font = "600 12px Tahoma, Verdana, sans-serif"; ctx.textBaseline = "middle"; ctx.fillStyle = C.inkSoft;
+    ctx.font = "600 12px system-ui, -apple-system, sans-serif"; ctx.textBaseline = "middle"; ctx.fillStyle = C.inkSoft;
     chart.getDatasetMeta(0).data.forEach((pt, i) => {
       const right = pt.x > mid;                 // keep labels on-canvas
       ctx.textAlign = right ? "right" : "left";
@@ -235,6 +235,7 @@ const apprSeries = [
   { key: "LibDem", name: "Lib Dem", c: C.party.LibDem },
   { key: "SNP", name: "SNP", c: C.party.SNP },
   { key: "__other", name: "Other", c: "#9b9b9b" },
+  { key: "National", name: "National route / other", c: "#3d4f63" },
 ];
 const OTHERS = ["Plaid", "Green", "Reform", "Other/Ind"];
 const apprVal = (key, unit, i) => key === "__other"

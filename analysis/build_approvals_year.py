@@ -38,7 +38,9 @@ import repd_records as R
 import geo_resolve as G
 
 GRANT_DATES = ["Planning Permission  Granted", "Appeal Granted", "Secretary of State - Granted"]
-ORDER = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind"]
+# "National" = granted with no GB council party: national consenting bodies (S36 / NSIP /
+# offshore), Northern Ireland, and the handful of unmatched names.
+ORDER = ["Con", "Lab", "LibDem", "SNP", "Plaid", "Green", "Reform", "Other/Ind", "National"]
 Y0, Y1 = 2010, 2025
 
 n_ct = defaultdict(lambda: defaultdict(int))
@@ -50,8 +52,8 @@ for x in R.live():                       # de-duplicated: one row per physical p
     p = G.party_at(x, gd)     # deciding council on the boundaries of the decision date
     if p == "Nationalist (pre-2007)":
         p = "Other/Ind"
-    if p not in ORDER:      # unmatched / national-route projects have no council party
-        continue
+    if p not in ORDER:      # no council party -> the national/other route
+        p = "National"
     n_ct[gd.year][p] += 1
     mw_ct[gd.year][p] += num(x["Installed Capacity (MWelec)"]) or 0.0
 

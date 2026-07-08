@@ -196,6 +196,7 @@ const PARTY_OPTS = [
   { v: "All", t: "All parties" }, { v: "Con", t: "Conservative" }, { v: "Lab", t: "Labour" },
   { v: "LibDem", t: "Lib Dem" }, { v: "SNP", t: "SNP" }, { v: "Plaid", t: "Plaid Cymru" },
   { v: "Green", t: "Green" }, { v: "Reform", t: "Reform / UKIP" }, { v: "Other/Ind", t: "Other / Independent" },
+  { v: "None", t: "National route / no council" },
 ];
 const YEAR_OPTS = [{ v: "All", t: "All years" }]
   .concat([...new Set(window.FLOWX.cells.map(c => c.year))]
@@ -235,13 +236,15 @@ let sankeyChart = null;
 function updateFlowNote(n) {
   const bits = [];
   if (flowState.tech !== "All") bits.push(optText(TECH_OPTS, flowState.tech).toLowerCase());
-  if (flowState.party !== "All") bits.push(`${optText(PARTY_OPTS, flowState.party)}-controlled councils`);
+  if (flowState.party !== "All") bits.push(flowState.party === "None"
+    ? "national-route projects (offshore wind, S36, NSIP), Northern Ireland and unmatched authorities"
+    : `${optText(PARTY_OPTS, flowState.party)}-controlled councils`);
   if (flowState.year !== "All") bits.push(flowState.year === "pre" ? "applied before 2010" : `applied in ${flowState.year}`);
   let s = bits.length
     ? `Showing ${bits.join(", ")} — ${fmt.n(n)} applications. Node labels show the running total at each stage.`
     : "Node labels show the running total at each stage; band width is proportional to the amount flowing through.";
-  if (flowState.party !== "All")
-    s += " National-route and unmatched projects have no council party and are excluded.";
+  if (flowState.party !== "All" && flowState.party !== "None")
+    s += " National-route and unmatched projects have no council party — pick \u2018National route / no council\u2019 to see them.";
   document.getElementById("flowNote").textContent = s;
 }
 
@@ -303,13 +306,16 @@ function buildSankey() {
         const mid = y + Math.abs(yScale.getPixelForValue(node.y + max) - y) / 2;
         // line 1: name · value   line 2: share of the total (omitted for the 100% source node)
         const two = node.key !== "Applied";
-        ctx.font = "600 12px Tahoma, Verdana, sans-serif";
+        // keep the whole text block inside the canvas even when the node hugs an edge
+        const half = two ? 13 : 7;
+        const midC = Math.min(Math.max(mid, half + 2), chart.height - half - 2);
+        ctx.font = '600 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
         ctx.fillStyle = C.inkSoft;
-        ctx.fillText(`${sankeyLabel[node.key]}  ·  ${val(totals[node.key])}`, x, two ? mid - 6 : mid);
+        ctx.fillText(`${sankeyLabel[node.key]}  ·  ${val(totals[node.key])}`, x, two ? midC - 6 : midC);
         if (two) {
-          ctx.font = "600 10.5px Tahoma, Verdana, sans-serif";
+          ctx.font = '600 10.5px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
           ctx.fillStyle = C.inkFaint;
-          ctx.fillText(`${pctOf(totals[node.key])} ${pctUnit}`, x, mid + 7);
+          ctx.fillText(`${pctOf(totals[node.key])} ${pctUnit}`, x, midC + 7);
         }
       });
       ctx.restore();
@@ -328,12 +334,12 @@ function buildSankey() {
           labels, column: sankeyCol, priority: sankeyPriority,
           borderWidth: 0, nodeWidth: 13,
           color: "rgba(0,0,0,0)", // hide the library's built-in (side-flipping) labels
-          font: { size: 12, family: "Tahoma, Verdana, sans-serif", weight: "600" },
+          font: { size: 12, family: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif', weight: "600" },
         }],
       },
       plugins: [rightLabels],
       options: {
-        layout: { padding: { left: 4, right: 210, top: 6, bottom: 6 } },
+        layout: { padding: { left: 4, right: 228, top: 26, bottom: 18 } },
         plugins: {
           legend: { display: false },
           tooltip: {

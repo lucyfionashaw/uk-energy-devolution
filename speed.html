@@ -140,7 +140,7 @@ const ganttSegLabels = {
   afterDatasetsDraw(chart) {
     const { ctx } = chart;
     ctx.save();
-    ctx.font = "600 10.5px Tahoma, Verdana, sans-serif";
+    ctx.font = "600 10.5px system-ui, -apple-system, sans-serif";
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillStyle = "#fff";
     chart.data.datasets.forEach((ds, di) => {

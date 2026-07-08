@@ -30,9 +30,9 @@
   /* UK party colours */
   --con:    #0087dc;
   --lab:    #e4003b;
-  --libdem: #faa61a;
-  --snp:    #fcdb05;
-  --plaid:  #005b54;
+  --libdem: #d06f00;
+  --snp:    #d4b500;
+  --plaid:  #0a8f77;
   --green-party: #02a95b;
   --reform: #12b6cf;
   --ind:    #9b9b9b;
@@ -43,10 +43,10 @@
   --pending:#c79a3a;
 
   --maxw: 1080px;
-  --radius: 10px;
-  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(20,40,30,.06);
+  --radius: 12px;
+  --shadow: 0 1px 1px rgba(0,0,0,.03), 0 6px 20px rgba(20,40,30,.05);
   /* Single family throughout — no serif/sans split, no web fonts. */
-  --font: Tahoma, Verdana, "Segoe UI", Geneva, sans-serif;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -147,7 +147,7 @@ section { padding: 18px 0; }
   font-weight: 700;
   font-size: clamp(1.9rem, 4vw, 2.8rem);
   line-height: 1.12;
-  letter-spacing: -.005em;
+  letter-spacing: -.022em;
   margin: 0 0 18px;
   max-width: 22ch;
 }
@@ -169,13 +169,14 @@ h2 {
   font-weight: 700;
   font-size: clamp(1.4rem, 2.6vw, 1.85rem);
   line-height: 1.18;
-  letter-spacing: 0;
+  letter-spacing: -.015em;
   margin: 0 0 10px;
 }
 h3 {
   font-family: var(--font);
-  font-weight: 600;
-  font-size: 1.18rem;
+  font-weight: 700;
+  letter-spacing: -.012em;
+  font-size: 1.14rem;
   margin: 0 0 4px;
 }
 .dek {
@@ -203,7 +204,8 @@ a { color: var(--green); }
 }
 .stat .num {
   font-family: var(--font);
-  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
   font-size: 2.1rem;
   line-height: 1;
   color: var(--green-d);
@@ -234,8 +236,9 @@ a { color: var(--green); }
 }
 .card .source {
   font-size: .74rem;
+  line-height: 1.55;
   color: var(--ink-faint);
-  margin-top: 14px;
+  margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid var(--line-soft);
 }

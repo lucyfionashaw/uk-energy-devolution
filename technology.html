@@ -111,7 +111,7 @@ const techCols = [
   { k: "OffshoreWind", name: "Offshore wind", c: C.tech.OffshoreWind },
   { k: "Battery", name: "Battery", c: C.tech.Battery },
   { k: "Hydro", name: "Hydro", c: "#2a9d8f" },
-  { k: "Bioenergy", name: "Bioenergy", c: "#a3743a" },
+  { k: "Bioenergy", name: "Bioenergy", c: "#a56a28" },
   { k: "Other", name: "Other", c: "#b0aca4" },
 ];
 document.getElementById("techLegend").innerHTML = techCols.map(t => `<span><i style="background:${t.c}"></i>${t.name}</span>`).join("");
@@ -176,7 +176,7 @@ function renderOwn(unit) {
     afterDatasetsDraw(chart) {
       const { ctx } = chart, meta = chart.getDatasetMeta(0);
       ctx.save();
-      ctx.font = "600 11px Tahoma, Verdana, sans-serif"; ctx.textBaseline = "middle"; ctx.textAlign = "left";
+      ctx.font = "600 11px system-ui, -apple-system, sans-serif"; ctx.textBaseline = "middle"; ctx.textAlign = "left";
       ctx.fillStyle = C.inkSoft;
       meta.data.forEach((bar, i) => {
         const v = vals[i];
