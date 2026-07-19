@@ -28,6 +28,7 @@ MAP = {
     "apps_tech.json":       "APPSTECH",        # applications & capacity per year, by technology bucket
     "approvals_year.json":  "APPR_YEAR",        # capacity/count approved each year, by controlling council party
     "ownership.json":       "OWNERSHIP",        # who applies: public / community / charity / private
+    "lpa_rate.json":        "LPA_RATE",         # how often one authority sees a major solar/BESS application
 }
 # map_points.json is deliberately NOT inlined here — it is ~1.4 MB and only the
 # overview page needs it, so index.html fetches it lazily instead.

@@ -66,6 +66,40 @@
   <hr class="divider">
 
   <section>
+    <div class="section-num">How often is "often"?</div>
+    <h2>The median council sees one of these every three years</h2>
+    <p class="dek">A planning committee only gets good at what it does repeatedly. So how often does a single authority actually face a major solar or battery scheme? Counting every authority in every year — including all the years they saw nothing — the answer is: rarely.</p>
+    <div class="card">
+      <h3>Authorities by number of major solar/battery applications, 2020–2025</h3>
+      <p class="sub">Projects of 10 MW or more, over six years. Each bar counts planning authorities; gold is the median.</p>
+      <div class="chart-box" id="lpaDist"></div>
+      <div class="source">Source: <a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">Renewable Energy Planning Database</a> (DESNZ, Q1 2026). Locally-routed applications only — national consenting bodies (Scotland S36, NSIP/Planning Inspectorate, Marine, Crown) are excluded. Rates are built on a full authority × year grid <em>including</em> zeros, so authorities that saw nothing still count; excluding them would bias the median upwards. 382 authorities.</div>
+    </div>
+    <div class="callout">
+      <span class="tag">How often is "often"</span>
+      <p><strong>The median authority received just 2 major (10 MW+) solar or battery applications across six years — one roughly every three years — and 28% received none at all.</strong> Even in 2025, the busiest year on record, 55% of authorities saw not a single one. The mean (4.8) is more than twice the median because the distribution is wildly skewed: North Yorkshire alone took 57.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>It depends where you draw "major"</h3>
+        <p class="sub">Share of authorities seeing <em>none</em> in six years, by size threshold.</p>
+        <div class="chart-box short" id="lpaThresh"></div>
+      </div>
+      <div class="card">
+        <h3>Authorities seeing none, by year</h3>
+        <p class="sub">10 MW+ solar and battery. Falling, but still a majority.</p>
+        <div class="chart-box short" id="lpaZeroYr"></div>
+      </div>
+    </div>
+    <div class="callout gold">
+      <span class="tag">Why this matters</span>
+      <p>Expertise is a function of repetition. An authority that meets a grid-scale battery once every three years has no standing capability to assess one — no in-house specialists, no precedent, no muscle memory — while the developer opposite has done fifty. That asymmetry, rather than hostility, may explain a good deal of the delay measured elsewhere on this page. The median is unchanged at 2 when repeat applications on the same site are merged.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <section>
     <div class="section-num">The backlog</div>
     <h2>What's stuck in the queue — and for how long</h2>
     <p class="dek">Beyond the decided projects sits a live queue of applications still awaiting a verdict — some filed months ago, others waiting years, well past the ~4-month statutory target. This is where much of the proposed capacity is held up.</p>
@@ -103,6 +137,53 @@
 const P1B = window.PHASE1B;
 const mk = (id) => { const b = document.getElementById(id); const c = document.createElement("canvas"); b.appendChild(c); return c; };
 const gw = mw => mw / 1000;
+
+// ---- How often does one authority see a major solar/BESS application? ----
+try {
+const L = window.LPA_RATE;
+new Chart(mk("lpaDist"), {
+  type: "bar",
+  data: {
+    labels: L.dist.map(d => d.band),
+    datasets: [{
+      data: L.dist.map(d => d.lpas),
+      backgroundColor: L.dist.map(d => d.band === "0" ? C.refuse : (d.band === "2" ? C.gold : C.greenL)),
+      borderRadius: 5, maxBarThickness: 64,
+    }],
+  },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => `${fmt.n(c.parsed.y)} authorities · ${((c.parsed.y / L.nLPAs) * 100).toFixed(1)}%` } },
+    },
+    scales: {
+      y: axis({ title: { display: true, text: "number of planning authorities" } }),
+      x: axis({ grid: { display: false }, title: { display: true, text: "major applications received, 2020–2025" } }),
+    },
+  },
+});
+
+new Chart(mk("lpaThresh"), {
+  type: "bar",
+  data: { labels: L.thresh.map(t => `${t.mw} MW+`), datasets: [{ data: L.thresh.map(t => t.pctZero), backgroundColor: C.refuse, borderRadius: 5, maxBarThickness: 48 }] },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => { const t = L.thresh[c.dataIndex]; return [`${t.pctZero}% of authorities saw none`, t.yrsPerAppMedian ? `median: one every ${t.yrsPerAppMedian} yrs` : "median authority: none in 6 yrs"]; } } },
+    },
+    scales: { y: axis({ ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+
+new Chart(mk("lpaZeroYr"), {
+  type: "line",
+  data: { labels: L.yearly.map(y => y.year), datasets: [{ data: L.yearly.map(y => y.pctZero), borderColor: C.refuse, backgroundColor: C.refuse + "22", fill: true, tension: .3, borderWidth: 3, pointRadius: 0, pointHoverRadius: 4 }] },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.y}% of authorities saw none` } } },
+    scales: { y: axis({ min: 40, max: 100, ticks: { callback: v => v + "%" } }), x: axis({ grid: { display: false } }) },
+  },
+});
+} catch (e) { console.error("LPA rate charts:", e); }
 
 // ---- Gantt timelines (wrapped so a stale cached data.js can't blank the page) ----
 try {

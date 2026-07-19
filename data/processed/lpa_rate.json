@@ -1,0 +1,207 @@
+{
+ "window": "2020-2025",
+ "years": 6,
+ "headlineMW": 10,
+ "techs": [
+  "Solar Photovoltaics",
+  "Battery"
+ ],
+ "nLPAs": 382,
+ "median": 2.0,
+ "mean": 4.75,
+ "p90": 13.0,
+ "max": 57,
+ "pctZero": 28.0,
+ "yrsPerAppMedian": 3.0,
+ "medianDeduped": 2.0,
+ "records": 1814,
+ "recordsDeduped": 1638,
+ "dist": [
+  {
+   "band": "0",
+   "lpas": 107
+  },
+  {
+   "band": "1",
+   "lpas": 56
+  },
+  {
+   "band": "2",
+   "lpas": 39
+  },
+  {
+   "band": "3–5",
+   "lpas": 64
+  },
+  {
+   "band": "6–10",
+   "lpas": 61
+  },
+  {
+   "band": "11–20",
+   "lpas": 40
+  },
+  {
+   "band": "21+",
+   "lpas": 15
+  }
+ ],
+ "thresh": [
+  {
+   "mw": 1,
+   "median": 4.0,
+   "mean": 6.65,
+   "pctZero": 17.3,
+   "yrsPerAppMedian": 1.5
+  },
+  {
+   "mw": 5,
+   "median": 3.0,
+   "mean": 5.25,
+   "pctZero": 25.4,
+   "yrsPerAppMedian": 2.0
+  },
+  {
+   "mw": 10,
+   "median": 2.0,
+   "mean": 4.75,
+   "pctZero": 28.0,
+   "yrsPerAppMedian": 3.0
+  },
+  {
+   "mw": 20,
+   "median": 2.0,
+   "mean": 4.03,
+   "pctZero": 30.6,
+   "yrsPerAppMedian": 3.0
+  },
+  {
+   "mw": 50,
+   "median": 0.0,
+   "mean": 1.25,
+   "pctZero": 56.8,
+   "yrsPerAppMedian": null
+  }
+ ],
+ "yearly": [
+  {
+   "year": 2015,
+   "median": 0.0,
+   "mean": 0.17,
+   "pctZero": 88.0,
+   "total": 64
+  },
+  {
+   "year": 2016,
+   "median": 0.0,
+   "mean": 0.07,
+   "pctZero": 92.9,
+   "total": 27
+  },
+  {
+   "year": 2017,
+   "median": 0.0,
+   "mean": 0.25,
+   "pctZero": 81.2,
+   "total": 96
+  },
+  {
+   "year": 2018,
+   "median": 0.0,
+   "mean": 0.12,
+   "pctZero": 90.6,
+   "total": 44
+  },
+  {
+   "year": 2019,
+   "median": 0.0,
+   "mean": 0.21,
+   "pctZero": 86.6,
+   "total": 79
+  },
+  {
+   "year": 2020,
+   "median": 0.0,
+   "mean": 0.3,
+   "pctZero": 78.8,
+   "total": 114
+  },
+  {
+   "year": 2021,
+   "median": 0.0,
+   "mean": 0.69,
+   "pctZero": 67.0,
+   "total": 264
+  },
+  {
+   "year": 2022,
+   "median": 0.0,
+   "mean": 0.8,
+   "pctZero": 64.9,
+   "total": 307
+  },
+  {
+   "year": 2023,
+   "median": 0.0,
+   "mean": 0.93,
+   "pctZero": 60.7,
+   "total": 354
+  },
+  {
+   "year": 2024,
+   "median": 0.0,
+   "mean": 0.94,
+   "pctZero": 55.0,
+   "total": 358
+  },
+  {
+   "year": 2025,
+   "median": 0.0,
+   "mean": 1.09,
+   "pctZero": 55.5,
+   "total": 417
+  }
+ ],
+ "top": [
+  {
+   "lpa": "North Yorkshire",
+   "n": 57
+  },
+  {
+   "lpa": "Wiltshire",
+   "n": 35
+  },
+  {
+   "lpa": "Aberdeenshire",
+   "n": 31
+  },
+  {
+   "lpa": "Buckinghamshire",
+   "n": 29
+  },
+  {
+   "lpa": "County Durham",
+   "n": 27
+  },
+  {
+   "lpa": "Highland",
+   "n": 26
+  },
+  {
+   "lpa": "East Riding of Yorkshire",
+   "n": 26
+  },
+  {
+   "lpa": "Somerset",
+   "n": 24
+  },
+  {
+   "lpa": "Dorset",
+   "n": 23
+  },
+  {
+   "lpa": "Central Bedfordshire",
+   "n": 23
+  }
+ ]
+}
