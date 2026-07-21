@@ -14,3 +14,6 @@ docs/source-essays/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# PlanIt per-term fetch cache (intermediate; raw combined file is committed)
+data/raw/.planit_cache/
